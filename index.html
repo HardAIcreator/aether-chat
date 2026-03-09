@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · perfect UI</title>
+  <title>Aether · Creator Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
@@ -56,6 +56,15 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+    }
+
+    /* Стиль для создателя */
+    .creator-badge {
+      color: gold;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(255,215,0,0.5);
+      margin-left: 6px;
+      font-size: 0.9rem;
     }
 
     #auth-screen {
@@ -171,6 +180,9 @@
     .profile-name {
       font-weight: 600;
       color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .profile-status {
@@ -296,6 +308,9 @@
     #chat-with-title {
       font-weight: 600;
       color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     #typingIndicator {
@@ -335,6 +350,7 @@
       display: flex;
       max-width: 70%;
       animation: popIn 0.2s ease;
+      position: relative;
     }
 
     .msg.sent {
@@ -430,21 +446,25 @@
       margin-left: 8px;
     }
 
-    /* Action bar */
+    /* Панель действий (с прокруткой) */
     .action-bar {
       position: fixed;
       bottom: 100px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 8px;
-      padding: 8px 16px;
+      gap: 4px;
+      padding: 8px 12px;
       border-radius: 40px;
       z-index: 1000;
       display: none;
       background: var(--bg-surface);
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
+      max-width: 90vw;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: thin;
     }
 
     .action-bar button {
@@ -457,9 +477,10 @@
       border-radius: 50%;
       width: 44px;
       height: 44px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .action-bar button:hover {
@@ -527,6 +548,21 @@
 
     .wallpaper-option.selected {
       border-color: var(--accent);
+    }
+
+    .group-settings, .user-profile-view {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .participant-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
     }
 
     @media (max-width: 700px) {
@@ -614,6 +650,7 @@
           <span id="chat-with-title">Выберите чат</span>
           <span id="typingIndicator"></span>
           <button id="pinInfo" style="background:transparent; border:none; color:var(--text-primary);"><i class="fas fa-thumbtack"></i></button>
+          <button id="groupSettingsBtn" style="background:transparent; border:none; color:var(--text-primary); display:none;"><i class="fas fa-cog"></i></button>
         </div>
 
         <!-- Поиск по сообщениям -->
@@ -638,7 +675,7 @@
     </div>
   </div>
 
-  <!-- Панель действий над сообщением -->
+  <!-- Панель действий над сообщением (с прокруткой) -->
   <div class="action-bar" id="actionBar">
     <button id="reactLove" title="❤️">❤️</button>
     <button id="reactLaugh" title="😂">😂</button>
@@ -648,9 +685,10 @@
     <button id="copyMsg" title="Копировать"><i class="fas fa-copy"></i></button>
     <button id="forwardMsg" title="Переслать"><i class="fas fa-share"></i></button>
     <button id="pinMsg" title="Закрепить"><i class="fas fa-thumbtack"></i></button>
+    <button id="deleteMsg" title="Удалить"><i class="fas fa-trash"></i></button>
   </div>
 
-  <!-- Модальное окно профиля -->
+  <!-- Модальное окно профиля (свой) -->
   <div class="modal" id="profileModal">
     <div class="modal-content profile-modal">
       <h2>Профиль</h2>
@@ -659,6 +697,44 @@
       <input type="file" id="avatarUpload" accept="image/*">
       <button id="saveProfile">Сохранить</button>
       <button id="closeProfile">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно просмотра чужого профиля -->
+  <div class="modal" id="userProfileModal">
+    <div class="modal-content profile-modal">
+      <h2 id="viewProfileTitle">Профиль пользователя</h2>
+      <div class="avatar-large" id="viewProfileAvatar">?</div>
+      <div><strong>Имя:</strong> <span id="viewProfileName"></span></div>
+      <div><strong>Ник:</strong> <span id="viewProfileNick"></span></div>
+      <div><strong>Роль:</strong> <span id="viewProfileRole"></span></div>
+      <div><strong>Дата регистрации:</strong> <span id="viewProfileDate"></span></div>
+      <button id="closeUserProfile">Закрыть</button>
+      <button id="banUserBtn" style="background:#ef4444; display:none;">Забанить</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно настроек группы -->
+  <div class="modal" id="groupSettingsModal">
+    <div class="modal-content group-settings">
+      <h2>Настройки группы</h2>
+      <input type="text" id="groupNameInput" placeholder="Название группы">
+      <h3>Участники</h3>
+      <div id="participantsList"></div>
+      <input type="text" id="addParticipantInput" placeholder="Ник для добавления">
+      <button id="addParticipantBtn">Добавить участника</button>
+      <button id="saveGroupSettings">Сохранить</button>
+      <button id="closeGroupSettings">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно для бана (только для создателя) -->
+  <div class="modal" id="banModal">
+    <div class="modal-content" style="width:300px;">
+      <h3>Управление баном</h3>
+      <p id="banUserInfo"></p>
+      <button id="confirmBan" style="background:#ef4444;">Забанить</button>
+      <button id="closeBan">Отмена</button>
     </div>
   </div>
 
@@ -692,7 +768,7 @@
   <script type="module">
     // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, get, push, onChildAdded, onValue, update, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, get, push, onChildAdded, onValue, update, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBqy8OpoabzNS1z_YaPTzG3siiyfTDvzzo",
@@ -716,10 +792,11 @@
     let mediaRecorder = null;
     let audioChunks = [];
     let selectedMsgId = null;
-    let currentMsg = null; // для action bar
+    let currentMsg = null;
     let forwardQueue = null;
     let replyTo = null;
-    const messageIds = new Set(); // для предотвращения дублирования
+    const messageIds = new Set();
+    let isCreator = false; // true если ник Hard
 
     // DOM элементы
     const authScreen = document.getElementById('auth-screen');
@@ -740,6 +817,7 @@
     const typingSpan = document.getElementById('typingIndicator');
     const actionBar = document.getElementById('actionBar');
     const pinInfo = document.getElementById('pinInfo');
+    const groupSettingsBtn = document.getElementById('groupSettingsBtn');
     const profileBtn = document.getElementById('profileBtn');
     const headerAvatar = document.getElementById('headerAvatar');
     const headerName = document.getElementById('headerName');
@@ -761,6 +839,25 @@
     const mediaModal = document.getElementById('mediaModal');
     const modalContent = document.getElementById('modalContent');
     const closeModal = document.getElementById('closeModal');
+    const userProfileModal = document.getElementById('userProfileModal');
+    const viewProfileAvatar = document.getElementById('viewProfileAvatar');
+    const viewProfileName = document.getElementById('viewProfileName');
+    const viewProfileNick = document.getElementById('viewProfileNick');
+    const viewProfileRole = document.getElementById('viewProfileRole');
+    const viewProfileDate = document.getElementById('viewProfileDate');
+    const closeUserProfile = document.getElementById('closeUserProfile');
+    const banUserBtn = document.getElementById('banUserBtn');
+    const banModal = document.getElementById('banModal');
+    const banUserInfo = document.getElementById('banUserInfo');
+    const confirmBan = document.getElementById('confirmBan');
+    const closeBan = document.getElementById('closeBan');
+    const groupSettingsModal = document.getElementById('groupSettingsModal');
+    const groupNameInput = document.getElementById('groupNameInput');
+    const participantsList = document.getElementById('participantsList');
+    const addParticipantInput = document.getElementById('addParticipantInput');
+    const addParticipantBtn = document.getElementById('addParticipantBtn');
+    const saveGroupSettings = document.getElementById('saveGroupSettings');
+    const closeGroupSettings = document.getElementById('closeGroupSettings');
 
     // --- Загрузка сохранённого ника и темы ---
     const savedNick = localStorage.getItem('aether_nick');
@@ -768,7 +865,6 @@
       document.getElementById('auth-nick').value = savedNick;
     }
 
-    // Применение сохранённой темы
     function applyTheme() {
       const savedWall = localStorage.getItem('wallpaper') || 'none';
       const savedColor = localStorage.getItem('textColor') || '#f0f4ff';
@@ -788,7 +884,10 @@
       const snap = await get(ref(db, `users/${myNick}`));
       const data = snap.val() || {};
       myDisplayName = data.displayName || myNick;
-      headerName.textContent = myDisplayName;
+      headerName.innerHTML = myDisplayName;
+      if (isCreator) {
+        headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
+      }
       if (data.avatar) {
         headerAvatar.style.backgroundImage = `url('${data.avatar}')`;
         headerAvatar.textContent = '';
@@ -814,94 +913,47 @@
       return url;
     }
 
-    // --- Открытие модалки профиля ---
-    profileBtn.onclick = () => {
-      profileModal.style.display = 'flex';
-      get(ref(db, `users/${myNick}`)).then(snap => {
-        const data = snap.val() || {};
-        profileName.value = data.displayName || myNick;
-        if (data.avatar) {
-          profileAvatar.style.backgroundImage = `url('${data.avatar}')`;
-          profileAvatar.textContent = '';
-        } else {
-          profileAvatar.style.backgroundImage = '';
-          profileAvatar.style.background = getAvatarColor(myNick);
-          profileAvatar.textContent = myNick.charAt(0).toUpperCase();
-        }
-      });
-    };
-
-    closeProfile.onclick = () => profileModal.style.display = 'none';
-
-    avatarUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          profileAvatar.style.backgroundImage = `url('${ev.target.result}')`;
-          profileAvatar.textContent = '';
-          window.tempAvatar = ev.target.result;
+    // --- Просмотр профиля пользователя (по клику на аватар в сообщении или контакте) ---
+    async function showUserProfile(nick) {
+      const snap = await get(ref(db, `users/${nick}`));
+      const data = snap.val() || {};
+      const avatarUrl = await loadAvatar(nick);
+      if (avatarUrl) {
+        viewProfileAvatar.style.backgroundImage = `url('${avatarUrl}')`;
+        viewProfileAvatar.textContent = '';
+      } else {
+        viewProfileAvatar.style.backgroundImage = '';
+        viewProfileAvatar.style.background = getAvatarColor(nick);
+        viewProfileAvatar.textContent = nick.charAt(0).toUpperCase();
+      }
+      viewProfileName.textContent = data.displayName || nick;
+      viewProfileNick.textContent = nick;
+      const role = nick === 'hard' ? 'Создатель💫' : (data.admin ? 'Админ' : 'Пользователь');
+      viewProfileRole.textContent = role;
+      viewProfileDate.textContent = data.registered ? new Date(data.registered).toLocaleDateString() : 'неизвестно';
+      
+      // Для создателя показываем кнопку бана
+      if (isCreator && nick !== myNick) {
+        banUserBtn.style.display = 'block';
+        banUserBtn.onclick = () => {
+          banUserInfo.textContent = `Забанить пользователя ${nick}?`;
+          banModal.style.display = 'flex';
+          confirmBan.onclick = async () => {
+            // Добавляем в бан-лист (можно хранить в /bans)
+            await set(ref(db, `bans/${nick}`), true);
+            alert(`Пользователь ${nick} забанен`);
+            banModal.style.display = 'none';
+            userProfileModal.style.display = 'none';
+          };
         };
-        reader.readAsDataURL(file);
+      } else {
+        banUserBtn.style.display = 'none';
       }
-    };
+      userProfileModal.style.display = 'flex';
+    }
 
-    saveProfile.onclick = async () => {
-      const updates = {};
-      updates[`users/${myNick}/displayName`] = profileName.value;
-      if (window.tempAvatar) {
-        updates[`users/${myNick}/avatar`] = window.tempAvatar;
-        avatarCache.set(myNick, window.tempAvatar);
-      }
-      await update(ref(db), updates);
-      myDisplayName = profileName.value;
-      headerName.textContent = myDisplayName;
-      if (window.tempAvatar) {
-        headerAvatar.style.backgroundImage = `url('${window.tempAvatar}')`;
-        headerAvatar.textContent = '';
-      }
-      closeProfile.click();
-    };
-
-    // --- Тема ---
-    themeToggle.onclick = () => themeModal.style.display = 'flex';
-    closeTheme.onclick = () => themeModal.style.display = 'none';
-
-    themeDark.onclick = () => {
-      document.body.classList.remove('light');
-      document.body.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    };
-    themeLight.onclick = () => {
-      document.body.classList.add('light');
-      document.body.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    };
-
-    textColorInput.oninput = (e) => {
-      localStorage.setItem('textColor', e.target.value);
-      applyTheme();
-    };
-
-    document.querySelectorAll('.wallpaper-option').forEach(el => {
-      el.onclick = () => {
-        const wall = el.dataset.wall;
-        localStorage.setItem('wallpaper', wall);
-        applyTheme();
-      };
-    });
-
-    wallpaperUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          localStorage.setItem('wallpaper', `url('${ev.target.result}')`);
-          applyTheme();
-        };
-        reader.readAsDataURL(file);
-      }
-    };
+    closeUserProfile.onclick = () => userProfileModal.style.display = 'none';
+    closeBan.onclick = () => banModal.style.display = 'none';
 
     // --- Полноэкранный просмотр ---
     function openMedia(src, type) {
@@ -911,7 +963,7 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Отрисовка сообщения ---
+    // --- Отрисовка сообщения с поддержкой удаления ---
     function drawMessage(msg, isMe) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
@@ -929,6 +981,7 @@
           else ava.style.background = getAvatarColor(msg.from);
           ava.textContent = msg.from.charAt(0).toUpperCase();
         });
+        ava.onclick = (e) => { e.stopPropagation(); showUserProfile(msg.from); };
         msgDiv.appendChild(ava);
       }
 
@@ -1023,6 +1076,21 @@
       await set(reactionRef, users);
     }
 
+    // --- Удаление сообщения (для всех, кто его отправил, и для создателя) ---
+    async function deleteMessage(msgId) {
+      if (!activeChat || !currentMsg) return;
+      // Проверка прав: только автор или создатель (Hard)
+      if (currentMsg.from === myNick || isCreator) {
+        await remove(ref(db, `chats/${activeChat.id}/messages/${msgId}`));
+        // Удаляем из DOM
+        const msgEl = document.querySelector(`[data-id="${msgId}"]`);
+        if (msgEl) msgEl.remove();
+      } else {
+        alert('Вы можете удалять только свои сообщения');
+      }
+      actionBar.style.display = 'none';
+    }
+
     // --- Обработчики action bar ---
     document.getElementById('replyMsg').onclick = () => {
       if (currentMsg) {
@@ -1061,6 +1129,14 @@
       actionBar.style.display = 'none';
     };
 
+    document.getElementById('deleteMsg').onclick = () => {
+      if (currentMsg) {
+        if (confirm('Удалить сообщение?')) {
+          deleteMessage(currentMsg.id);
+        }
+      }
+    };
+
     document.getElementById('reactLove').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '❤️'); actionBar.style.display = 'none'; };
     document.getElementById('reactLaugh').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😂'); actionBar.style.display = 'none'; };
     document.getElementById('reactWow').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😮'); actionBar.style.display = 'none'; };
@@ -1073,7 +1149,6 @@
       messageIds.clear();
 
       const messagesRef = ref(db, `chats/${chatId}/messages`);
-      // Загружаем существующие сообщения
       get(messagesRef).then(snap => {
         const msgs = snap.val();
         if (msgs) {
@@ -1087,17 +1162,15 @@
         scrollToBottom();
       });
 
-      // Слушаем новые сообщения
       messagesUnsubscribe = onChildAdded(messagesRef, (snap) => {
         const id = snap.key;
-        if (messageIds.has(id)) return; // пропускаем дубликат
+        if (messageIds.has(id)) return;
         messageIds.add(id);
         const msg = { id, ...snap.val() };
         messagesDiv.appendChild(drawMessage(msg, msg.from === myNick));
         scrollIfNeeded();
       });
 
-      // Слушаем изменения закрепления
       onValue(ref(db, `chats/${chatId}/pinnedMessage`), (snap) => {
         const pinnedId = snap.val();
         document.querySelectorAll('.msg').forEach(el => el.classList.remove('pinned'));
@@ -1106,6 +1179,20 @@
           if (pinnedEl) pinnedEl.classList.add('pinned');
         }
       });
+
+      // Показываем кнопку настроек группы, если это группа и пользователь админ или создатель
+      if (activeChat.type === 'group') {
+        get(ref(db, `chats/${chatId}`)).then(snap => {
+          const data = snap.val();
+          if (data.admins && (data.admins.includes(myNick) || isCreator)) {
+            groupSettingsBtn.style.display = 'inline-block';
+          } else {
+            groupSettingsBtn.style.display = 'none';
+          }
+        });
+      } else {
+        groupSettingsBtn.style.display = 'none';
+      }
     }
 
     function scrollToBottom() {
@@ -1146,14 +1233,30 @@
             </div>
           `;
         }
+        // Для создателя добавляем специальный пункт "Мониторинг чатов"
+        if (isCreator) {
+          html += `
+            <div class="contact-item" data-id="monitoring" data-type="monitoring">
+              <div class="contact-avatar" style="background:gold;">👁️</div>
+              <div class="contact-info">
+                <div class="contact-name">Мониторинг чатов</div>
+                <div class="contact-last-msg">Просмотр всех чатов</div>
+              </div>
+            </div>
+          `;
+        }
         contactsDiv.innerHTML = html || '<div style="padding:20px; text-align:center;">Нет контактов</div>';
-        // Добавляем обработчики кликов
+        
         document.querySelectorAll('.contact-item').forEach(el => {
           el.addEventListener('click', () => {
             const id = el.dataset.id;
             const type = el.dataset.type;
+            if (type === 'monitoring') {
+              // Специальный режим для создателя
+              alert('Режим мониторинга: выберите чат из списка всех чатов (функция в разработке)');
+              return;
+            }
             if (forwardQueue) {
-              // Пересылка
               const chatId = type === 'private' ? [myNick, id].sort().join('_') : id;
               const msg = {
                 from: myNick,
@@ -1169,9 +1272,8 @@
               forwardQueue = null;
               alert('Сообщение переслано');
             } else {
-              // Открыть чат
               if (type === 'private') startPrivateChat(id);
-              else startGroupChat(id);
+              else if (type === 'group') startGroupChat(id);
             }
           });
         });
@@ -1181,7 +1283,7 @@
     function startPrivateChat(partner) {
       const chatId = [myNick, partner].sort().join('_');
       activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
-      chatTitle.innerText = `@${partner}`;
+      chatTitle.innerHTML = `@${partner}`;
       loadChat(chatId, [myNick, partner]);
       if (window.innerWidth <= 700) {
         sidebar.style.transform = 'translateX(-100%)';
@@ -1192,8 +1294,8 @@
     function startGroupChat(groupId) {
       get(ref(db, `chats/${groupId}`)).then(snap => {
         const data = snap.val();
-        activeChat = { id: groupId, type: 'group', participants: data.participants, name: data.name };
-        chatTitle.innerText = data.name || 'Группа';
+        activeChat = { id: groupId, type: 'group', participants: data.participants, name: data.name, admins: data.admins || [] };
+        chatTitle.innerHTML = data.name || 'Группа';
         loadChat(groupId, data.participants);
       });
     }
@@ -1212,7 +1314,6 @@
         msgInput.placeholder = 'Сообщение...';
       }
       await push(ref(db, `chats/${activeChat.id}/messages`), msg);
-      // Обновить последнее сообщение у контактов
       const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : (content.audio ? '🎤' : '')));
       for (let p of activeChat.participants) {
         if (p !== myNick) {
@@ -1234,6 +1335,64 @@
       document.querySelectorAll('.msg').forEach(msg => msg.style.display = 'flex');
     };
 
+    // --- Настройки группы ---
+    groupSettingsBtn.onclick = async () => {
+      if (!activeChat || activeChat.type !== 'group') return;
+      const snap = await get(ref(db, `chats/${activeChat.id}`));
+      const data = snap.val();
+      groupNameInput.value = data.name || '';
+      // Список участников
+      let participantsHtml = '';
+      for (let p of data.participants) {
+        const isAdmin = data.admins && data.admins.includes(p);
+        participantsHtml += `
+          <div class="participant-item">
+            <span>${p} ${isAdmin ? '👑' : ''}</span>
+            <div>
+              ${(isCreator || data.admins.includes(myNick)) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
+              ${isCreator && !isAdmin ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
+            </div>
+          </div>
+        `;
+      }
+      participantsList.innerHTML = participantsHtml;
+      groupSettingsModal.style.display = 'flex';
+
+      // Обработчики удаления/назначения админа
+      document.querySelectorAll('.removeParticipant').forEach(btn => {
+        btn.onclick = async () => {
+          const nick = btn.dataset.nick;
+          if (confirm(`Удалить ${nick} из группы?`)) {
+            const newParticipants = data.participants.filter(p => p !== nick);
+            await update(ref(db, `chats/${activeChat.id}`), { participants: newParticipants });
+            // Также удалить из контактов у удалённого?
+            groupSettingsModal.style.display = 'none';
+          }
+        };
+      });
+      document.querySelectorAll('.makeAdmin').forEach(btn => {
+        btn.onclick = async () => {
+          const nick = btn.dataset.nick;
+          const admins = data.admins || [];
+          if (!admins.includes(nick)) {
+            admins.push(nick);
+            await update(ref(db, `chats/${activeChat.id}`), { admins });
+          }
+          groupSettingsModal.style.display = 'none';
+        };
+      });
+    };
+
+    saveGroupSettings.onclick = async () => {
+      const newName = groupNameInput.value.trim();
+      if (newName && activeChat) {
+        await update(ref(db, `chats/${activeChat.id}`), { name: newName });
+        chatTitle.innerHTML = newName;
+      }
+      groupSettingsModal.style.display = 'none';
+    };
+    closeGroupSettings.onclick = () => groupSettingsModal.style.display = 'none';
+
     // --- Авторизация ---
     document.getElementById('btn-login').onclick = async () => {
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
@@ -1244,15 +1403,16 @@
       if (snap.exists()) {
         if (snap.val().password !== pass) return alert('Неверный пароль');
       } else {
-        await set(userRef, { password: pass, nickname: nick });
+        // Регистрация с датой
+        await set(userRef, { password: pass, nickname: nick, registered: Date.now() });
       }
       myNick = nick;
+      isCreator = (myNick === 'hard');
       localStorage.setItem('aether_nick', nick);
       authScreen.style.display = 'none';
       mainWrapper.style.display = 'flex';
       await loadProfile();
       loadContacts();
-      // Presence
       set(ref(db, `status/${myNick}`), 'online');
       onDisconnect(ref(db, `status/${myNick}`)).set('offline');
     };
@@ -1261,6 +1421,11 @@
     searchBtn.onclick = async () => {
       const target = searchInput.value.trim().toLowerCase();
       if (!target || target === myNick) return alert('Некорректный ник');
+      // Проверка на бан
+      const banSnap = await get(ref(db, `bans/${target}`));
+      if (banSnap.val() === true) {
+        return alert('Этот пользователь забанен');
+      }
       const snap = await get(ref(db, 'users/' + target));
       if (snap.exists()) startPrivateChat(target);
       else alert('Пользователь не найден');
@@ -1272,8 +1437,16 @@
       const members = prompt('Участники (через запятую)');
       if (!members) return;
       const participants = members.split(',').map(s => s.trim()).concat(myNick);
+      // Проверка на бан
+      for (let p of participants) {
+        const banSnap = await get(ref(db, `bans/${p}`));
+        if (banSnap.val() === true) {
+          alert(`Пользователь ${p} забанен и не может быть добавлен`);
+          return;
+        }
+      }
       const groupId = 'group_' + Date.now();
-      await set(ref(db, `chats/${groupId}`), { type: 'group', name, participants });
+      await set(ref(db, `chats/${groupId}`), { type: 'group', name, participants, admins: [myNick] });
       for (let p of participants) {
         await set(ref(db, `users/${p}/contacts/${groupId}`), { isGroup: true, groupName: name, lastMsg: '', lastTime: Date.now() });
       }
@@ -1334,6 +1507,89 @@
       chatArea.classList.remove('active');
       if (messagesUnsubscribe) messagesUnsubscribe();
       activeChat = null;
+    };
+
+    // --- Свой профиль ---
+    profileBtn.onclick = () => {
+      profileModal.style.display = 'flex';
+      get(ref(db, `users/${myNick}`)).then(snap => {
+        const data = snap.val() || {};
+        profileName.value = data.displayName || myNick;
+        if (data.avatar) {
+          profileAvatar.style.backgroundImage = `url('${data.avatar}')`;
+          profileAvatar.textContent = '';
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.style.background = getAvatarColor(myNick);
+          profileAvatar.textContent = myNick.charAt(0).toUpperCase();
+        }
+      });
+    };
+    closeProfile.onclick = () => profileModal.style.display = 'none';
+    avatarUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          profileAvatar.style.backgroundImage = `url('${ev.target.result}')`;
+          profileAvatar.textContent = '';
+          window.tempAvatar = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    saveProfile.onclick = async () => {
+      const updates = {};
+      updates[`users/${myNick}/displayName`] = profileName.value;
+      if (window.tempAvatar) {
+        updates[`users/${myNick}/avatar`] = window.tempAvatar;
+        avatarCache.set(myNick, window.tempAvatar);
+      }
+      await update(ref(db), updates);
+      myDisplayName = profileName.value;
+      headerName.innerHTML = myDisplayName;
+      if (isCreator) headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
+      if (window.tempAvatar) {
+        headerAvatar.style.backgroundImage = `url('${window.tempAvatar}')`;
+        headerAvatar.textContent = '';
+      }
+      closeProfile.click();
+    };
+
+    // --- Тема ---
+    themeToggle.onclick = () => themeModal.style.display = 'flex';
+    closeTheme.onclick = () => themeModal.style.display = 'none';
+    themeDark.onclick = () => {
+      document.body.classList.remove('light');
+      document.body.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    };
+    themeLight.onclick = () => {
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    };
+    textColorInput.oninput = (e) => {
+      localStorage.setItem('textColor', e.target.value);
+      applyTheme();
+    };
+    document.querySelectorAll('.wallpaper-option').forEach(el => {
+      el.onclick = () => {
+        const wall = el.dataset.wall;
+        localStorage.setItem('wallpaper', wall);
+        applyTheme();
+      };
+    });
+    wallpaperUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          localStorage.setItem('wallpaper', `url('${ev.target.result}')`);
+          applyTheme();
+        };
+        reader.readAsDataURL(file);
+      }
     };
   </script>
 </body>
