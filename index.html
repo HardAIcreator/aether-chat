@@ -3,63 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aether Global | Роман</title>
+    <title>Aether Social | Private Mesh</title>
     <style>
-        :root {
-            --bg: #0f172a; --panel: #1e293b; --accent: #6366f1;
-            --text: #f1f5f9; --msg-sent: #4338ca; --msg-rec: #334155;
-        }
+        :root { --bg: #0b0f19; --panel: #151b2b; --accent: #6366f1; --text: #e2e8f0; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; justify-content: center; align-items: center; }
 
-        /* Header */
-        header { padding: 15px 25px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-        .logo { font-weight: bold; font-size: 20px; color: var(--accent); }
-        #status { font-size: 12px; color: #10b981; }
+        /* Окно авторизации */
+        #auth-screen { background: var(--panel); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: #0b0f19; color: white; outline: none; }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* Messages Area */
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 75%; padding: 12px 16px; border-radius: 15px; position: relative; word-wrap: break-word; line-height: 1.4; animation: fadeIn 0.3s ease; }
-        .sent { align-self: flex-end; background: var(--msg-sent); border-bottom-right-radius: 2px; }
-        .received { align-self: flex-start; background: var(--msg-rec); border-bottom-left-radius: 2px; }
-        .user-name { font-size: 10px; margin-bottom: 4px; display: block; opacity: 0.7; font-weight: bold; }
+        /* Основной интерфейс (скрыт по умолчанию) */
+        #main-wrapper { display: none; width: 100%; height: 100vh; flex-direction: row; }
+        .sidebar { width: 300px; background: var(--panel); border-right: 1px solid #1e293b; display: flex; flex-direction: column; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
         
-        /* Media */
-        .media-item { width: 100%; border-radius: 8px; margin-top: 8px; max-width: 300px; }
-
-        /* Input Area */
-        .input-area { padding: 20px; background: var(--panel); display: flex; gap: 12px; align-items: center; }
-        .btn-file { cursor: pointer; font-size: 20px; opacity: 0.7; transition: 0.3s; }
-        .btn-file:hover { opacity: 1; transform: scale(1.1); }
-        input[type="text"] { flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: var(--bg); color: white; outline: none; border: 1px solid #334155; }
-        input[type="text"]:focus { border-color: var(--accent); }
-        .send-btn { background: var(--accent); border: none; padding: 12px 25px; border-radius: 25px; color: white; font-weight: bold; cursor: pointer; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 70%; }
+        .sent { align-self: flex-end; background: var(--accent); }
+        .received { align-self: flex-start; background: #334155; }
+        
+        .search-box { padding: 20px; border-bottom: 1px solid #1e293b; }
+        .current-chat-name { padding: 15px 25px; background: var(--panel); border-bottom: 1px solid #1e293b; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">AETHER MESH</div>
-        <div id="status">● В сети (Global)</div>
-    </header>
+    <div id="auth-screen">
+        <h2 style="margin-bottom: 20px;">Aether Login</h2>
+        <input type="text" id="auth-nick" placeholder="Никнейм">
+        <input type="password" id="auth-pass" placeholder="Пароль">
+        <button id="btn-login">ВОЙТИ / СОЗДАТЬ</button>
+        <p style="font-size: 12px; margin-top: 15px; color: #94a3b8;">Пароль нужен для защиты вашего ника</p>
+    </div>
 
-    <div id="chat-box"></div>
-
-    <div class="input-area">
-        <label class="btn-file" title="Прикрепить файл">
-            📁 <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*">
-        </label>
-        <input type="text" id="message-input" placeholder="Введите сообщение...">
-        <button class="send-btn" id="send-btn">ОТПРАВИТЬ</button>
+    <div id="main-wrapper">
+        <div class="sidebar">
+            <div class="search-box">
+                <input type="text" id="search-user" placeholder="Найти ник...">
+                <button id="btn-search" style="font-size: 12px; padding: 5px;">НАЙТИ</button>
+            </div>
+            <div id="contacts-list" style="padding: 10px; font-size: 14px; opacity: 0.6; text-align: center;">
+                Введите ник для начала чата
+            </div>
+        </div>
+        <div class="chat-area">
+            <div class="current-chat-name" id="chat-with-title">Выберите чат</div>
+            <div id="messages"></div>
+            <div style="padding: 20px; display: flex; gap: 10px;">
+                <input type="text" id="msg-input" placeholder="Сообщение...">
+                <button id="btn-send" style="width: 100px; margin: 0;">-></button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Твой конфиг Роман, уже подключен!
         const firebaseConfig = {
             apiKey: "AIzaSyBqy8OpoabzNS1z_YaPTzG3siiyfTDvzzo",
             authDomain: "aether-messenger-cafc9.firebaseapp.com",
@@ -72,69 +74,91 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const messagesRef = ref(db, "global_chat");
 
-        const myName = "Роман"; // Можешь заменить на prompt("Как тебя зовут?") для выбора имени
+        let myNick = "";
+        let activeChatPartner = "";
 
-        // Функция отправки
-        async function sendMessage(text = "", fileData = null, fileType = null) {
-            await push(messagesRef, {
-                user: myName,
-                text: text,
-                file: fileData,
-                type: fileType,
-                timestamp: serverTimestamp()
+        // --- АВТОРИЗАЦИЯ (Упрощенная через Database) ---
+        document.getElementById('btn-login').onclick = async () => {
+            const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
+            const pass = document.getElementById('auth-pass').value;
+
+            if (!nick || !pass) return alert("Заполни поля!");
+
+            const userRef = ref(db, 'users/' + nick);
+            const snapshot = await get(userRef);
+
+            if (snapshot.exists()) {
+                if (snapshot.val().password === pass) {
+                    loginSuccess(nick);
+                } else {
+                    alert("Неверный пароль для этого ника!");
+                }
+            } else {
+                // Создаем нового пользователя
+                await set(userRef, { password: pass, nickname: nick });
+                loginSuccess(nick);
+            }
+        };
+
+        function loginSuccess(nick) {
+            myNick = nick;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-wrapper').style.display = 'flex';
+        }
+
+        // --- ПОИСК И ЧАТ ---
+        document.getElementById('btn-search').onclick = async () => {
+            const target = document.getElementById('search-user').value.toLowerCase().trim();
+            if (target === myNick) return alert("Нельзя писать самому себе");
+
+            const targetRef = ref(db, 'users/' + target);
+            const snap = await get(targetRef);
+
+            if (snap.exists()) {
+                startChat(target);
+            } else {
+                alert("Пользователь не найден!");
+            }
+        };
+
+        function startChat(partner) {
+            activeChatPartner = partner;
+            document.getElementById('chat-with-title').innerText = "Чат с: " + partner;
+            document.getElementById('messages').innerHTML = "";
+            
+            // Создаем уникальный ID комнаты (сортируем ники по алфавиту)
+            const chatId = [myNick, partner].sort().join("_");
+            const chatRef = ref(db, 'chats/' + chatId);
+
+            // Слушаем сообщения именно этой комнаты
+            onChildAdded(chatRef, (snap) => {
+                const m = snap.val();
+                drawMessage(m.text, m.from === myNick);
             });
         }
 
-        // Кнопка отправить
-        document.getElementById('send-btn').onclick = () => {
-            const input = document.getElementById('message-input');
-            if (input.value.trim()) {
-                sendMessage(input.value);
-                input.value = "";
-            }
+        document.getElementById('btn-send').onclick = () => {
+            if (!activeChatPartner) return;
+            const text = document.getElementById('msg-input').value;
+            if (!text) return;
+
+            const chatId = [myNick, activeChatPartner].sort().join("_");
+            push(ref(db, 'chats/' + chatId), {
+                from: myNick,
+                text: text,
+                time: Date.now()
+            });
+            document.getElementById('msg-input').value = "";
         };
 
-        // Работа с файлами
-        document.getElementById('file-input').onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const type = file.type.split('/')[0];
-                sendMessage("", event.target.result, type);
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // Слушаем новые сообщения
-        onChildAdded(messagesRef, (snapshot) => {
-            const data = snapshot.val();
-            const isMe = data.user === myName;
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
-            
-            let html = `<span class="user-name">${data.user}</span>`;
-            if (data.text) html += `<div>${data.text}</div>`;
-            
-            if (data.file) {
-                if (data.type === 'image') html += `<img src="${data.file}" class="media-item">`;
-                if (data.type === 'video') html += `<video src="${data.file}" controls class="media-item"></video>`;
-                if (data.type === 'audio') html += `<audio src="${data.file}" controls class="media-item"></audio>`;
-            }
-
-            msgDiv.innerHTML = html;
-            const chatBox = document.getElementById('chat-box');
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
-
-        // Отправка по Enter
-        document.getElementById('message-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('send-btn').click();
-        });
+        function drawMessage(text, isMe) {
+            const div = document.createElement('div');
+            div.className = `msg ${isMe ? 'sent' : 'received'}`;
+            div.innerText = text;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
     </script>
 </body>
 </html>
