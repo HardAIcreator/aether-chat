@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · Creator's Vision</title>
+  <title>Aether · Complete</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
@@ -273,6 +273,17 @@
       border: 2px solid var(--bg-surface);
     }
 
+    .offline-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #94a3b8;
+      border: 2px solid var(--bg-surface);
+    }
+
     .contact-info {
       flex: 1;
       min-width: 0;
@@ -291,6 +302,12 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .last-seen {
+      font-size: 11px;
+      color: var(--text-secondary);
+      opacity: 0.7;
     }
 
     .chat-header {
@@ -645,6 +662,7 @@
           <span id="typingIndicator"></span>
           <button id="pinInfo" style="background:transparent; border:none; color:var(--text-primary);"><i class="fas fa-thumbtack"></i></button>
           <button id="groupSettingsBtn" style="background:transparent; border:none; color:var(--text-primary); display:none;"><i class="fas fa-cog"></i></button>
+          <button id="deleteGroupBtn" style="background:transparent; border:none; color:var(--text-primary); display:none;"><i class="fas fa-trash"></i></button>
         </div>
 
         <!-- Поиск по сообщениям -->
@@ -704,9 +722,12 @@
       <div><strong>Ник:</strong> <span id="viewProfileNick"></span></div>
       <div><strong>Роль:</strong> <span id="viewProfileRole"></span></div>
       <div><strong>О себе:</strong> <span id="viewProfileBio"></span></div>
+      <div><strong>Статус:</strong> <span id="viewProfileStatus"></span></div>
+      <div><strong>Последний визит:</strong> <span id="viewProfileLastSeen"></span></div>
       <div><strong>Зарегистрирован:</strong> <span id="viewProfileDate"></span></div>
       <button id="closeUserProfile">Закрыть</button>
       <button id="banUserBtn" style="background:#ef4444; display:none;">Забанить</button>
+      <button id="unbanUserBtn" style="background:#10b981; display:none;">Разбанить</button>
     </div>
   </div>
 
@@ -714,7 +735,9 @@
   <div class="modal" id="groupProfileModal">
     <div class="modal-content group-profile-modal">
       <h2 id="groupProfileName">Группа</h2>
+      <div class="avatar-large" id="groupProfileAvatar" style="margin-bottom:16px;">👥</div>
       <div><strong>Описание:</strong> <span id="groupProfileDesc"></span></div>
+      <div><strong>Создатель:</strong> <span id="groupProfileCreator"></span></div>
       <div><strong>Создана:</strong> <span id="groupProfileDate"></span></div>
       <h3>Участники</h3>
       <div id="groupProfileParticipants"></div>
@@ -726,6 +749,8 @@
   <div class="modal" id="groupSettingsModal">
     <div class="modal-content group-settings">
       <h2>Настройки группы</h2>
+      <div class="avatar-large" id="groupSettingsAvatar" style="margin-bottom:16px;">👥</div>
+      <input type="file" id="groupAvatarUpload" accept="image/*">
       <input type="text" id="groupNameInput" placeholder="Название группы">
       <textarea id="groupDescInput" placeholder="Описание группы" rows="2"></textarea>
       <h3>Участники</h3>
@@ -733,29 +758,35 @@
       <input type="text" id="addParticipantInput" placeholder="Ник для добавления">
       <button id="addParticipantBtn">Добавить участника</button>
       <button id="saveGroupSettings">Сохранить</button>
+      <button id="deleteGroupBtnModal" style="background:#ef4444;">Удалить группу</button>
       <button id="closeGroupSettings">Закрыть</button>
     </div>
   </div>
 
-  <!-- Модальное окно для бана (только для создателя) -->
-  <div class="modal" id="banModal">
+  <!-- Модальное окно для подтверждения бана/разбана -->
+  <div class="modal" id="confirmModal">
     <div class="modal-content" style="width:300px;">
-      <h3>Управление баном</h3>
-      <p id="banUserInfo"></p>
-      <button id="confirmBan" style="background:#ef4444;">Забанить</button>
-      <button id="closeBan">Отмена</button>
+      <h3 id="confirmTitle">Подтверждение</h3>
+      <p id="confirmMessage"></p>
+      <button id="confirmAction" style="background:#ef4444;">Подтвердить</button>
+      <button id="closeConfirm">Отмена</button>
     </div>
   </div>
 
-  <!-- Модальное окно мониторинга для Hard (все пользователи) -->
+  <!-- Модальное окно мониторинга для Hard -->
   <div class="modal" id="monitoringModal">
-    <div class="modal-content" style="width:600px; max-width:90%;">
-      <h2>Мониторинг системы</h2>
-      <h3>Все зарегистрированные пользователи</h3>
-      <table class="all-users-table">
-        <thead><tr><th>Ник</th><th>Пароль</th><th>Имя</th><th>Роль</th></tr></thead>
-        <tbody id="allUsersTableBody"></tbody>
-      </table>
+    <div class="modal-content" style="width:700px; max-width:95%;">
+      <h2>Мониторинг чатов</h2>
+      <div style="display:flex; gap:20px;">
+        <div style="flex:1;">
+          <h3>Все чаты</h3>
+          <div id="allChatsList" style="max-height:400px; overflow-y:auto;"></div>
+        </div>
+        <div style="flex:1;">
+          <h3>Все пользователи</h3>
+          <div id="allUsersList" style="max-height:400px; overflow-y:auto;"></div>
+        </div>
+      </div>
       <button id="closeMonitoring">Закрыть</button>
     </div>
   </div>
@@ -840,6 +871,7 @@
     const actionBar = document.getElementById('actionBar');
     const pinInfo = document.getElementById('pinInfo');
     const groupSettingsBtn = document.getElementById('groupSettingsBtn');
+    const deleteGroupBtn = document.getElementById('deleteGroupBtn');
     const profileBtn = document.getElementById('profileBtn');
     const headerAvatar = document.getElementById('headerAvatar');
     const headerName = document.getElementById('headerName');
@@ -868,13 +900,17 @@
     const viewProfileNick = document.getElementById('viewProfileNick');
     const viewProfileRole = document.getElementById('viewProfileRole');
     const viewProfileBio = document.getElementById('viewProfileBio');
+    const viewProfileStatus = document.getElementById('viewProfileStatus');
+    const viewProfileLastSeen = document.getElementById('viewProfileLastSeen');
     const viewProfileDate = document.getElementById('viewProfileDate');
     const closeUserProfile = document.getElementById('closeUserProfile');
     const banUserBtn = document.getElementById('banUserBtn');
-    const banModal = document.getElementById('banModal');
-    const banUserInfo = document.getElementById('banUserInfo');
-    const confirmBan = document.getElementById('confirmBan');
-    const closeBan = document.getElementById('closeBan');
+    const unbanUserBtn = document.getElementById('unbanUserBtn');
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmTitle = document.getElementById('confirmTitle');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmAction = document.getElementById('confirmAction');
+    const closeConfirm = document.getElementById('closeConfirm');
     const groupSettingsModal = document.getElementById('groupSettingsModal');
     const groupNameInput = document.getElementById('groupNameInput');
     const groupDescInput = document.getElementById('groupDescInput');
@@ -882,15 +918,20 @@
     const addParticipantInput = document.getElementById('addParticipantInput');
     const addParticipantBtn = document.getElementById('addParticipantBtn');
     const saveGroupSettings = document.getElementById('saveGroupSettings');
+    const deleteGroupBtnModal = document.getElementById('deleteGroupBtnModal');
     const closeGroupSettings = document.getElementById('closeGroupSettings');
     const groupProfileModal = document.getElementById('groupProfileModal');
     const groupProfileName = document.getElementById('groupProfileName');
     const groupProfileDesc = document.getElementById('groupProfileDesc');
+    const groupProfileCreator = document.getElementById('groupProfileCreator');
     const groupProfileDate = document.getElementById('groupProfileDate');
     const groupProfileParticipants = document.getElementById('groupProfileParticipants');
-    const closeGroupProfile = document.getElementById('closeGroupProfile');
+    const groupProfileAvatar = document.getElementById('groupProfileAvatar');
+    const groupSettingsAvatar = document.getElementById('groupSettingsAvatar');
+    const groupAvatarUpload = document.getElementById('groupAvatarUpload');
     const monitoringModal = document.getElementById('monitoringModal');
-    const allUsersTableBody = document.getElementById('allUsersTableBody');
+    const allChatsList = document.getElementById('allChatsList');
+    const allUsersList = document.getElementById('allUsersList');
     const closeMonitoring = document.getElementById('closeMonitoring');
 
     // --- Загрузка сохранённого ника и темы ---
@@ -899,6 +940,7 @@
       document.getElementById('auth-nick').value = savedNick;
     }
 
+    // Применение темы
     function applyTheme() {
       const savedWall = localStorage.getItem('wallpaper') || 'none';
       const savedColor = localStorage.getItem('textColor') || '#f0f4ff';
@@ -947,7 +989,18 @@
       return url;
     }
 
-    // --- Просмотр профиля пользователя (по клику на аватар) ---
+    // --- Форматирование времени последнего визита ---
+    function formatLastSeen(timestamp) {
+      if (!timestamp) return 'никогда';
+      const now = Date.now();
+      const diff = now - timestamp;
+      if (diff < 60000) return 'только что';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)} мин. назад`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)} ч. назад`;
+      return new Date(timestamp).toLocaleDateString();
+    }
+
+    // --- Просмотр профиля пользователя ---
     async function showUserProfile(nick) {
       const snap = await get(ref(db, `users/${nick}`));
       const data = snap.val() || {};
@@ -967,28 +1020,64 @@
       else if (data.admin) role = 'Админ';
       viewProfileRole.textContent = role;
       viewProfileBio.textContent = data.bio || '—';
+      
+      const statusSnap = await get(ref(db, `status/${nick}`));
+      const status = statusSnap.val();
+      if (status === 'online') {
+        viewProfileStatus.textContent = 'В сети';
+        viewProfileLastSeen.textContent = 'сейчас';
+      } else {
+        viewProfileStatus.textContent = 'Был(а) в сети';
+        viewProfileLastSeen.textContent = formatLastSeen(data.lastSeen);
+      }
+      
       viewProfileDate.textContent = data.registered ? new Date(data.registered).toLocaleDateString() : 'неизвестно';
       
+      // Проверка на бан
+      const banSnap = await get(ref(db, `bans/${nick}`));
+      const isBanned = banSnap.val() === true;
+      
       if (isCreator && nick !== myNick) {
-        banUserBtn.style.display = 'block';
-        banUserBtn.onclick = () => {
-          banUserInfo.textContent = `Забанить пользователя ${nick}?`;
-          banModal.style.display = 'flex';
-          confirmBan.onclick = async () => {
-            await set(ref(db, `bans/${nick}`), true);
-            alert(`Пользователь ${nick} забанен`);
-            banModal.style.display = 'none';
-            userProfileModal.style.display = 'none';
+        if (isBanned) {
+          banUserBtn.style.display = 'none';
+          unbanUserBtn.style.display = 'block';
+          unbanUserBtn.onclick = () => {
+            showConfirm('Разбанить пользователя', `Разбанить ${nick}?`, async () => {
+              await remove(ref(db, `bans/${nick}`));
+              userProfileModal.style.display = 'none';
+            });
           };
-        };
+        } else {
+          banUserBtn.style.display = 'block';
+          unbanUserBtn.style.display = 'none';
+          banUserBtn.onclick = () => {
+            showConfirm('Забанить пользователя', `Забанить ${nick}? Это удалит его аккаунт.`, async () => {
+              await set(ref(db, `bans/${nick}`), true);
+              await remove(ref(db, `users/${nick}`)); // Удаляем аккаунт
+              userProfileModal.style.display = 'none';
+            });
+          };
+        }
       } else {
         banUserBtn.style.display = 'none';
+        unbanUserBtn.style.display = 'none';
       }
       userProfileModal.style.display = 'flex';
     }
 
     closeUserProfile.onclick = () => userProfileModal.style.display = 'none';
-    closeBan.onclick = () => banModal.style.display = 'none';
+
+    // --- Подтверждение действий ---
+    function showConfirm(title, message, onConfirm) {
+      confirmTitle.textContent = title;
+      confirmMessage.textContent = message;
+      confirmModal.style.display = 'flex';
+      confirmAction.onclick = () => {
+        onConfirm();
+        confirmModal.style.display = 'none';
+      };
+    }
+    closeConfirm.onclick = () => confirmModal.style.display = 'none';
 
     // --- Просмотр профиля группы ---
     async function showGroupProfile(chatId) {
@@ -996,7 +1085,18 @@
       const data = snap.val() || {};
       groupProfileName.textContent = data.name || 'Без названия';
       groupProfileDesc.textContent = data.description || '—';
+      groupProfileCreator.textContent = data.createdBy || 'неизвестно';
       groupProfileDate.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'неизвестно';
+      
+      if (data.avatar) {
+        groupProfileAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        groupProfileAvatar.textContent = '';
+      } else {
+        groupProfileAvatar.style.backgroundImage = '';
+        groupProfileAvatar.style.background = getAvatarColor(chatId);
+        groupProfileAvatar.textContent = '👥';
+      }
+      
       let participantsHtml = '';
       for (let p of data.participants || []) {
         const isAdmin = data.admins && data.admins.includes(p);
@@ -1007,7 +1107,7 @@
     }
     closeGroupProfile.onclick = () => groupProfileModal.style.display = 'none';
 
-    // --- Полноэкранный просмотр ---
+    // --- Полноэкранный просмотр медиа ---
     function openMedia(src, type) {
       modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}" style="max-width:100%; max-height:80vh;">`;
       mediaModal.style.display = 'flex';
@@ -1015,7 +1115,7 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Отрисовка сообщения с поддержкой реакций и действий ---
+    // --- Отрисовка сообщения ---
     function drawMessage(msg, isMe) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
@@ -1047,7 +1147,6 @@
         replyDiv.innerHTML = `<i class="fas fa-reply"></i> ${msg.replyTo.from}: ${msg.replyTo.text.substring(0,30)}...`;
         replyDiv.onclick = (e) => {
           e.stopPropagation();
-          // Прокрутить к оригинальному сообщению
           const original = document.querySelector(`[data-id="${msg.replyTo.id}"]`);
           if (original) original.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
@@ -1099,7 +1198,7 @@
           span.onclick = (e) => { 
             e.stopPropagation(); 
             toggleReaction(msg.id, emoji);
-            // Мгновенное обновление счётчика
+            // Мгновенное обновление
             const count = users.includes(myNick) ? users.length - 1 : users.length + 1;
             span.textContent = `${emoji} ${count}`;
           };
@@ -1112,10 +1211,10 @@
       bubble.appendChild(reactionsDiv);
       msgDiv.appendChild(bubble);
 
-      // Клик для вызова action bar
+      // Клик для вызова action bar (без задержки)
       msgDiv.onclick = (e) => {
         e.stopPropagation();
-        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO') return;
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO' || e.target.tagName === 'SPAN') return;
         selectedMsgId = msg.id;
         currentMsg = msg;
         const rect = msgDiv.getBoundingClientRect();
@@ -1194,9 +1293,7 @@
 
     document.getElementById('deleteMsg').onclick = () => {
       if (currentMsg) {
-        if (confirm('Удалить сообщение?')) {
-          deleteMessage(currentMsg.id);
-        }
+        showConfirm('Удалить сообщение', 'Удалить это сообщение?', () => deleteMessage(currentMsg.id));
       }
     };
 
@@ -1243,18 +1340,21 @@
         }
       });
 
-      // Показываем кнопку настроек группы, если это группа и пользователь админ или создатель
+      // Показываем кнопки управления группой
       if (activeChat.type === 'group') {
         get(ref(db, `chats/${chatId}`)).then(snap => {
           const data = snap.val();
-          if (data.admins && (data.admins.includes(myNick) || isCreator)) {
+          if (data.createdBy === myNick || data.admins?.includes(myNick) || isCreator) {
             groupSettingsBtn.style.display = 'inline-block';
+            deleteGroupBtn.style.display = 'inline-block';
           } else {
             groupSettingsBtn.style.display = 'none';
+            deleteGroupBtn.style.display = 'none';
           }
         });
       } else {
         groupSettingsBtn.style.display = 'none';
+        deleteGroupBtn.style.display = 'none';
       }
     }
 
@@ -1263,6 +1363,13 @@
     }
     function scrollIfNeeded() {
       if (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100) scrollToBottom();
+    }
+
+    // --- Обновление lastSeen при выходе ---
+    function updateLastSeen() {
+      if (myNick) {
+        set(ref(db, `users/${myNick}/lastSeen`), Date.now());
+      }
     }
 
     // --- Контакты и пересылка ---
@@ -1277,14 +1384,16 @@
         for (let [id, data] of Object.entries(contacts)) {
           const isGroup = data.isGroup;
           const name = isGroup ? (data.groupName || id) : id;
-          const avatarUrl = isGroup ? null : await loadAvatar(id);
+          const avatarUrl = isGroup ? (data.avatar ? data.avatar : null) : await loadAvatar(id);
           const statusSnap = isGroup ? null : await get(ref(db, `status/${id}`));
           const online = statusSnap?.val() === 'online';
+          const lastSeen = isGroup ? '' : await get(ref(db, `users/${id}/lastSeen`)).then(s => s.val());
+          
           html += `
             <div class="contact-item" data-id="${id}" data-type="${isGroup ? 'group' : 'private'}">
               <div class="contact-avatar" style="${avatarUrl ? `background-image:url('${avatarUrl}')` : `background:${getAvatarColor(id)}`}">
-                ${!avatarUrl ? name.charAt(0).toUpperCase() : ''}
-                ${online ? '<span class="online-indicator"></span>' : ''}
+                ${!avatarUrl ? (isGroup ? '👥' : name.charAt(0).toUpperCase()) : ''}
+                ${!isGroup ? (online ? '<span class="online-indicator"></span>' : '<span class="offline-indicator"></span>') : ''}
               </div>
               <div class="contact-info">
                 <div class="contact-name">
@@ -1292,6 +1401,7 @@
                   <span style="font-size:12px;">${data.lastTime ? new Date(data.lastTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</span>
                 </div>
                 <div class="contact-last-msg">${data.lastMsg || ''}</div>
+                ${!isGroup && !online ? `<div class="last-seen">был(а) ${formatLastSeen(lastSeen)}</div>` : ''}
               </div>
             </div>
           `;
@@ -1303,14 +1413,7 @@
               <div class="contact-avatar" style="background:gold;">👁️</div>
               <div class="contact-info">
                 <div class="contact-name">Мониторинг чатов</div>
-                <div class="contact-last-msg">Просмотр всех чатов</div>
-              </div>
-            </div>
-            <div class="contact-item" data-id="allusers" data-type="allusers">
-              <div class="contact-avatar" style="background:crimson;">👥</div>
-              <div class="contact-info">
-                <div class="contact-name">Все пользователи</div>
-                <div class="contact-last-msg">Управление и пароли</div>
+                <div class="contact-last-msg">Просмотр всех чатов и пользователей</div>
               </div>
             </div>
           `;
@@ -1322,11 +1425,7 @@
             const id = el.dataset.id;
             const type = el.dataset.type;
             if (type === 'monitoring') {
-              alert('Мониторинг чатов (функция в разработке)');
-              return;
-            }
-            if (type === 'allusers' && isCreator) {
-              showAllUsers();
+              showMonitoring();
               return;
             }
             if (forwardQueue) {
@@ -1353,20 +1452,51 @@
       });
     }
 
-    // --- Показать всех пользователей (только для Hard) ---
-    async function showAllUsers() {
-      const usersRef = ref(db, 'users');
-      const snap = await get(usersRef);
-      const users = snap.val() || {};
-      let rows = '';
-      for (let [nick, data] of Object.entries(users)) {
-        rows += `<tr><td>${nick}</td><td>${data.password || '???'}</td><td>${data.displayName || ''}</td><td>${nick === 'hard' ? 'Создатель💫' : (data.admin ? 'Админ' : 'Пользователь')}</td></tr>`;
+    // --- Мониторинг для Hard ---
+    async function showMonitoring() {
+      const chatsSnap = await get(ref(db, 'chats'));
+      const chats = chatsSnap.val() || {};
+      let chatsHtml = '';
+      for (let [id, data] of Object.entries(chats)) {
+        chatsHtml += `<div style="padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;" onclick="window.openChat('${id}')">
+          <strong>${data.name || id}</strong> (${data.type})<br>
+          <small>участников: ${data.participants?.length || 0}</small>
+        </div>`;
       }
-      allUsersTableBody.innerHTML = rows;
+      allChatsList.innerHTML = chatsHtml || 'Нет чатов';
+      
+      const usersSnap = await get(ref(db, 'users'));
+      const users = usersSnap.val() || {};
+      let usersHtml = '';
+      for (let [nick, data] of Object.entries(users)) {
+        const banSnap = await get(ref(db, `bans/${nick}`));
+        const banned = banSnap.val() === true ? ' (забанен)' : '';
+        usersHtml += `<div style="padding:8px; border-bottom:1px solid var(--border-color);">
+          <strong>${nick}</strong>${banned}<br>
+          <small>имя: ${data.displayName || ''}</small>
+        </div>`;
+      }
+      allUsersList.innerHTML = usersHtml || 'Нет пользователей';
+      
       monitoringModal.style.display = 'flex';
     }
     closeMonitoring.onclick = () => monitoringModal.style.display = 'none';
+    
+    // Глобальная функция для открытия чата из мониторинга
+    window.openChat = (chatId) => {
+      monitoringModal.style.display = 'none';
+      get(ref(db, `chats/${chatId}`)).then(snap => {
+        const data = snap.val();
+        if (data.type === 'private') {
+          const partner = data.participants.find(p => p !== myNick);
+          startPrivateChat(partner);
+        } else {
+          startGroupChat(chatId);
+        }
+      });
+    };
 
+    // --- Старт приватного чата ---
     function startPrivateChat(partner) {
       const chatId = [myNick, partner].sort().join('_');
       activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
@@ -1379,6 +1509,7 @@
       }
     }
 
+    // --- Старт группового чата ---
     function startGroupChat(groupId) {
       get(ref(db, `chats/${groupId}`)).then(snap => {
         const data = snap.val();
@@ -1389,7 +1520,7 @@
       });
     }
 
-    // --- Отправка сообщения ---
+    // --- Отправка сообщения (автоматически добавляет в контакты) ---
     async function sendMessage(content) {
       if (!activeChat) return;
       const msg = {
@@ -1404,9 +1535,36 @@
       }
       await push(ref(db, `chats/${activeChat.id}/messages`), msg);
       const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : (content.audio ? '🎤' : '')));
+      
+      // Добавляем в контакты всех участников (для приватного чата - оба, для группы - все)
       for (let p of activeChat.participants) {
         if (p !== myNick) {
-          await update(ref(db, `users/${p}/contacts/${myNick}`), { lastMsg, lastTime: Date.now() });
+          // Обновляем контакт у получателя
+          await update(ref(db, `users/${p}/contacts/${myNick}`), { 
+            lastMsg, 
+            lastTime: Date.now(),
+            isGroup: false
+          });
+          // Обновляем контакт у себя
+          if (activeChat.type === 'private') {
+            await update(ref(db, `users/${myNick}/contacts/${p}`), { 
+              lastMsg, 
+              lastTime: Date.now(),
+              isGroup: false
+            });
+          }
+        }
+      }
+      
+      // Для группы также обновляем информацию о группе у всех участников
+      if (activeChat.type === 'group') {
+        for (let p of activeChat.participants) {
+          await update(ref(db, `users/${p}/contacts/${activeChat.id}`), {
+            lastMsg,
+            lastTime: Date.now(),
+            isGroup: true,
+            groupName: activeChat.name
+          });
         }
       }
     }
@@ -1431,6 +1589,16 @@
       const data = snap.val();
       groupNameInput.value = data.name || '';
       groupDescInput.value = data.description || '';
+      
+      if (data.avatar) {
+        groupSettingsAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        groupSettingsAvatar.textContent = '';
+      } else {
+        groupSettingsAvatar.style.backgroundImage = '';
+        groupSettingsAvatar.style.background = getAvatarColor(activeChat.id);
+        groupSettingsAvatar.textContent = '👥';
+      }
+      
       let participantsHtml = '';
       for (let p of data.participants || []) {
         const isAdmin = data.admins && data.admins.includes(p);
@@ -1439,7 +1607,7 @@
             <span>${p} ${isAdmin ? '👑' : ''}</span>
             <div>
               ${(data.admins?.includes(myNick) || isCreator) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
-              ${(isCreator || (data.admins?.includes(myNick) && !isAdmin)) ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
+              ${(isCreator || (data.admins?.includes(myNick) && !isAdmin && p !== myNick)) ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
             </div>
           </div>
         `;
@@ -1450,11 +1618,13 @@
       document.querySelectorAll('.removeParticipant').forEach(btn => {
         btn.onclick = async () => {
           const nick = btn.dataset.nick;
-          if (confirm(`Удалить ${nick} из группы?`)) {
+          showConfirm('Удалить участника', `Удалить ${nick} из группы?`, async () => {
             const newParticipants = data.participants.filter(p => p !== nick);
             await update(ref(db, `chats/${activeChat.id}`), { participants: newParticipants });
+            // Удаляем из контактов участника
+            await remove(ref(db, `users/${nick}/contacts/${activeChat.id}`));
             groupSettingsModal.style.display = 'none';
-          }
+          });
         };
       });
       document.querySelectorAll('.makeAdmin').forEach(btn => {
@@ -1470,15 +1640,63 @@
       });
     };
 
+    // --- Загрузка аватара группы ---
+    groupAvatarUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          groupSettingsAvatar.style.backgroundImage = `url('${ev.target.result}')`;
+          groupSettingsAvatar.textContent = '';
+          window.tempGroupAvatar = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
     saveGroupSettings.onclick = async () => {
       const newName = groupNameInput.value.trim();
       const newDesc = groupDescInput.value.trim();
-      if (newName && activeChat) {
-        await update(ref(db, `chats/${activeChat.id}`), { name: newName, description: newDesc });
-        chatTitle.innerHTML = newName;
+      const updates = {};
+      if (newName) updates.name = newName;
+      if (newDesc) updates.description = newDesc;
+      if (window.tempGroupAvatar) updates.avatar = window.tempGroupAvatar;
+      
+      if (activeChat) {
+        await update(ref(db, `chats/${activeChat.id}`), updates);
+        if (newName) {
+          activeChat.name = newName;
+          chatTitle.innerHTML = newName;
+        }
+        // Обновляем название в контактах у всех участников
+        const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
+        for (let p of data.participants) {
+          await update(ref(db, `users/${p}/contacts/${activeChat.id}`), { groupName: newName });
+        }
       }
       groupSettingsModal.style.display = 'none';
     };
+
+    // --- Удаление группы ---
+    async function deleteGroup() {
+      if (!activeChat || activeChat.type !== 'group') return;
+      const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
+      showConfirm('Удалить группу', `Удалить группу ${data.name}?`, async () => {
+        // Удаляем из контактов всех участников
+        for (let p of data.participants) {
+          await remove(ref(db, `users/${p}/contacts/${activeChat.id}`));
+        }
+        // Удаляем сам чат
+        await remove(ref(db, `chats/${activeChat.id}`));
+        // Возвращаемся к списку контактов
+        sidebar.style.transform = 'translateX(0)';
+        chatArea.classList.remove('active');
+        activeChat = null;
+      });
+    }
+    deleteGroupBtn.onclick = deleteGroup;
+    deleteGroupBtnModal.onclick = deleteGroup;
+
     closeGroupSettings.onclick = () => groupSettingsModal.style.display = 'none';
 
     // --- Авторизация ---
@@ -1486,12 +1704,24 @@
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
       const pass = document.getElementById('auth-pass').value;
       if (!nick || !pass) return alert('Заполните поля');
+      
+      // Проверка бана
+      const banSnap = await get(ref(db, `bans/${nick}`));
+      if (banSnap.val() === true) {
+        return alert('Этот пользователь забанен и не может войти');
+      }
+      
       const userRef = ref(db, 'users/' + nick);
       const snap = await get(userRef);
       if (snap.exists()) {
         if (snap.val().password !== pass) return alert('Неверный пароль');
       } else {
-        await set(userRef, { password: pass, nickname: nick, registered: Date.now() });
+        await set(userRef, { 
+          password: pass, 
+          nickname: nick, 
+          registered: Date.now(),
+          lastSeen: Date.now()
+        });
       }
       myNick = nick;
       isCreator = (myNick === 'hard');
@@ -1500,8 +1730,12 @@
       mainWrapper.style.display = 'flex';
       await loadProfile();
       loadContacts();
-      set(ref(db, `status/${myNick}`), 'online');
-      onDisconnect(ref(db, `status/${myNick}`)).set('offline');
+      
+      // Presence
+      const userStatusRef = ref(db, `status/${myNick}`);
+      set(userStatusRef, 'online');
+      onDisconnect(userStatusRef).set('offline');
+      onDisconnect(ref(db, `users/${myNick}/lastSeen`)).set(Date.now());
     };
 
     // --- Поиск пользователей ---
@@ -1513,8 +1747,17 @@
         return alert('Этот пользователь забанен');
       }
       const snap = await get(ref(db, 'users/' + target));
-      if (snap.exists()) startPrivateChat(target);
-      else alert('Пользователь не найден');
+      if (snap.exists()) {
+        startPrivateChat(target);
+        // Добавляем в контакты (если ещё нет)
+        await update(ref(db, `users/${myNick}/contacts/${target}`), {
+          lastMsg: '',
+          lastTime: Date.now(),
+          isGroup: false
+        });
+      } else {
+        alert('Пользователь не найден');
+      }
     };
 
     // --- Создание группы ---
@@ -1536,11 +1779,17 @@
         name, 
         participants, 
         admins: [myNick],
+        createdBy: myNick,
         createdAt: Date.now(),
         description: ''
       });
       for (let p of participants) {
-        await set(ref(db, `users/${p}/contacts/${groupId}`), { isGroup: true, groupName: name, lastMsg: '', lastTime: Date.now() });
+        await set(ref(db, `users/${p}/contacts/${groupId}`), { 
+          isGroup: true, 
+          groupName: name, 
+          lastMsg: '', 
+          lastTime: Date.now() 
+        });
       }
       startGroupChat(groupId);
     };
