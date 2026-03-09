@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · Full Fixed</title>
+  <title>Aether · Hard Creator Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* Полные стили как в предыдущей версии */
     * {
       margin: 0;
       padding: 0;
@@ -518,14 +517,6 @@
       cursor: pointer;
     }
 
-    .forward-badge {
-      font-size: 0.7rem;
-      background: var(--accent);
-      border-radius: 12px;
-      padding: 2px 8px;
-      margin-left: 8px;
-    }
-
     .game-board {
       display: grid;
       grid-template-columns: repeat(3, 60px);
@@ -670,7 +661,7 @@
 
     .gif-picker {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       max-height: 400px;
       overflow-y: auto;
@@ -696,6 +687,24 @@
     }
     .quick-reply:hover {
       background: var(--accent);
+    }
+
+    .monitoring-panel {
+      display: flex;
+      gap: 20px;
+    }
+    .monitoring-col {
+      flex: 1;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .monitoring-item {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+    .monitoring-item:hover {
+      background: var(--bg-surface-light);
     }
 
     @media (max-width: 700px) {
@@ -769,6 +778,7 @@
           <button id="btn-search"><i class="fas fa-search"></i></button>
           <button id="new-group"><i class="fas fa-users"></i></button>
           <button id="achievementsBtn"><i class="fas fa-trophy"></i></button>
+          <button id="monitoringBtn" style="background:gold; color:black;"><i class="fas fa-eye"></i></button>
         </div>
 
         <div id="contacts-list"></div>
@@ -840,7 +850,6 @@
     <div class="action-bar-row">
       <button id="replyMsg" title="Ответить" class="small"><i class="fas fa-reply"></i></button>
       <button id="copyMsg" title="Копировать" class="small"><i class="fas fa-copy"></i></button>
-      <button id="forwardMsg" title="Переслать" class="small"><i class="fas fa-share"></i></button>
       <button id="deleteMsg" title="Удалить" class="small"><i class="fas fa-trash"></i></button>
     </div>
   </div>
@@ -854,11 +863,10 @@
     </div>
   </div>
 
-  <!-- Модальное окно выбора GIF -->
+  <!-- Модальное окно выбора GIF (без поиска) -->
   <div class="modal" id="gifModal">
-    <div class="modal-content" style="width:500px;">
+    <div class="modal-content" style="width:600px;">
       <h2>Выберите GIF</h2>
-      <input type="text" id="gifSearch" placeholder="Поиск GIF..." style="margin-bottom:16px;">
       <div class="gif-picker" id="gifList"></div>
       <button id="closeGif">Закрыть</button>
     </div>
@@ -945,6 +953,24 @@
     </div>
   </div>
 
+  <!-- Модальное окно мониторинга для Hard -->
+  <div class="modal" id="monitoringModal">
+    <div class="modal-content" style="width:800px;">
+      <h2>Мониторинг системы</h2>
+      <div class="monitoring-panel">
+        <div class="monitoring-col">
+          <h3>Все чаты</h3>
+          <div id="allChatsList"></div>
+        </div>
+        <div class="monitoring-col">
+          <h3>Все пользователи</h3>
+          <div id="allUsersList"></div>
+        </div>
+      </div>
+      <button id="closeMonitoring">Закрыть</button>
+    </div>
+  </div>
+
   <!-- Модальное окно настроек темы -->
   <div class="modal" id="themeModal">
     <div class="modal-content theme-panel">
@@ -1001,7 +1027,6 @@
     let audioChunks = [];
     let selectedMsgId = null;
     let currentMsg = null;
-    let forwardQueue = null;
     let replyTo = null;
     const messageIds = new Set();
     let isCreator = false;
@@ -1055,7 +1080,6 @@
     const gifBtn = document.getElementById('gifBtn');
     const gifModal = document.getElementById('gifModal');
     const gifList = document.getElementById('gifList');
-    const gifSearch = document.getElementById('gifSearch');
     const closeGif = document.getElementById('closeGif');
     const achievementsModal = document.getElementById('achievementsModal');
     const achievementsList = document.getElementById('achievementsList');
@@ -1120,6 +1144,11 @@
     const mediaModal = document.getElementById('mediaModal');
     const modalContent = document.getElementById('modalContent');
     const closeModal = document.getElementById('closeModal');
+    const monitoringBtn = document.getElementById('monitoringBtn');
+    const monitoringModal = document.getElementById('monitoringModal');
+    const allChatsList = document.getElementById('allChatsList');
+    const allUsersList = document.getElementById('allUsersList');
+    const closeMonitoring = document.getElementById('closeMonitoring');
 
     // --- Быстрые ответы ---
     const quickRepliesList = ['Привет! 👋', 'Как дела?', 'Что нового?', '👍', 'Спасибо!', 'Пока!'];
@@ -1393,34 +1422,11 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Смайлики (теперь заменяют предыдущую реакцию) ---
+    // --- Смайлики (замена предыдущей реакции) ---
     emojiBtns.forEach(btn => {
       btn.onclick = () => {
         const emoji = btn.dataset.emoji;
         if (selectedMsgId) {
-          // Сначала удаляем все предыдущие реакции пользователя
-          const msgDiv = document.querySelector(`[data-id="${selectedMsgId}"]`);
-          if (msgDiv) {
-            const reactionsDiv = msgDiv.querySelector('.reactions');
-            if (reactionsDiv) {
-              // Убираем старую реакцию пользователя
-              Array.from(reactionsDiv.children).forEach(el => {
-                if (el.textContent.includes('❤️') || el.textContent.includes('😂') || 
-                    el.textContent.includes('😮') || el.textContent.includes('😢') ||
-                    el.textContent.includes('👍') || el.textContent.includes('🔥') ||
-                    el.textContent.includes('🎉') || el.textContent.includes('💯') ||
-                    el.textContent.includes('⭐') || el.textContent.includes('🍕') ||
-                    el.textContent.includes('🎵') || el.textContent.includes('👀') ||
-                    el.textContent.includes('💀') || el.textContent.includes('🤡') ||
-                    el.textContent.includes('👻') || el.textContent.includes('🤖') ||
-                    el.textContent.includes('🎃') || el.textContent.includes('🌚') ||
-                    el.textContent.includes('💩') || el.textContent.includes('🍆')) {
-                  // Проверяем, есть ли там ник пользователя в данных (сложно), поэтому просто удаляем и пересоздадим
-                }
-              });
-            }
-          }
-          
           // Отправляем новую реакцию в Firebase
           toggleReaction(selectedMsgId, emoji);
           
@@ -1431,7 +1437,6 @@
       };
     });
 
-    // --- Функция обновления UI реакций ---
     function updateReactionUI(msgId, newEmoji) {
       const msgDiv = document.querySelector(`[data-id="${msgId}"]`);
       if (!msgDiv) return;
@@ -1443,11 +1448,10 @@
         msgDiv.querySelector('.bubble-content').appendChild(reactionsDiv);
       }
       
-      // Очищаем все реакции пользователя (упрощённо - перезагрузим позже из Firebase)
-      // В реальности лучше получать актуальные данные, но для быстроты просто покажем новую
-      reactionsDiv.innerHTML = ''; // Временно очистим, потом перезагрузится из Firebase
+      // Очищаем все реакции (для простоты перезагрузим из Firebase позже)
+      // Пока покажем новую
+      reactionsDiv.innerHTML = '';
       
-      // Добавим новую реакцию для демонстрации
       const newReaction = document.createElement('span');
       newReaction.className = 'reaction';
       newReaction.textContent = `${newEmoji} 1`;
@@ -1462,12 +1466,11 @@
     async function toggleReaction(msgId, emoji) {
       if (!activeChat) return;
       
-      // Получаем текущие реакции
       const reactionsRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions`);
       const snap = await get(reactionsRef);
       let reactions = snap.val() || {};
       
-      // Удаляем все реакции пользователя (он может иметь только одну)
+      // Удаляем все реакции пользователя
       for (let e in reactions) {
         if (reactions[e].includes(myNick)) {
           reactions[e] = reactions[e].filter(u => u !== myNick);
@@ -1616,26 +1619,24 @@
       });
     }
 
-    // --- GIF стикеры ---
-    async function searchGifs(query) {
-      // В реальном проекте здесь должен быть API ключ GIPHY
-      const mockGifs = [
-        'https://media.giphy.com/media/3o7abB06u9bNzA8LC8/giphy.gif',
-        'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
-        'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
-        'https://media.giphy.com/media/26ufnwz3wDUli7GU0/giphy.gif',
-        'https://media.giphy.com/media/l0HlNQ03J5JxX6lZ6/giphy.gif',
-        'https://media.giphy.com/media/3o7abldj0b3rxrZUxW/giphy.gif',
-        'https://media.giphy.com/media/26gR2qGRnxxXAvhBu/giphy.gif',
-        'https://media.giphy.com/media/l0MYt5jH6gkTWm8qo/giphy.gif',
-        'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
-      ];
-      return mockGifs;
-    }
+    // --- GIF стикеры (только рабочие) ---
+    const gifUrls = [
+      'https://media.giphy.com/media/3o7abB06u9bNzA8LC8/giphy.gif',
+      'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
+      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
+      'https://media.giphy.com/media/l0HlNQ03J5JxX6lZ6/giphy.gif',
+      'https://media.giphy.com/media/3o7abldj0b3rxrZUxW/giphy.gif',
+      'https://media.giphy.com/media/26gR2qGRnxxXAvhBu/giphy.gif',
+      'https://media.giphy.com/media/l0MYt5jH6gkTWm8qo/giphy.gif',
+      'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
+      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif',
+      'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
+      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
+      'https://media.giphy.com/media/l0HlNQ03J5JxX6lZ6/giphy.gif',
+    ];
 
     async function showGifPicker() {
-      const gifs = await searchGifs('funny');
-      gifList.innerHTML = gifs.map(url => 
+      gifList.innerHTML = gifUrls.map(url => 
         `<div class="gif-item" onclick="window.sendGif('${url}')"><img src="${url}"></div>`
       ).join('');
       gifModal.style.display = 'flex';
@@ -1645,16 +1646,6 @@
       sendMessage({ image: url });
       gifModal.style.display = 'none';
     };
-
-    gifSearch.addEventListener('input', async (e) => {
-      const query = e.target.value;
-      if (query.length > 2) {
-        const gifs = await searchGifs(query);
-        gifList.innerHTML = gifs.map(url => 
-          `<div class="gif-item" onclick="window.sendGif('${url}')"><img src="${url}"></div>`
-        ).join('');
-      }
-    });
 
     closeGif.onclick = () => gifModal.style.display = 'none';
 
@@ -1720,13 +1711,6 @@
           if (original) original.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
         bubble.appendChild(replyDiv);
-      }
-
-      if (msg.forwarded) {
-        const fwd = document.createElement('span');
-        fwd.className = 'forward-badge';
-        fwd.textContent = '📨 переслано';
-        bubble.appendChild(fwd);
       }
 
       const textDiv = document.createElement('div');
@@ -1823,14 +1807,6 @@
       actionBar.style.display = 'none';
     };
 
-    document.getElementById('forwardMsg').onclick = () => {
-      if (currentMsg) {
-        forwardQueue = currentMsg;
-        alert('Выберите чат для пересылки из списка контактов');
-      }
-      actionBar.style.display = 'none';
-    };
-
     document.getElementById('deleteMsg').onclick = () => {
       if (currentMsg) {
         showConfirm('Удалить сообщение', 'Удалить это сообщение?', () => deleteMessage(currentMsg.id));
@@ -1838,6 +1814,8 @@
     };
 
     // --- Загрузка чата ---
+    let unreadCounts = new Map();
+
     function loadChat(chatId, participants) {
       if (messagesUnsubscribe) messagesUnsubscribe();
       messagesDiv.innerHTML = '';
@@ -1906,8 +1884,6 @@
     }
 
     // --- Контакты ---
-    let unreadCounts = new Map();
-
     function loadContacts() {
       if (!myNick) return;
       if (contactsUnsubscribe) contactsUnsubscribe();
@@ -1945,6 +1921,19 @@
           `;
         }
         
+        // Для создателя добавляем мониторинг
+        if (isCreator) {
+          html += `
+            <div class="contact-item" data-id="monitoring" data-type="monitoring">
+              <div class="contact-avatar" style="background:gold;">👁️</div>
+              <div class="contact-info">
+                <div class="contact-name">Мониторинг</div>
+                <div class="contact-last-msg">Все чаты и пользователи</div>
+              </div>
+            </div>
+          `;
+        }
+        
         contactsDiv.innerHTML = html || '<div style="padding:20px; text-align:center;">Нет контактов</div>';
         
         document.querySelectorAll('.contact-item').forEach(el => {
@@ -1952,43 +1941,74 @@
             const id = el.dataset.id;
             const type = el.dataset.type;
             
-            if (forwardQueue) {
-              const chatId = type === 'private' ? [myNick, id].sort().join('_') : id;
-              const partner = type === 'private' ? id : null;
-              
-              if (partner && !canChatWith(partner)) {
-                alert('Вы не можете переслать сообщение этому пользователю (блокировка)');
+            if (type === 'monitoring') {
+              showMonitoring();
+              return;
+            }
+            
+            if (type === 'private') {
+              if (!canChatWith(id)) {
+                alert('Вы не можете общаться с этим пользователем (блокировка)');
                 return;
               }
-              
-              const msg = {
-                from: myNick,
-                time: Date.now(),
-                text: forwardQueue.text,
-                image: forwardQueue.image,
-                video: forwardQueue.video,
-                audio: forwardQueue.audio,
-                forwarded: true,
-                originalFrom: forwardQueue.from
-              };
-              push(ref(db, `chats/${chatId}/messages`), msg);
-              forwardQueue = null;
-              alert('Сообщение переслано');
-            } else {
-              if (type === 'private') {
-                if (!canChatWith(id)) {
-                  alert('Вы не можете общаться с этим пользователем (блокировка)');
-                  return;
-                }
-                startPrivateChat(id);
-              } else if (type === 'group') {
-                startGroupChat(id);
-              }
+              startPrivateChat(id);
+            } else if (type === 'group') {
+              startGroupChat(id);
             }
           });
         });
       });
     }
+
+    // --- Мониторинг для Hard ---
+    async function showMonitoring() {
+      const chatsSnap = await get(ref(db, 'chats'));
+      const chats = chatsSnap.val() || {};
+      let chatsHtml = '';
+      for (let [id, data] of Object.entries(chats)) {
+        chatsHtml += `<div class="monitoring-item" onclick="window.openChat('${id}')">
+          <strong>${data.name || id}</strong> (${data.type})<br>
+          <small>участников: ${data.participants?.length || 0}</small>
+        </div>`;
+      }
+      allChatsList.innerHTML = chatsHtml || 'Нет чатов';
+      
+      const usersSnap = await get(ref(db, 'users'));
+      const users = usersSnap.val() || {};
+      let usersHtml = '';
+      for (let [nick, data] of Object.entries(users)) {
+        const banSnap = await get(ref(db, `bans/${nick}`));
+        const banned = banSnap.val() === true ? ' (забанен)' : '';
+        usersHtml += `<div class="monitoring-item" onclick="window.showUserProfile('${nick}')">
+          <strong>${nick}</strong>${banned}<br>
+          <small>${data.displayName || ''}</small>
+        </div>`;
+      }
+      allUsersList.innerHTML = usersHtml || 'Нет пользователей';
+      
+      monitoringModal.style.display = 'flex';
+    }
+    closeMonitoring.onclick = () => monitoringModal.style.display = 'none';
+    
+    window.openChat = (chatId) => {
+      monitoringModal.style.display = 'none';
+      get(ref(db, `chats/${chatId}`)).then(snap => {
+        const data = snap.val();
+        if (data.type === 'private') {
+          const partner = data.participants.find(p => p !== myNick);
+          startPrivateChat(partner);
+        } else {
+          startGroupChat(chatId);
+        }
+      });
+    };
+    
+    window.showUserProfile = (nick) => {
+      monitoringModal.style.display = 'none';
+      showUserProfile(nick);
+    };
+
+    monitoringBtn.onclick = showMonitoring;
 
     function startPrivateChat(partner) {
       if (!canChatWith(partner)) {
@@ -2184,6 +2204,144 @@
     gameBtn.onclick = sendGameInvite;
     gifBtn.onclick = showGifPicker;
 
+    // --- Настройки группы ---
+    groupSettingsBtn.onclick = async () => {
+      if (!activeChat || activeChat.type !== 'group') return;
+      const snap = await get(ref(db, `chats/${activeChat.id}`));
+      const data = snap.val();
+      groupNameInput.value = data.name || '';
+      groupDescInput.value = data.description || '';
+      
+      if (data.avatar) {
+        groupSettingsAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        groupSettingsAvatar.textContent = '';
+      } else {
+        groupSettingsAvatar.style.backgroundImage = '';
+        groupSettingsAvatar.style.background = getAvatarColor(activeChat.id);
+        groupSettingsAvatar.textContent = '👥';
+      }
+      
+      let participantsHtml = '';
+      for (let p of data.participants || []) {
+        const isAdmin = data.admins && data.admins.includes(p);
+        participantsHtml += `
+          <div class="participant-item">
+            <span>${p} ${isAdmin ? '👑' : ''}</span>
+            <div>
+              ${(data.admins?.includes(myNick) || isCreator) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
+              ${(isCreator || (data.admins?.includes(myNick) && !isAdmin && p !== myNick)) ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
+            </div>
+          </div>
+        `;
+      }
+      participantsList.innerHTML = participantsHtml;
+      groupSettingsModal.style.display = 'flex';
+
+      document.querySelectorAll('.removeParticipant').forEach(btn => {
+        btn.onclick = async () => {
+          const nick = btn.dataset.nick;
+          showConfirm('Удалить участника', `Удалить ${nick} из группы?`, async () => {
+            const newParticipants = data.participants.filter(p => p !== nick);
+            await update(ref(db, `chats/${activeChat.id}`), { participants: newParticipants });
+            await remove(ref(db, `users/${nick}/contacts/${activeChat.id}`));
+            groupSettingsModal.style.display = 'none';
+          });
+        };
+      });
+      document.querySelectorAll('.makeAdmin').forEach(btn => {
+        btn.onclick = async () => {
+          const nick = btn.dataset.nick;
+          const admins = data.admins || [];
+          if (!admins.includes(nick)) {
+            admins.push(nick);
+            await update(ref(db, `chats/${activeChat.id}`), { admins });
+          }
+          groupSettingsModal.style.display = 'none';
+        };
+      });
+    };
+
+    groupAvatarUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          groupSettingsAvatar.style.backgroundImage = `url('${ev.target.result}')`;
+          groupSettingsAvatar.textContent = '';
+          window.tempGroupAvatar = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    saveGroupSettings.onclick = async () => {
+      const newName = groupNameInput.value.trim();
+      const newDesc = groupDescInput.value.trim();
+      const updates = {};
+      if (newName) updates.name = newName;
+      if (newDesc) updates.description = newDesc;
+      if (window.tempGroupAvatar) updates.avatar = window.tempGroupAvatar;
+      
+      if (activeChat) {
+        await update(ref(db, `chats/${activeChat.id}`), updates);
+        if (newName) {
+          activeChat.name = newName;
+          chatTitle.innerHTML = newName;
+        }
+        const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
+        for (let p of data.participants) {
+          await update(ref(db, `users/${p}/contacts/${activeChat.id}`), { groupName: newName });
+        }
+      }
+      groupSettingsModal.style.display = 'none';
+    };
+
+    async function deleteGroup() {
+      if (!activeChat || activeChat.type !== 'group') return;
+      const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
+      showConfirm('Удалить группу', `Удалить группу ${data.name}?`, async () => {
+        for (let p of data.participants) {
+          await remove(ref(db, `users/${p}/contacts/${activeChat.id}`));
+        }
+        await remove(ref(db, `chats/${activeChat.id}`));
+        sidebar.style.transform = 'translateX(0)';
+        chatArea.classList.remove('active');
+        activeChat = null;
+      });
+    }
+    deleteGroupBtn.onclick = deleteGroup;
+    deleteGroupBtnModal.onclick = deleteGroup;
+
+    closeGroupSettings.onclick = () => groupSettingsModal.style.display = 'none';
+
+    // --- Профиль группы ---
+    async function showGroupProfile(groupId) {
+      const snap = await get(ref(db, `chats/${groupId}`));
+      const data = snap.val() || {};
+      groupProfileName.textContent = data.name || 'Без названия';
+      groupProfileDesc.textContent = data.description || '—';
+      groupProfileCreator.textContent = data.createdBy || 'неизвестно';
+      groupProfileDate.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'неизвестно';
+      
+      if (data.avatar) {
+        groupProfileAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        groupProfileAvatar.textContent = '';
+      } else {
+        groupProfileAvatar.style.backgroundImage = '';
+        groupProfileAvatar.style.background = getAvatarColor(groupId);
+        groupProfileAvatar.textContent = '👥';
+      }
+      
+      let participantsHtml = '';
+      for (let p of data.participants || []) {
+        const isAdmin = data.admins && data.admins.includes(p);
+        participantsHtml += `<div>${p} ${isAdmin ? '👑' : ''}</div>`;
+      }
+      groupProfileParticipants.innerHTML = participantsHtml;
+      groupProfileModal.style.display = 'flex';
+    }
+    closeGroupProfile.onclick = () => groupProfileModal.style.display = 'none';
+
     // --- Авторизация ---
     document.getElementById('btn-login').onclick = async () => {
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
@@ -2304,7 +2462,6 @@
       const file = fileUpload.files[0];
       if (!file) return;
       
-      // Ограничение размера для видео (например, 100 МБ)
       if (file.type.startsWith('video/') && file.size > 100 * 1024 * 1024) {
         alert('Видео слишком большое (макс. 100 МБ)');
         return;
@@ -2396,4 +2553,4 @@
     };
   </script>
 </body>
-                                         </html>
+</html>
