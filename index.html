@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · ultimate</title>
+  <title>Aether · perfect</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
@@ -26,7 +26,6 @@
       background: #0b0f19;
     }
 
-    /* Динамические темы: фон и цвет текста через переменные */
     body {
       --bg-gradient: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);
       --glass-bg: rgba(20, 30, 45, 0.6);
@@ -54,12 +53,7 @@
       --border-light: rgba(0,0,0,0.1);
     }
 
-    body.wallpaper-custom {
-      background-image: var(--wallpaper);
-      background-size: cover;
-    }
-
-    .glass-panel, #auth-screen, .sidebar, .chat-area, .search-box, .current-chat-name, #messages, .contact-item, .msg, .context-menu, .action-bar {
+    .glass-panel, #auth-screen, .sidebar, .chat-area, .search-box, .current-chat-name, #messages, .contact-item, .msg, .context-menu, .action-bar, .profile-modal {
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       background: var(--glass-card);
@@ -84,6 +78,7 @@
       background: rgba(0,0,0,0.2);
       color: var(--text-primary);
       border: 1px solid var(--border-light);
+      font-size: 1rem;
     }
 
     button, .theme-btn {
@@ -114,37 +109,96 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
-    .theme-panel {
+    /* Кнопка профиля */
+    #profileBtn {
       position: absolute;
-      top: 70px;
+      top: 16px;
       right: 16px;
-      background: var(--glass-card);
-      border-radius: 20px;
-      padding: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
       z-index: 200;
+    }
+
+    /* Модалка профиля */
+    .profile-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 400px;
+      padding: 2rem;
+      border-radius: 2rem;
+      z-index: 1000;
       display: none;
       flex-direction: column;
-      gap: 8px;
-      width: 200px;
+      gap: 16px;
     }
 
-    .theme-panel.show {
+    .profile-modal.show {
       display: flex;
     }
 
-    .wallpaper-option {
-      width: 100%;
-      height: 50px;
-      border-radius: 12px;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    .wallpaper-option.selected {
-      border-color: var(--accent);
+    .avatar-large {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
     }
 
+    .overlay {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.7);
+      z-index: 999;
+      display: none;
+    }
+
+    /* Панель действий над сообщением */
+    .action-bar {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 40px;
+      z-index: 150;
+      display: none;
+      background: var(--glass-card);
+      backdrop-filter: blur(20px);
+    }
+
+    .action-bar button {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      padding: 8px;
+      color: var(--text-primary);
+    }
+
+    .action-bar button:hover {
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    /* Сообщения */
     #messages {
       flex: 1;
       overflow-y: auto;
@@ -173,6 +227,7 @@
 
     .msg.pinned {
       border: 2px solid var(--accent);
+      border-radius: 24px;
     }
 
     .avatar-bubble {
@@ -204,16 +259,24 @@
       cursor: pointer;
     }
 
+    .bubble-text audio {
+      max-width: 200px;
+      height: 40px;
+      display: block;
+    }
+
     .msg-time {
       font-size: 0.65rem;
       opacity: 0.7;
       margin-top: 4px;
+      text-align: right;
     }
 
     .reactions {
       display: flex;
       gap: 4px;
       margin-top: 4px;
+      flex-wrap: wrap;
     }
 
     .reaction {
@@ -224,7 +287,16 @@
       cursor: pointer;
     }
 
-    .pinned-badge {
+    .reply-context {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      padding: 4px 8px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      margin-bottom: 4px;
+    }
+
+    .forward-badge {
       font-size: 0.7rem;
       background: var(--accent);
       border-radius: 12px;
@@ -232,25 +304,28 @@
       margin-left: 8px;
     }
 
-    .action-bar {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
+    /* Поиск по сообщениям */
+    .chat-search {
+      padding: 8px 20px;
+      background: var(--glass-card);
+      border-bottom: 1px solid var(--border-light);
       display: flex;
       gap: 8px;
+    }
+
+    .chat-search input {
+      flex: 1;
+      margin: 0;
       padding: 8px 16px;
-      border-radius: 40px;
-      z-index: 150;
-      display: none;
     }
 
-    .action-bar button {
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
+    .chat-search button {
+      width: auto;
+      padding: 8px 16px;
+      margin: 0;
     }
 
+    /* Модальное окно для медиа */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -289,26 +364,47 @@
       #back-to-contacts {
         display: inline-block !important;
       }
+      .action-bar {
+        bottom: 80px;
+        padding: 4px 8px;
+      }
+      .action-bar button {
+        font-size: 1.2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Кнопка темы и обоев -->
-  <button id="themeBtn" style="position:absolute; top:16px; right:16px; z-index:300;"><i class="fas fa-palette"></i></button>
-  <div class="theme-panel" id="themePanel">
-    <h4>Цвет текста</h4>
-    <input type="color" id="textColor" value="#f0f4ff">
-    <h4>Обои</h4>
-    <div class="wallpaper-option" style="background: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);" data-wall="none"></div>
-    <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
-    <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
-    <input type="file" id="wallpaperUpload" accept="image/*">
+  <!-- Кнопка профиля -->
+  <div id="profileBtn"><i class="fas fa-user"></i></div>
+
+  <!-- Модалка профиля -->
+  <div class="overlay" id="overlay"></div>
+  <div class="profile-modal" id="profileModal">
+    <h2>Профиль</h2>
+    <div class="avatar-large" id="profileAvatar">?</div>
+    <input type="text" id="profileName" placeholder="Отображаемое имя" value="">
+    <input type="file" id="avatarUpload" accept="image/*">
+    <button id="saveProfile">Сохранить</button>
+    <button id="closeProfile">Закрыть</button>
+  </div>
+
+  <!-- Панель действий над сообщением -->
+  <div class="action-bar" id="actionBar">
+    <button id="reactLove" title="❤️">❤️</button>
+    <button id="reactLaugh" title="😂">😂</button>
+    <button id="reactWow" title="😮">😮</button>
+    <button id="reactSad" title="😢">😢</button>
+    <button id="replyMsg" title="Ответить"><i class="fas fa-reply"></i></button>
+    <button id="copyMsg" title="Копировать"><i class="fas fa-copy"></i></button>
+    <button id="forwardMsg" title="Переслать"><i class="fas fa-share"></i></button>
+    <button id="pinMsg" title="Закрепить"><i class="fas fa-thumbtack"></i></button>
   </div>
 
   <!-- Auth screen -->
   <div id="auth-screen">
-    <h2><i class="fas fa-cube"></i> AETHER ULTIMATE</h2>
-    <input type="text" id="auth-nick" placeholder="никнейм">
+    <h2><i class="fas fa-cube"></i> AETHER</h2>
+    <input type="text" id="auth-nick" placeholder="никнейм" autocomplete="off">
     <input type="password" id="auth-pass" placeholder="пароль">
     <button id="btn-login"><i class="fas fa-key"></i> Войти / Создать</button>
   </div>
@@ -317,7 +413,7 @@
   <div id="main-wrapper">
     <div class="sidebar" id="sidebar">
       <div class="search-box">
-        <input type="text" id="search-user" placeholder="поиск...">
+        <input type="text" id="search-user" placeholder="поиск контактов...">
         <button id="btn-search"><i class="fas fa-search"></i></button>
         <button id="new-group"><i class="fas fa-users"></i></button>
       </div>
@@ -328,30 +424,27 @@
       <div class="current-chat-name">
         <button id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
         <span id="chat-with-title">...</span>
-        <span id="typingIndicator" style="margin-left: auto;"></span>
+        <span id="typingIndicator" style="margin-left: auto; font-size:0.8rem;"></span>
         <button id="pinInfo" style="background:transparent; border:none;"><i class="fas fa-thumbtack"></i></button>
       </div>
+
+      <!-- Поиск по сообщениям -->
+      <div class="chat-search">
+        <input type="text" id="search-messages" placeholder="🔍 поиск в чате...">
+        <button id="clearSearch"><i class="fas fa-times"></i></button>
+      </div>
+
       <div id="messages"></div>
-      <div class="chat-input-row">
+
+      <div class="chat-input-row" style="display:flex; gap:8px; padding:12px 20px; border-top:1px solid var(--border-light);">
         <label class="attach-btn"><i class="fas fa-paperclip"></i>
           <input type="file" id="fileUpload" accept="image/*,video/*" hidden>
         </label>
         <button id="record-btn"><i class="fas fa-microphone"></i></button>
-        <input type="text" id="msg-input" placeholder="сообщение...">
+        <input type="text" id="msg-input" placeholder="сообщение..." style="flex:1;">
         <button id="btn-send"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
-  </div>
-
-  <!-- Панель действий при клике на сообщение -->
-  <div class="action-bar" id="actionBar">
-    <button id="reactLove">❤️</button>
-    <button id="reactLaugh">😂</button>
-    <button id="reactWow">😮</button>
-    <button id="reactSad">😢</button>
-    <button id="copyMsg"><i class="fas fa-copy"></i></button>
-    <button id="forwardMsg"><i class="fas fa-share"></i></button>
-    <button id="pinMsg"><i class="fas fa-thumbtack"></i></button>
   </div>
 
   <!-- Модальное окно для полноэкранного просмотра -->
@@ -379,6 +472,7 @@
 
     // --- Состояние ---
     let myNick = '';
+    let myDisplayName = '';
     let activeChat = null; // { id, type, participants }
     let messagesUnsubscribe = null;
     let contactsUnsubscribe = null;
@@ -387,6 +481,7 @@
     let audioChunks = [];
     let selectedMsgId = null; // для action bar
     let forwardQueue = null; // для пересылки
+    let replyTo = null; // для ответа
 
     // DOM
     const authScreen = document.getElementById('auth-screen');
@@ -405,15 +500,27 @@
     const recordBtn = document.getElementById('record-btn');
     const newGroupBtn = document.getElementById('new-group');
     const typingSpan = document.getElementById('typingIndicator');
-    const themeBtn = document.getElementById('themeBtn');
-    const themePanel = document.getElementById('themePanel');
-    const textColorInput = document.getElementById('textColor');
-    const wallpaperUpload = document.getElementById('wallpaperUpload');
     const actionBar = document.getElementById('actionBar');
     const pinInfo = document.getElementById('pinInfo');
     const mediaModal = document.getElementById('mediaModal');
     const modalContent = document.getElementById('modalContent');
     const closeModal = document.getElementById('closeModal');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    const overlay = document.getElementById('overlay');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileName = document.getElementById('profileName');
+    const avatarUpload = document.getElementById('avatarUpload');
+    const saveProfile = document.getElementById('saveProfile');
+    const closeProfile = document.getElementById('closeProfile');
+    const searchMessagesInput = document.getElementById('search-messages');
+    const clearSearchBtn = document.getElementById('clearSearch');
+
+    // --- Загрузка сохранённого ника ---
+    const savedNick = localStorage.getItem('aether_nick');
+    if (savedNick) {
+      document.getElementById('auth-nick').value = savedNick;
+    }
 
     // --- Вспомогательные функции ---
     function getAvatarColor(nick) {
@@ -422,7 +529,6 @@
       return `hsl(${Math.abs(hash % 360)}, 70%, 55%)`;
     }
 
-    // --- Загрузка аватарок (кэш) ---
     const avatarCache = new Map();
     async function loadAvatar(nick) {
       if (avatarCache.has(nick)) return avatarCache.get(nick);
@@ -432,40 +538,59 @@
       return url;
     }
 
-    // --- Настройка темы (обои, цвет текста) ---
-    function applyTheme() {
-      const savedWall = localStorage.getItem('wallpaper') || 'none';
-      const savedColor = localStorage.getItem('textColor') || '#f0f4ff';
-      document.body.style.setProperty('--wallpaper', savedWall === 'none' ? 'var(--bg-gradient)' : savedWall);
-      document.body.style.setProperty('--text-primary', savedColor);
+    async function loadDisplayName(nick) {
+      const snap = await get(ref(db, `users/${nick}/displayName`));
+      return snap.val() || nick;
     }
-    applyTheme();
 
-    themeBtn.onclick = () => themePanel.classList.toggle('show');
-
-    document.querySelectorAll('.wallpaper-option').forEach(el => {
-      el.onclick = () => {
-        const wall = el.dataset.wall;
-        localStorage.setItem('wallpaper', wall);
-        applyTheme();
-      };
-    });
-
-    textColorInput.oninput = (e) => {
-      localStorage.setItem('textColor', e.target.value);
-      applyTheme();
+    // --- Профиль ---
+    profileBtn.onclick = () => {
+      profileModal.classList.add('show');
+      overlay.style.display = 'block';
+      // Загрузить данные
+      get(ref(db, `users/${myNick}`)).then(snap => {
+        const data = snap.val() || {};
+        profileName.value = data.displayName || myNick;
+        if (data.avatar) {
+          profileAvatar.style.backgroundImage = `url('${data.avatar}')`;
+          profileAvatar.textContent = '';
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.style.background = getAvatarColor(myNick);
+          profileAvatar.textContent = myNick.charAt(0).toUpperCase();
+        }
+      });
     };
 
-    wallpaperUpload.onchange = (e) => {
+    closeProfile.onclick = () => {
+      profileModal.classList.remove('show');
+      overlay.style.display = 'none';
+    };
+
+    avatarUpload.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-          localStorage.setItem('wallpaper', `url('${ev.target.result}')`);
-          applyTheme();
+          profileAvatar.style.backgroundImage = `url('${ev.target.result}')`;
+          profileAvatar.textContent = '';
+          // Сохраним позже по кнопке
+          window.tempAvatar = ev.target.result;
         };
         reader.readAsDataURL(file);
       }
+    };
+
+    saveProfile.onclick = async () => {
+      const updates = {};
+      updates[`users/${myNick}/displayName`] = profileName.value;
+      if (window.tempAvatar) {
+        updates[`users/${myNick}/avatar`] = window.tempAvatar;
+        avatarCache.set(myNick, window.tempAvatar);
+      }
+      await update(ref(db), updates);
+      myDisplayName = profileName.value;
+      closeProfile.click();
     };
 
     // --- Полноэкранный просмотр ---
@@ -476,7 +601,7 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Отрисовка сообщения (с поддержкой pin, реакций, клика по медиа) ---
+    // --- Отрисовка сообщения ---
     function drawMessage(msg, isMe) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
@@ -484,7 +609,6 @@
       msgDiv.dataset.from = msg.from;
       msgDiv.dataset.text = msg.text || '';
 
-      // Если сообщение закреплено, добавляем класс
       if (msg.pinned) msgDiv.classList.add('pinned');
 
       if (!isMe) {
@@ -501,12 +625,20 @@
       const bubble = document.createElement('div');
       bubble.className = 'bubble-content';
 
-      // Reply context (если есть)
+      // Reply context
       if (msg.replyTo) {
         const replyDiv = document.createElement('div');
         replyDiv.className = 'reply-context';
         replyDiv.innerHTML = `<i class="fas fa-reply"></i> ${msg.replyTo.from}: ${msg.replyTo.text.substring(0,30)}...`;
         bubble.appendChild(replyDiv);
+      }
+
+      // Forward badge
+      if (msg.forwarded) {
+        const fwd = document.createElement('span');
+        fwd.className = 'forward-badge';
+        fwd.textContent = '📨 переслано';
+        bubble.appendChild(fwd);
       }
 
       const textDiv = document.createElement('div');
@@ -523,6 +655,12 @@
         video.style.maxWidth = '200px';
         video.onclick = (e) => { e.stopPropagation(); openMedia(msg.video, 'video'); };
         textDiv.appendChild(video);
+      } else if (msg.audio) {
+        const audio = document.createElement('audio');
+        audio.src = msg.audio;
+        audio.controls = true;
+        audio.style.width = '200px';
+        textDiv.appendChild(audio);
       } else {
         textDiv.textContent = msg.text || '';
       }
@@ -531,7 +669,7 @@
       timeDiv.className = 'msg-time';
       timeDiv.textContent = msg.time ? new Date(msg.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
 
-      // Реакции
+      // Reactions
       const reactionsDiv = document.createElement('div');
       reactionsDiv.className = 'reactions';
       if (msg.reactions) {
@@ -549,18 +687,16 @@
       bubble.appendChild(reactionsDiv);
       msgDiv.appendChild(bubble);
 
-      // Клик по сообщению для вызова action bar
+      // Клик для вызова action bar
       msgDiv.onclick = (e) => {
         e.stopPropagation();
-        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') return;
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO') return;
         selectedMsgId = msg.id;
-        // Позиционировать панель рядом с сообщением
+        window.currentMsg = msg;
         const rect = msgDiv.getBoundingClientRect();
         actionBar.style.left = rect.left + rect.width/2 + 'px';
         actionBar.style.bottom = (window.innerHeight - rect.top) + 40 + 'px';
         actionBar.style.display = 'flex';
-        // Сохраняем данные сообщения для кнопок
-        window.currentMsg = msg;
       };
 
       return msgDiv;
@@ -580,7 +716,16 @@
       await set(reactionRef, users);
     }
 
-    // --- Копирование текста ---
+    // --- Ответ на сообщение ---
+    document.getElementById('replyMsg').onclick = () => {
+      if (window.currentMsg) {
+        replyTo = { id: window.currentMsg.id, from: window.currentMsg.from, text: window.currentMsg.text || 'Медиа' };
+        msgInput.placeholder = `Ответ @${replyTo.from}...`;
+      }
+      actionBar.style.display = 'none';
+    };
+
+    // --- Копирование ---
     document.getElementById('copyMsg').onclick = () => {
       if (window.currentMsg && window.currentMsg.text) {
         navigator.clipboard.writeText(window.currentMsg.text);
@@ -591,34 +736,16 @@
     // --- Пересылка ---
     document.getElementById('forwardMsg').onclick = () => {
       if (window.currentMsg) {
-        forwardQueue = window.currentMsg; // сохраняем сообщение
+        forwardQueue = window.currentMsg;
         alert('Выберите чат для пересылки из списка контактов');
-        // можно подсветить контакты
-        actionBar.style.display = 'none';
       }
+      actionBar.style.display = 'none';
     };
-
-    // При клике на контакт, если есть forwardQueue, отправляем
-    function forwardToChat(chatId, participants) {
-      if (!forwardQueue) return;
-      const msg = {
-        from: myNick,
-        time: Date.now(),
-        text: forwardQueue.text,
-        image: forwardQueue.image,
-        video: forwardQueue.video,
-        forwarded: true,
-        originalFrom: forwardQueue.from
-      };
-      push(ref(db, `chats/${chatId}/messages`), msg);
-      forwardQueue = null;
-    }
 
     // --- Закрепление ---
     document.getElementById('pinMsg').onclick = async () => {
       if (!activeChat || !window.currentMsg) return;
       const msgId = window.currentMsg.id;
-      // Сначала снимем старое закрепление, если есть
       const chatRef = ref(db, `chats/${activeChat.id}`);
       const snap = await get(chatRef);
       const data = snap.val() || {};
@@ -630,32 +757,29 @@
       actionBar.style.display = 'none';
     };
 
-    // Показать информацию о закреплённом
     pinInfo.onclick = async () => {
       if (!activeChat) return;
       const snap = await get(ref(db, `chats/${activeChat.id}/pinnedMessage`));
       const pinnedId = snap.val();
       if (pinnedId) {
         alert('Закреплённое сообщение ID: ' + pinnedId);
-        // Можно подсветить
       } else {
         alert('Нет закреплённых сообщений');
       }
     };
 
-    // --- Кнопки реакций в action bar ---
+    // --- Реакции кнопки ---
     document.getElementById('reactLove').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '❤️'); actionBar.style.display = 'none'; };
     document.getElementById('reactLaugh').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😂'); actionBar.style.display = 'none'; };
     document.getElementById('reactWow').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😮'); actionBar.style.display = 'none'; };
     document.getElementById('reactSad').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😢'); actionBar.style.display = 'none'; };
 
-    // --- Загрузка чата (исправлено двойное отображение) ---
+    // --- Загрузка чата ---
     function loadChat(chatId, participants) {
       if (messagesUnsubscribe) messagesUnsubscribe();
-      messagesDiv.innerHTML = ''; // Очищаем перед загрузкой
+      messagesDiv.innerHTML = '';
 
       const messagesRef = ref(db, `chats/${chatId}/messages`);
-      // Сначала грузим все существующие (один раз)
       get(messagesRef).then(snap => {
         const msgs = snap.val();
         if (msgs) {
@@ -666,17 +790,14 @@
         scrollToBottom();
       });
 
-      // Затем слушаем новые (не будет дублей, т.к. мы не очищаем при добавлении)
       messagesUnsubscribe = onChildAdded(messagesRef, (snap) => {
         const msg = { id: snap.key, ...snap.val() };
-        // Проверка на дубликат (если вдруг)
         if (!document.querySelector(`[data-id="${msg.id}"]`)) {
           messagesDiv.appendChild(drawMessage(msg, msg.from === myNick));
           scrollIfNeeded();
         }
       });
 
-      // Слушаем изменения закрепления
       onValue(ref(db, `chats/${chatId}/pinnedMessage`), (snap) => {
         const pinnedId = snap.val();
         document.querySelectorAll('.msg').forEach(el => el.classList.remove('pinned'));
@@ -694,7 +815,20 @@
       if (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100) scrollToBottom();
     }
 
-    // --- Контакты (адаптировано для пересылки) ---
+    // --- Поиск сообщений ---
+    searchMessagesInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.msg').forEach(msg => {
+        const text = msg.dataset.text?.toLowerCase() || '';
+        msg.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    });
+    clearSearchBtn.onclick = () => {
+      searchMessagesInput.value = '';
+      document.querySelectorAll('.msg').forEach(msg => msg.style.display = 'flex');
+    };
+
+    // --- Контакты и пересылка ---
     function loadContacts() {
       if (!myNick) return;
       if (contactsUnsubscribe) contactsUnsubscribe();
@@ -728,9 +862,18 @@
             const id = el.dataset.id;
             const type = el.dataset.type;
             if (forwardQueue) {
-              // Пересылаем в этот чат
               const chatId = type === 'private' ? [myNick, id].sort().join('_') : id;
-              forwardToChat(chatId, [myNick, id]); // упрощённо
+              const msg = {
+                from: myNick,
+                time: Date.now(),
+                text: forwardQueue.text,
+                image: forwardQueue.image,
+                video: forwardQueue.video,
+                audio: forwardQueue.audio,
+                forwarded: true,
+                originalFrom: forwardQueue.from
+              };
+              push(ref(db, `chats/${chatId}/messages`), msg);
               forwardQueue = null;
               alert('Сообщение переслано');
             } else {
@@ -742,7 +885,6 @@
       });
     }
 
-    // --- Старт приватного чата ---
     function startPrivateChat(partner) {
       const chatId = [myNick, partner].sort().join('_');
       activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
@@ -771,9 +913,13 @@
         time: Date.now(),
         ...content
       };
+      if (replyTo) {
+        msg.replyTo = { id: replyTo.id, from: replyTo.from, text: replyTo.text };
+        replyTo = null;
+        msgInput.placeholder = 'Сообщение...';
+      }
       await push(ref(db, `chats/${activeChat.id}/messages`), msg);
-      // Обновить последнее сообщение у контактов
-      const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : ''));
+      const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : (content.audio ? '🎤' : '')));
       for (let p of activeChat.participants) {
         if (p !== myNick) {
           await update(ref(db, `users/${p}/contacts/${myNick}`), { lastMsg, lastTime: Date.now() });
@@ -781,16 +927,7 @@
       }
     }
 
-    // --- Поиск сообщений (исправлено двойное отображение) ---
-    document.getElementById('search-messages')?.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      document.querySelectorAll('.msg').forEach(msg => {
-        const text = msg.dataset.text?.toLowerCase() || '';
-        msg.style.display = text.includes(query) ? 'flex' : 'none';
-      });
-    });
-
-    // --- Остальной код (авторизация, медиа, группы и т.д.) ---
+    // --- Авторизация с сохранением ника ---
     document.getElementById('btn-login').onclick = async () => {
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
       const pass = document.getElementById('auth-pass').value;
@@ -803,6 +940,7 @@
         await set(userRef, { password: pass, nickname: nick });
       }
       myNick = nick;
+      localStorage.setItem('aether_nick', nick); // сохраняем ник
       authScreen.style.display = 'none';
       mainWrapper.style.display = 'flex';
       loadContacts();
@@ -881,4 +1019,4 @@
     };
   </script>
 </body>
-      </html>
+  </html>
