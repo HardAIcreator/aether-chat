@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · ultra</title>
+  <title>Aether · ultimate</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
@@ -22,8 +22,25 @@
       align-items: center;
       justify-content: center;
       padding: 12px;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.3s;
       background: #0b0f19;
+    }
+
+    /* Динамические темы: фон и цвет текста через переменные */
+    body {
+      --bg-gradient: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);
+      --glass-bg: rgba(20, 30, 45, 0.6);
+      --glass-card: rgba(15, 25, 40, 0.7);
+      --text-primary: #f0f4ff;
+      --text-secondary: #a0b3d9;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.5);
+      --border-light: rgba(255,255,255,0.05);
+      --wallpaper: none;
+      color: var(--text-primary);
+      background-image: var(--wallpaper) !important;
+      background-size: cover;
+      background-position: center;
     }
 
     body.light {
@@ -37,23 +54,12 @@
       --border-light: rgba(0,0,0,0.1);
     }
 
-    body.dark {
-      --bg-gradient: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);
-      --glass-bg: rgba(20, 30, 45, 0.6);
-      --glass-card: rgba(15, 25, 40, 0.7);
-      --text-primary: #f0f4ff;
-      --text-secondary: #a0b3d9;
-      --accent: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.5);
-      --border-light: rgba(255,255,255,0.05);
+    body.wallpaper-custom {
+      background-image: var(--wallpaper);
+      background-size: cover;
     }
 
-    body {
-      background-image: var(--bg-gradient);
-      color: var(--text-primary);
-    }
-
-    .glass-panel, #auth-screen, .sidebar, .chat-area, .search-box, .current-chat-name, #messages, .contact-item, .msg, .context-menu {
+    .glass-panel, #auth-screen, .sidebar, .chat-area, .search-box, .current-chat-name, #messages, .contact-item, .msg, .context-menu, .action-bar {
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       background: var(--glass-card);
@@ -70,7 +76,7 @@
       animation: fadeIn 0.4s ease;
     }
 
-    input, button, .emoji-btn {
+    input, button, .theme-btn {
       padding: 12px 16px;
       border-radius: 40px;
       border: none;
@@ -80,7 +86,7 @@
       border: 1px solid var(--border-light);
     }
 
-    button, .emoji-btn {
+    button, .theme-btn {
       background: var(--accent);
       color: white;
       cursor: pointer;
@@ -110,79 +116,33 @@
       flex-direction: column;
     }
 
-    .theme-toggle {
+    .theme-panel {
       position: absolute;
-      top: 16px;
+      top: 70px;
       right: 16px;
       background: var(--glass-card);
-      border-radius: 40px;
-      padding: 8px 16px;
-      cursor: pointer;
-      z-index: 100;
-      display: flex;
-      gap: 8px;
-    }
-
-    .search-box {
-      padding: 20px 16px;
-      display: flex;
-      gap: 8px;
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    #contacts-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px 8px;
-    }
-
-    .contact-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
       border-radius: 20px;
-      margin-bottom: 4px;
-      cursor: pointer;
-    }
-
-    .contact-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      background-size: cover;
-      position: relative;
-    }
-
-    .online-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #4ade80;
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      border: 2px solid var(--glass-card);
-    }
-
-    .contact-info {
-      flex: 1;
-    }
-
-    .current-chat-name {
-      padding: 18px 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    #back-to-contacts {
+      padding: 16px;
+      z-index: 200;
       display: none;
+      flex-direction: column;
+      gap: 8px;
+      width: 200px;
+    }
+
+    .theme-panel.show {
+      display: flex;
+    }
+
+    .wallpaper-option {
+      width: 100%;
+      height: 50px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .wallpaper-option.selected {
+      border-color: var(--accent);
     }
 
     #messages {
@@ -192,6 +152,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      background: transparent;
     }
 
     .msg {
@@ -208,6 +169,10 @@
 
     .msg.received {
       align-self: flex-start;
+    }
+
+    .msg.pinned {
+      border: 2px solid var(--accent);
     }
 
     .avatar-bubble {
@@ -233,9 +198,10 @@
       background: var(--accent);
     }
 
-    .bubble-text img, .bubble-text audio, .bubble-text video {
+    .bubble-text img, .bubble-text video {
       max-width: 200px;
       border-radius: 12px;
+      cursor: pointer;
     }
 
     .msg-time {
@@ -258,73 +224,47 @@
       cursor: pointer;
     }
 
-    .reply-context {
-      font-size: 0.8rem;
-      opacity: 0.7;
-      padding: 4px 8px;
-      background: rgba(0,0,0,0.2);
+    .pinned-badge {
+      font-size: 0.7rem;
+      background: var(--accent);
       border-radius: 12px;
-      margin-bottom: 4px;
+      padding: 2px 8px;
+      margin-left: 8px;
     }
 
-    .chat-input-row {
-      padding: 18px 20px;
+    .action-bar {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      gap: 12px;
-      border-top: 1px solid var(--border-light);
-      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 40px;
+      z-index: 150;
+      display: none;
     }
 
-    .chat-input-row input {
-      flex: 1;
+    .action-bar button {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
     }
 
-    .attach-btn, #btn-send, #record-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
-      background: rgba(30,40,60,0.8);
-    }
-
-    #btn-send {
-      background: var(--accent);
-    }
-
-    #record-btn.recording {
-      background: #ef4444;
-      animation: pulse 1s infinite;
-    }
-
-    .context-menu {
-      position: absolute;
-      background: var(--glass-card);
-      border-radius: 12px;
-      padding: 8px 0;
       z-index: 1000;
       display: none;
     }
 
-    .context-menu div {
-      padding: 8px 24px;
-      cursor: pointer;
-    }
-
-    .context-menu div:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    @keyframes popIn {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+    .modal img, .modal video {
+      max-width: 90%;
+      max-height: 90%;
     }
 
     @media (max-width: 700px) {
@@ -352,22 +292,32 @@
     }
   </style>
 </head>
-<body class="dark">
-  <div class="theme-toggle" id="themeToggle">
-    <i class="fas fa-sun"></i><span>Тема</span><i class="fas fa-moon"></i>
+<body>
+  <!-- Кнопка темы и обоев -->
+  <button id="themeBtn" style="position:absolute; top:16px; right:16px; z-index:300;"><i class="fas fa-palette"></i></button>
+  <div class="theme-panel" id="themePanel">
+    <h4>Цвет текста</h4>
+    <input type="color" id="textColor" value="#f0f4ff">
+    <h4>Обои</h4>
+    <div class="wallpaper-option" style="background: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);" data-wall="none"></div>
+    <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
+    <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
+    <input type="file" id="wallpaperUpload" accept="image/*">
   </div>
 
+  <!-- Auth screen -->
   <div id="auth-screen">
-    <h2><i class="fas fa-cube"></i> AETHER ULTRA</h2>
+    <h2><i class="fas fa-cube"></i> AETHER ULTIMATE</h2>
     <input type="text" id="auth-nick" placeholder="никнейм">
     <input type="password" id="auth-pass" placeholder="пароль">
     <button id="btn-login"><i class="fas fa-key"></i> Войти / Создать</button>
   </div>
 
+  <!-- Main app -->
   <div id="main-wrapper">
     <div class="sidebar" id="sidebar">
       <div class="search-box">
-        <input type="text" id="search-user" placeholder="поиск пользователей...">
+        <input type="text" id="search-user" placeholder="поиск...">
         <button id="btn-search"><i class="fas fa-search"></i></button>
         <button id="new-group"><i class="fas fa-users"></i></button>
       </div>
@@ -378,12 +328,13 @@
       <div class="current-chat-name">
         <button id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
         <span id="chat-with-title">...</span>
-        <span id="typingIndicator" style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;"></span>
+        <span id="typingIndicator" style="margin-left: auto;"></span>
+        <button id="pinInfo" style="background:transparent; border:none;"><i class="fas fa-thumbtack"></i></button>
       </div>
       <div id="messages"></div>
       <div class="chat-input-row">
         <label class="attach-btn"><i class="fas fa-paperclip"></i>
-          <input type="file" id="fileUpload" accept="image/*,audio/*,video/*" hidden>
+          <input type="file" id="fileUpload" accept="image/*,video/*" hidden>
         </label>
         <button id="record-btn"><i class="fas fa-microphone"></i></button>
         <input type="text" id="msg-input" placeholder="сообщение...">
@@ -392,9 +343,21 @@
     </div>
   </div>
 
-  <div class="context-menu" id="contextMenu">
-    <div id="replyOption">Ответить</div>
-    <div id="reactOption">Реакция ❤️</div>
+  <!-- Панель действий при клике на сообщение -->
+  <div class="action-bar" id="actionBar">
+    <button id="reactLove">❤️</button>
+    <button id="reactLaugh">😂</button>
+    <button id="reactWow">😮</button>
+    <button id="reactSad">😢</button>
+    <button id="copyMsg"><i class="fas fa-copy"></i></button>
+    <button id="forwardMsg"><i class="fas fa-share"></i></button>
+    <button id="pinMsg"><i class="fas fa-thumbtack"></i></button>
+  </div>
+
+  <!-- Модальное окно для полноэкранного просмотра -->
+  <div class="modal" id="mediaModal">
+    <span style="position:absolute; top:20px; right:30px; font-size:40px; cursor:pointer;" id="closeModal">&times;</span>
+    <div id="modalContent"></div>
   </div>
 
   <script type="module">
@@ -414,17 +377,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- State ---
+    // --- Состояние ---
     let myNick = '';
-    let myUid = ''; // we'll use nick as uid for simplicity
-    let activeChat = null; // { id, type: 'private' | 'group', participants: [] }
+    let activeChat = null; // { id, type, participants }
     let messagesUnsubscribe = null;
     let contactsUnsubscribe = null;
     let typingTimeout = null;
     let mediaRecorder = null;
     let audioChunks = [];
-    let replyTo = null; // { id, text, from }
-    const contactsCache = new Map();
+    let selectedMsgId = null; // для action bar
+    let forwardQueue = null; // для пересылки
 
     // DOM
     const authScreen = document.getElementById('auth-screen');
@@ -439,58 +401,91 @@
     const backBtn = document.getElementById('back-to-contacts');
     const chatArea = document.getElementById('chatArea');
     const sidebar = document.getElementById('sidebar');
-    const themeToggle = document.getElementById('themeToggle');
     const fileUpload = document.getElementById('fileUpload');
     const recordBtn = document.getElementById('record-btn');
     const newGroupBtn = document.getElementById('new-group');
-    const contextMenu = document.getElementById('contextMenu');
-    const replyOption = document.getElementById('replyOption');
-    const reactOption = document.getElementById('reactOption');
     const typingSpan = document.getElementById('typingIndicator');
+    const themeBtn = document.getElementById('themeBtn');
+    const themePanel = document.getElementById('themePanel');
+    const textColorInput = document.getElementById('textColor');
+    const wallpaperUpload = document.getElementById('wallpaperUpload');
+    const actionBar = document.getElementById('actionBar');
+    const pinInfo = document.getElementById('pinInfo');
+    const mediaModal = document.getElementById('mediaModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeModal = document.getElementById('closeModal');
 
-    // --- Helpers ---
+    // --- Вспомогательные функции ---
     function getAvatarColor(nick) {
       let hash = 0;
       for (let i = 0; i < nick.length; i++) hash = nick.charCodeAt(i) + ((hash << 5) - hash);
       return `hsl(${Math.abs(hash % 360)}, 70%, 55%)`;
     }
 
+    // --- Загрузка аватарок (кэш) ---
+    const avatarCache = new Map();
     async function loadAvatar(nick) {
-      if (contactsCache.has(nick)) return contactsCache.get(nick);
+      if (avatarCache.has(nick)) return avatarCache.get(nick);
       const snap = await get(ref(db, `users/${nick}/avatar`));
       const url = snap.val();
-      contactsCache.set(nick, url);
+      avatarCache.set(nick, url);
       return url;
     }
 
-    // --- Offline cache (simple localStorage) ---
-    function cacheMessages(chatId, messages) {
-      try {
-        localStorage.setItem(`chat_${chatId}`, JSON.stringify(messages.slice(-50))); // last 50
-      } catch(e) {}
+    // --- Настройка темы (обои, цвет текста) ---
+    function applyTheme() {
+      const savedWall = localStorage.getItem('wallpaper') || 'none';
+      const savedColor = localStorage.getItem('textColor') || '#f0f4ff';
+      document.body.style.setProperty('--wallpaper', savedWall === 'none' ? 'var(--bg-gradient)' : savedWall);
+      document.body.style.setProperty('--text-primary', savedColor);
     }
+    applyTheme();
 
-    function getCachedMessages(chatId) {
-      try {
-        return JSON.parse(localStorage.getItem(`chat_${chatId}`)) || [];
-      } catch { return []; }
+    themeBtn.onclick = () => themePanel.classList.toggle('show');
+
+    document.querySelectorAll('.wallpaper-option').forEach(el => {
+      el.onclick = () => {
+        const wall = el.dataset.wall;
+        localStorage.setItem('wallpaper', wall);
+        applyTheme();
+      };
+    });
+
+    textColorInput.oninput = (e) => {
+      localStorage.setItem('textColor', e.target.value);
+      applyTheme();
+    };
+
+    wallpaperUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          localStorage.setItem('wallpaper', `url('${ev.target.result}')`);
+          applyTheme();
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // --- Полноэкранный просмотр ---
+    function openMedia(src, type) {
+      modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay></video>` : `<img src="${src}">`;
+      mediaModal.style.display = 'flex';
     }
+    closeModal.onclick = () => mediaModal.style.display = 'none';
+    mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Online status ---
-    function setupPresence() {
-      if (!myNick) return;
-      const userStatusRef = ref(db, `status/${myNick}`);
-      set(userStatusRef, 'online');
-      onDisconnect(userStatusRef).set('offline');
-    }
-
-    // --- Render message with reactions, reply, etc ---
+    // --- Отрисовка сообщения (с поддержкой pin, реакций, клика по медиа) ---
     function drawMessage(msg, isMe) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
       msgDiv.dataset.id = msg.id;
       msgDiv.dataset.from = msg.from;
       msgDiv.dataset.text = msg.text || '';
+
+      // Если сообщение закреплено, добавляем класс
+      if (msg.pinned) msgDiv.classList.add('pinned');
 
       if (!isMe) {
         const ava = document.createElement('div');
@@ -506,7 +501,7 @@
       const bubble = document.createElement('div');
       bubble.className = 'bubble-content';
 
-      // Reply context if any
+      // Reply context (если есть)
       if (msg.replyTo) {
         const replyDiv = document.createElement('div');
         replyDiv.className = 'reply-context';
@@ -519,17 +514,14 @@
       if (msg.image) {
         const img = document.createElement('img');
         img.src = msg.image;
+        img.onclick = () => openMedia(msg.image, 'image');
         textDiv.appendChild(img);
-      } else if (msg.audio) {
-        const audio = document.createElement('audio');
-        audio.src = msg.audio;
-        audio.controls = true;
-        textDiv.appendChild(audio);
       } else if (msg.video) {
         const video = document.createElement('video');
         video.src = msg.video;
         video.controls = true;
         video.style.maxWidth = '200px';
+        video.onclick = (e) => { e.stopPropagation(); openMedia(msg.video, 'video'); };
         textDiv.appendChild(video);
       } else {
         textDiv.textContent = msg.text || '';
@@ -539,7 +531,7 @@
       timeDiv.className = 'msg-time';
       timeDiv.textContent = msg.time ? new Date(msg.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
 
-      // Reactions
+      // Реакции
       const reactionsDiv = document.createElement('div');
       reactionsDiv.className = 'reactions';
       if (msg.reactions) {
@@ -557,41 +549,24 @@
       bubble.appendChild(reactionsDiv);
       msgDiv.appendChild(bubble);
 
-      // Context menu on long press
-      msgDiv.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        showContextMenu(e.pageX, e.pageY, msg.id, msg.from, msg.text);
-      });
+      // Клик по сообщению для вызова action bar
+      msgDiv.onclick = (e) => {
+        e.stopPropagation();
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') return;
+        selectedMsgId = msg.id;
+        // Позиционировать панель рядом с сообщением
+        const rect = msgDiv.getBoundingClientRect();
+        actionBar.style.left = rect.left + rect.width/2 + 'px';
+        actionBar.style.bottom = (window.innerHeight - rect.top) + 40 + 'px';
+        actionBar.style.display = 'flex';
+        // Сохраняем данные сообщения для кнопок
+        window.currentMsg = msg;
+      };
 
       return msgDiv;
     }
 
-    // --- Send message (supports reply, media) ---
-    async function sendMessage(content) {
-      if (!activeChat) return;
-      const chatId = activeChat.id;
-      const msg = {
-        from: myNick,
-        time: Date.now(),
-        ...content
-      };
-      if (replyTo) {
-        msg.replyTo = { id: replyTo.id, from: replyTo.from, text: replyTo.text };
-        replyTo = null;
-      }
-
-      const newRef = await push(ref(db, `chats/${chatId}/messages`), msg);
-      // Update last message in contact list
-      const lastMsg = content.text || (content.image ? '📷' : (content.audio ? '🎤' : ''));
-      for (let p of activeChat.participants) {
-        if (p !== myNick) {
-          await set(ref(db, `users/${p}/contacts/${myNick}/lastMsg`), lastMsg);
-          await set(ref(db, `users/${p}/contacts/${myNick}/lastTime`), Date.now());
-        }
-      }
-    }
-
-    // --- Reactions ---
+    // --- Реакции ---
     async function toggleReaction(msgId, emoji) {
       if (!activeChat) return;
       const reactionRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions/${emoji}`);
@@ -605,51 +580,121 @@
       await set(reactionRef, users);
     }
 
-    // --- Typing indicator ---
-    function sendTyping(chatId, isTyping) {
-      set(ref(db, `chats/${chatId}/typing/${myNick}`), isTyping ? true : null);
+    // --- Копирование текста ---
+    document.getElementById('copyMsg').onclick = () => {
+      if (window.currentMsg && window.currentMsg.text) {
+        navigator.clipboard.writeText(window.currentMsg.text);
+      }
+      actionBar.style.display = 'none';
+    };
+
+    // --- Пересылка ---
+    document.getElementById('forwardMsg').onclick = () => {
+      if (window.currentMsg) {
+        forwardQueue = window.currentMsg; // сохраняем сообщение
+        alert('Выберите чат для пересылки из списка контактов');
+        // можно подсветить контакты
+        actionBar.style.display = 'none';
+      }
+    };
+
+    // При клике на контакт, если есть forwardQueue, отправляем
+    function forwardToChat(chatId, participants) {
+      if (!forwardQueue) return;
+      const msg = {
+        from: myNick,
+        time: Date.now(),
+        text: forwardQueue.text,
+        image: forwardQueue.image,
+        video: forwardQueue.video,
+        forwarded: true,
+        originalFrom: forwardQueue.from
+      };
+      push(ref(db, `chats/${chatId}/messages`), msg);
+      forwardQueue = null;
     }
 
-    // --- Load chat messages with virtual scroll (simple limit) ---
+    // --- Закрепление ---
+    document.getElementById('pinMsg').onclick = async () => {
+      if (!activeChat || !window.currentMsg) return;
+      const msgId = window.currentMsg.id;
+      // Сначала снимем старое закрепление, если есть
+      const chatRef = ref(db, `chats/${activeChat.id}`);
+      const snap = await get(chatRef);
+      const data = snap.val() || {};
+      if (data.pinnedMessage === msgId) {
+        await update(chatRef, { pinnedMessage: null });
+      } else {
+        await update(chatRef, { pinnedMessage: msgId });
+      }
+      actionBar.style.display = 'none';
+    };
+
+    // Показать информацию о закреплённом
+    pinInfo.onclick = async () => {
+      if (!activeChat) return;
+      const snap = await get(ref(db, `chats/${activeChat.id}/pinnedMessage`));
+      const pinnedId = snap.val();
+      if (pinnedId) {
+        alert('Закреплённое сообщение ID: ' + pinnedId);
+        // Можно подсветить
+      } else {
+        alert('Нет закреплённых сообщений');
+      }
+    };
+
+    // --- Кнопки реакций в action bar ---
+    document.getElementById('reactLove').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '❤️'); actionBar.style.display = 'none'; };
+    document.getElementById('reactLaugh').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😂'); actionBar.style.display = 'none'; };
+    document.getElementById('reactWow').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😮'); actionBar.style.display = 'none'; };
+    document.getElementById('reactSad').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😢'); actionBar.style.display = 'none'; };
+
+    // --- Загрузка чата (исправлено двойное отображение) ---
     function loadChat(chatId, participants) {
       if (messagesUnsubscribe) messagesUnsubscribe();
-      messagesDiv.innerHTML = '';
+      messagesDiv.innerHTML = ''; // Очищаем перед загрузкой
 
-      // Show cached messages first
-      const cached = getCachedMessages(chatId);
-      cached.forEach(m => {
-        if (m) messagesDiv.appendChild(drawMessage(m, m.from === myNick));
+      const messagesRef = ref(db, `chats/${chatId}/messages`);
+      // Сначала грузим все существующие (один раз)
+      get(messagesRef).then(snap => {
+        const msgs = snap.val();
+        if (msgs) {
+          Object.entries(msgs).forEach(([id, msg]) => {
+            messagesDiv.appendChild(drawMessage({ id, ...msg }, msg.from === myNick));
+          });
+        }
+        scrollToBottom();
       });
 
-      // Real-time listener
-      const messagesRef = ref(db, `chats/${chatId}/messages`);
+      // Затем слушаем новые (не будет дублей, т.к. мы не очищаем при добавлении)
       messagesUnsubscribe = onChildAdded(messagesRef, (snap) => {
         const msg = { id: snap.key, ...snap.val() };
-        // Avoid duplicate if already in cache? We'll just append.
-        const isMe = msg.from === myNick;
-        messagesDiv.appendChild(drawMessage(msg, isMe));
-        // Cache update
-        const cached = getCachedMessages(chatId);
-        cached.push(msg);
-        cacheMessages(chatId, cached);
-        scrollIfNeeded();
+        // Проверка на дубликат (если вдруг)
+        if (!document.querySelector(`[data-id="${msg.id}"]`)) {
+          messagesDiv.appendChild(drawMessage(msg, msg.from === myNick));
+          scrollIfNeeded();
+        }
       });
 
-      // Listen typing
-      const typingRef = ref(db, `chats/${chatId}/typing`);
-      onValue(typingRef, (snap) => {
-        const typing = snap.val() || {};
-        const names = Object.keys(typing).filter(n => n !== myNick);
-        typingSpan.textContent = names.length ? `${names.join(', ')} печатает...` : '';
+      // Слушаем изменения закрепления
+      onValue(ref(db, `chats/${chatId}/pinnedMessage`), (snap) => {
+        const pinnedId = snap.val();
+        document.querySelectorAll('.msg').forEach(el => el.classList.remove('pinned'));
+        if (pinnedId) {
+          const pinnedEl = document.querySelector(`[data-id="${pinnedId}"]`);
+          if (pinnedEl) pinnedEl.classList.add('pinned');
+        }
       });
     }
 
+    function scrollToBottom() {
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
     function scrollIfNeeded() {
-      const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100;
-      if (isNearBottom) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      if (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100) scrollToBottom();
     }
 
-    // --- Contacts list with online status ---
+    // --- Контакты (адаптировано для пересылки) ---
     function loadContacts() {
       if (!myNick) return;
       if (contactsUnsubscribe) contactsUnsubscribe();
@@ -658,32 +703,46 @@
       contactsUnsubscribe = onValue(contactsRef, async (snap) => {
         const contacts = snap.val() || {};
         let html = '';
-        for (let [nick, data] of Object.entries(contacts)) {
-          const avatarUrl = await loadAvatar(nick);
-          const statusSnap = await get(ref(db, `status/${nick}`));
-          const status = statusSnap.val();
-          const online = status === 'online';
+        for (let [id, data] of Object.entries(contacts)) {
+          const isGroup = data.isGroup;
+          const name = isGroup ? (data.groupName || id) : id;
+          const avatarUrl = isGroup ? null : await loadAvatar(id);
+          const statusSnap = isGroup ? null : await get(ref(db, `status/${id}`));
+          const online = statusSnap?.val() === 'online';
           html += `
-            <div class="contact-item" data-nick="${nick}" data-type="private">
-              <div class="contact-avatar" style="${avatarUrl ? `background-image:url('${avatarUrl}')` : `background:${getAvatarColor(nick)}`}">
-                ${!avatarUrl ? nick.charAt(0).toUpperCase() : ''}
+            <div class="contact-item" data-id="${id}" data-type="${isGroup ? 'group' : 'private'}">
+              <div class="contact-avatar" style="${avatarUrl ? `background-image:url('${avatarUrl}')` : `background:${getAvatarColor(id)}`}">
+                ${!avatarUrl ? name.charAt(0).toUpperCase() : ''}
                 ${online ? '<span class="online-indicator"></span>' : ''}
               </div>
               <div class="contact-info">
-                <div><strong>${nick}</strong></div>
-                <div style="font-size:0.8rem; opacity:0.7;">${data.lastMsg || ''}</div>
+                <div><strong>${name}</strong></div>
+                <div style="font-size:0.8rem;">${data.lastMsg || ''}</div>
               </div>
             </div>
           `;
         }
-        contactsDiv.innerHTML = html || '<div style="padding:20px; text-align:center;">Начните общение</div>';
+        contactsDiv.innerHTML = html || '<div style="padding:20px;">Нет контактов</div>';
         document.querySelectorAll('.contact-item').forEach(el => {
-          el.addEventListener('click', () => startPrivateChat(el.dataset.nick));
+          el.addEventListener('click', () => {
+            const id = el.dataset.id;
+            const type = el.dataset.type;
+            if (forwardQueue) {
+              // Пересылаем в этот чат
+              const chatId = type === 'private' ? [myNick, id].sort().join('_') : id;
+              forwardToChat(chatId, [myNick, id]); // упрощённо
+              forwardQueue = null;
+              alert('Сообщение переслано');
+            } else {
+              if (type === 'private') startPrivateChat(id);
+              else startGroupChat(id);
+            }
+          });
         });
       });
     }
 
-    // --- Start private chat ---
+    // --- Старт приватного чата ---
     function startPrivateChat(partner) {
       const chatId = [myNick, partner].sort().join('_');
       activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
@@ -695,20 +754,6 @@
       }
     }
 
-    // --- Create group ---
-    async function createGroup() {
-      const name = prompt('Название группы (или оставьте пустым)');
-      const members = prompt('Участники (через запятую):');
-      if (!members) return;
-      const participants = members.split(',').map(s => s.trim()).concat(myNick);
-      const groupId = 'group_' + Date.now();
-      await set(ref(db, `chats/${groupId}`), { type: 'group', name: name || 'Группа', participants });
-      for (let p of participants) {
-        await set(ref(db, `users/${p}/contacts/${groupId}`), { lastMsg: '', lastTime: Date.now(), isGroup: true, groupName: name });
-      }
-      startGroupChat(groupId);
-    }
-
     function startGroupChat(groupId) {
       get(ref(db, `chats/${groupId}`)).then(snap => {
         const data = snap.val();
@@ -718,29 +763,95 @@
       });
     }
 
-    // --- Context menu (reply/react) ---
-    let currentMsgId = null, currentMsgFrom = null, currentMsgText = null;
-    function showContextMenu(x, y, msgId, from, text) {
-      contextMenu.style.display = 'block';
-      contextMenu.style.left = x + 'px';
-      contextMenu.style.top = y + 'px';
-      currentMsgId = msgId; currentMsgFrom = from; currentMsgText = text;
+    // --- Отправка сообщения ---
+    async function sendMessage(content) {
+      if (!activeChat) return;
+      const msg = {
+        from: myNick,
+        time: Date.now(),
+        ...content
+      };
+      await push(ref(db, `chats/${activeChat.id}/messages`), msg);
+      // Обновить последнее сообщение у контактов
+      const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : ''));
+      for (let p of activeChat.participants) {
+        if (p !== myNick) {
+          await update(ref(db, `users/${p}/contacts/${myNick}`), { lastMsg, lastTime: Date.now() });
+        }
+      }
     }
 
-    replyOption.onclick = () => {
-      replyTo = { id: currentMsgId, from: currentMsgFrom, text: currentMsgText };
-      msgInput.placeholder = `Ответ @${currentMsgFrom}...`;
-      contextMenu.style.display = 'none';
+    // --- Поиск сообщений (исправлено двойное отображение) ---
+    document.getElementById('search-messages')?.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.msg').forEach(msg => {
+        const text = msg.dataset.text?.toLowerCase() || '';
+        msg.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    });
+
+    // --- Остальной код (авторизация, медиа, группы и т.д.) ---
+    document.getElementById('btn-login').onclick = async () => {
+      const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
+      const pass = document.getElementById('auth-pass').value;
+      if (!nick || !pass) return;
+      const userRef = ref(db, 'users/' + nick);
+      const snap = await get(userRef);
+      if (snap.exists()) {
+        if (snap.val().password !== pass) return alert('Неверный пароль');
+      } else {
+        await set(userRef, { password: pass, nickname: nick });
+      }
+      myNick = nick;
+      authScreen.style.display = 'none';
+      mainWrapper.style.display = 'flex';
+      loadContacts();
+      // Presence
+      set(ref(db, `status/${myNick}`), 'online');
+      onDisconnect(ref(db, `status/${myNick}`)).set('offline');
     };
 
-    reactOption.onclick = () => {
-      toggleReaction(currentMsgId, '❤️');
-      contextMenu.style.display = 'none';
+    searchBtn.onclick = async () => {
+      const target = searchInput.value.trim().toLowerCase();
+      if (!target || target === myNick) return;
+      const snap = await get(ref(db, 'users/' + target));
+      if (snap.exists()) startPrivateChat(target);
+      else alert('Не найден');
     };
 
-    document.addEventListener('click', () => contextMenu.style.display = 'none');
+    newGroupBtn.onclick = async () => {
+      const name = prompt('Название группы');
+      const members = prompt('Участники (через запятую)');
+      if (!members) return;
+      const participants = members.split(',').map(s => s.trim()).concat(myNick);
+      const groupId = 'group_' + Date.now();
+      await set(ref(db, `chats/${groupId}`), { type: 'group', name, participants });
+      for (let p of participants) {
+        await set(ref(db, `users/${p}/contacts/${groupId}`), { isGroup: true, groupName: name, lastMsg: '', lastTime: Date.now() });
+      }
+      startGroupChat(groupId);
+    };
 
-    // --- Voice recording ---
+    sendBtn.onclick = () => {
+      const text = msgInput.value.trim();
+      if (text) {
+        sendMessage({ text });
+        msgInput.value = '';
+      }
+    };
+
+    fileUpload.onchange = () => {
+      const file = fileUpload.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (file.type.startsWith('image/')) sendMessage({ image: e.target.result });
+        else if (file.type.startsWith('video/')) sendMessage({ video: e.target.result });
+      };
+      reader.readAsDataURL(file);
+      fileUpload.value = '';
+    };
+
     recordBtn.onclick = async () => {
       if (!mediaRecorder) {
         try {
@@ -764,83 +875,10 @@
       }
     };
 
-    // --- File upload (image, video, audio) ---
-    fileUpload.onchange = () => {
-      const file = fileUpload.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (file.type.startsWith('image/')) sendMessage({ image: e.target.result });
-        else if (file.type.startsWith('audio/')) sendMessage({ audio: e.target.result });
-        else if (file.type.startsWith('video/')) sendMessage({ video: e.target.result });
-      };
-      reader.readAsDataURL(file);
-      fileUpload.value = '';
-    };
-
-    // --- Send text ---
-    sendBtn.onclick = () => {
-      const text = msgInput.value.trim();
-      if (text) {
-        sendMessage({ text });
-        msgInput.value = '';
-        msgInput.placeholder = 'Сообщение...';
-        replyTo = null;
-      }
-    };
-
-    msgInput.oninput = () => {
-      if (!activeChat) return;
-      if (typingTimeout) clearTimeout(typingTimeout);
-      sendTyping(activeChat.id, true);
-      typingTimeout = setTimeout(() => sendTyping(activeChat.id, false), 2000);
-    };
-
-    // --- Auth ---
-    document.getElementById('btn-login').onclick = async () => {
-      const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
-      const pass = document.getElementById('auth-pass').value;
-      if (!nick || !pass) return;
-      const userRef = ref(db, 'users/' + nick);
-      const snap = await get(userRef);
-      if (snap.exists()) {
-        if (snap.val().password !== pass) return alert('Неверный пароль');
-      } else {
-        await set(userRef, { password: pass, nickname: nick });
-      }
-      myNick = nick;
-      authScreen.style.display = 'none';
-      mainWrapper.style.display = 'flex';
-      setupPresence();
-      loadContacts();
-    };
-
-    // --- Search user / start chat ---
-    searchBtn.onclick = async () => {
-      const target = searchInput.value.trim().toLowerCase();
-      if (!target || target === myNick) return;
-      const snap = await get(ref(db, 'users/' + target));
-      if (snap.exists()) startPrivateChat(target);
-      else alert('Пользователь не найден');
-    };
-
-    newGroupBtn.onclick = createGroup;
-
-    // --- Back button mobile ---
     backBtn.onclick = () => {
       sidebar.style.transform = 'translateX(0)';
       chatArea.classList.remove('active');
-      if (messagesUnsubscribe) messagesUnsubscribe();
     };
-
-    // --- Theme toggle ---
-    themeToggle.onclick = () => {
-      document.body.className = document.body.className === 'dark' ? 'light' : 'dark';
-    };
-
-    // --- Initial load: try to restore from cache? Not needed.
-
-    console.log('Ultra Aether loaded');
   </script>
 </body>
-  </html>
+      </html>
