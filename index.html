@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · glass chat</title>
-  <!-- Fonts & icons -->
+  <title>Aether · nexus</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* ----- GLOBAL RESET & VARIABLES (cyber/glass) ----- */
+    /* ----- themes & variables ----- */
     * {
       margin: 0;
       padding: 0;
@@ -18,40 +17,54 @@
       font-family: 'Inter', sans-serif;
     }
 
-    :root {
-      --glass-bg: rgba(20, 30, 45, 0.6);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-card: rgba(15, 25, 40, 0.7);
-      --accent: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.5);
-      --text-primary: #f0f4ff;
-      --text-secondary: #a0b3d9;
-      --surface-dark: #0c1320;
-      --danger: #ff5e7c;
-      --blur-amount: 16px;
-    }
-
     body {
-      background: #0b0f19;  /* fallback */
-      background-image: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 12px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* light theme (default) */
+    body.light {
+      --bg-gradient: radial-gradient(circle at 30% 40%, #f0f4ff 0%, #d9e2f0 90%);
+      --glass-bg: rgba(255, 255, 255, 0.5);
+      --glass-card: rgba(255, 255, 255, 0.6);
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.3);
+      --border-light: rgba(0,0,0,0.1);
+    }
+
+    /* dark theme */
+    body.dark {
+      --bg-gradient: radial-gradient(circle at 30% 40%, #1e2640 0%, #080c14 90%);
+      --glass-bg: rgba(20, 30, 45, 0.6);
+      --glass-card: rgba(15, 25, 40, 0.7);
+      --text-primary: #f0f4ff;
+      --text-secondary: #a0b3d9;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.5);
+      --border-light: rgba(255,255,255,0.05);
+    }
+
+    body {
+      background: #0b0f19; /* fallback */
+      background-image: var(--bg-gradient);
       color: var(--text-primary);
     }
 
-    /* ----- glassmorphism base ----- */
     .glass-panel, #auth-screen, .sidebar, .chat-area, .search-box, .current-chat-name, #messages, .contact-item, .msg {
-      backdrop-filter: blur(var(--blur-amount));
-      -webkit-backdrop-filter: blur(var(--blur-amount));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       background: var(--glass-card);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-light);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     }
 
-    /* ----- auth screen (glass) ----- */
+    /* ----- auth screen ----- */
     #auth-screen {
       width: 100%;
       max-width: 400px;
@@ -65,7 +78,7 @@
       font-weight: 400;
       letter-spacing: 1px;
       margin-bottom: 1.5rem;
-      color: white;
+      color: var(--text-primary);
       text-shadow: 0 0 8px var(--accent-glow);
     }
 
@@ -78,9 +91,9 @@
       outline: none;
       font-size: 1rem;
       transition: all 0.2s;
-      background: rgba(0, 0, 0, 0.4);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
     }
 
     input:focus {
@@ -91,10 +104,10 @@
     button {
       background: var(--accent);
       font-weight: 600;
-      letter-spacing: 0.5px;
       cursor: pointer;
       border: none;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 12px var(--accent-glow);
+      color: white;
     }
 
     button:hover {
@@ -102,6 +115,7 @@
       transform: scale(1.02);
     }
 
+    /* ----- main layout ----- */
     #main-wrapper {
       display: none;
       width: 100%;
@@ -109,42 +123,57 @@
       max-height: 95vh;
       border-radius: 2rem;
       overflow: hidden;
-      backdrop-filter: blur(var(--blur-amount));
-      background: rgba(5, 10, 20, 0.4);
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 25px 50px -12px black;
+      backdrop-filter: blur(16px);
+      background: rgba(5, 10, 20, 0.3);
+      border: 1px solid var(--border-light);
     }
 
-    /* ----- flex layout ----- */
     .sidebar {
       width: 320px;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid rgba(255,255,255,0.05);
+      border-right: 1px solid var(--border-light);
       transition: transform 0.25s ease;
-      background: rgba(8, 15, 26, 0.7);
+      background: var(--glass-card);
     }
 
     .chat-area {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: rgba(8, 12, 20, 0.5);
+      background: rgba(0,0,0,0.2);
     }
 
-    /* ----- contacts header & search ----- */
+    /* theme toggle */
+    .theme-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--glass-card);
+      border: 1px solid var(--border-light);
+      border-radius: 40px;
+      padding: 8px 16px;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    /* search header */
     .search-box {
       padding: 20px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--border-light);
       display: flex;
       gap: 8px;
-      background: rgba(10, 18, 30, 0.7);
+      background: var(--glass-card);
     }
 
     .search-box input {
       flex: 1;
       margin: 0;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.2);
     }
 
     .search-box button {
@@ -154,7 +183,6 @@
       background: transparent;
       border: 1px solid var(--accent);
       color: var(--accent);
-      box-shadow: none;
     }
 
     #contacts-list {
@@ -166,21 +194,20 @@
       gap: 6px;
     }
 
-    /* contact item */
     .contact-item {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 10px 14px;
       border-radius: 20px;
-      background: rgba(20, 30, 45, 0.5);
+      background: rgba(255,255,255,0.05);
       cursor: pointer;
       transition: 0.15s;
       border: 1px solid transparent;
     }
 
     .contact-item:hover {
-      background: rgba(40, 55, 80, 0.7);
+      background: rgba(255,255,255,0.1);
       border-color: var(--accent);
     }
 
@@ -194,10 +221,10 @@
       font-weight: 600;
       font-size: 1.2rem;
       text-transform: uppercase;
-      background: #2a3a55;
-      color: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      background-size: cover;
+      background-position: center;
       flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
     .contact-info {
@@ -217,19 +244,13 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 160px;
     }
 
-    .badge-time {
-      font-size: 0.7rem;
-      opacity: 0.7;
-    }
-
-    /* ----- chat header with back button ----- */
+    /* chat header */
     .current-chat-name {
       padding: 18px 24px;
-      background: rgba(10, 18, 30, 0.7);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: var(--glass-card);
+      border-bottom: 1px solid var(--border-light);
       font-weight: 500;
       display: flex;
       align-items: center;
@@ -244,8 +265,7 @@
       width: auto;
       padding: 0 8px 0 0;
       margin: 0;
-      display: none;  /* hidden on desktop */
-      box-shadow: none;
+      display: none;
     }
 
     /* messages container */
@@ -259,7 +279,27 @@
       background: transparent;
     }
 
-    /* message bubble */
+    /* search within chat */
+    .chat-search {
+      padding: 8px 20px;
+      background: var(--glass-card);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .chat-search input {
+      flex: 1;
+      margin: 0;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.2);
+    }
+    .chat-search button {
+      width: auto;
+      padding: 8px 16px;
+      margin: 0;
+    }
+
     .msg {
       display: flex;
       max-width: 75%;
@@ -284,7 +324,7 @@
       justify-content: center;
       font-weight: 600;
       font-size: 0.9rem;
-      background: #3a4a66;
+      background-size: cover;
       margin: 0 8px;
       flex-shrink: 0;
       align-self: flex-end;
@@ -296,7 +336,7 @@
       padding: 10px 16px;
       border-radius: 22px;
       backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 1px solid var(--border-light);
       word-break: break-word;
     }
 
@@ -309,13 +349,15 @@
       border-bottom-left-radius: 6px;
     }
 
-    .bubble-text {
-      font-size: 0.95rem;
-    }
-    .bubble-text img {
+    .bubble-text img, .bubble-text audio {
       max-width: 200px;
       border-radius: 16px;
       margin-top: 4px;
+      display: block;
+    }
+    .bubble-text audio {
+      width: 200px;
+      height: 40px;
     }
 
     .msg-time {
@@ -330,15 +372,16 @@
       padding: 18px 20px;
       display: flex;
       gap: 12px;
-      background: rgba(8, 15, 26, 0.6);
-      border-top: 1px solid rgba(255,255,255,0.05);
+      background: var(--glass-card);
+      border-top: 1px solid var(--border-light);
       align-items: center;
+      position: relative;
     }
 
     .chat-input-row input[type="text"] {
       flex: 1;
       margin: 0;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.2);
       border-radius: 40px;
       padding: 14px 18px;
     }
@@ -353,7 +396,7 @@
       font-size: 1.3rem;
       background: rgba(30, 40, 60, 0.8);
       border: none;
-      color: white;
+      color: var(--text-primary);
       cursor: pointer;
       margin: 0;
       padding: 0;
@@ -367,7 +410,45 @@
       display: none;
     }
 
-    /* mobile adaptation */
+    /* preview modal for drag & drop */
+    .preview-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .preview-card {
+      background: var(--glass-card);
+      padding: 24px;
+      border-radius: 32px;
+      max-width: 90%;
+      max-height: 80%;
+      overflow: auto;
+      text-align: center;
+    }
+    .preview-card img, .preview-card audio {
+      max-width: 100%;
+      max-height: 300px;
+      margin: 16px 0;
+    }
+    .preview-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    /* pull-to-refresh indicator */
+    .ptr-indicator {
+      text-align: center;
+      padding: 10px;
+      color: var(--accent);
+      display: none;
+    }
+
+    /* mobile */
     @media (max-width: 700px) {
       body { padding: 0; }
       #main-wrapper { border-radius: 0; max-height: 100vh; height: 100vh; }
@@ -394,7 +475,6 @@
       }
     }
 
-    /* animations */
     @keyframes popIn {
       0% { opacity: 0; transform: translateY(10px); }
       100% { opacity: 1; transform: translateY(0); }
@@ -404,39 +484,48 @@
     }
   </style>
 </head>
-<body>
+<body class="dark">
+  <!-- theme toggle -->
+  <div class="theme-toggle" id="themeToggle">
+    <i class="fas fa-sun"></i>
+    <span>Тема</span>
+    <i class="fas fa-moon"></i>
+  </div>
+
   <!-- Auth screen -->
   <div id="auth-screen">
-    <h2><i class="fas fa-cube" style="color: #6366f1;"></i> AETHER · MESH</h2>
+    <h2><i class="fas fa-cube" style="color: #6366f1;"></i> AETHER · NEXUS</h2>
     <input type="text" id="auth-nick" placeholder="никнейм" autocomplete="off">
     <input type="password" id="auth-pass" placeholder="пароль">
     <button id="btn-login"><i class="fas fa-key"></i> Войти / Создать</button>
-    <p style="font-size: 0.8rem; margin-top: 1rem; opacity: 0.5;">пароль защищает ник в базе</p>
   </div>
 
   <!-- Main app -->
   <div id="main-wrapper">
-    <!-- left sidebar (contacts) -->
     <div class="sidebar" id="sidebar">
       <div class="search-box">
         <input type="text" id="search-user" placeholder="поиск контакта...">
         <button id="btn-search"><i class="fas fa-search"></i></button>
       </div>
-      <div id="contacts-list">
-        <div style="text-align: center; opacity: 0.5; padding: 20px;">найди пользователя ➔ начни чат</div>
+      <div id="contacts-list" class="ptr-trigger">
+        <div class="ptr-indicator" id="ptrIndicator">⬇️ потяните для обновления</div>
       </div>
     </div>
 
-    <!-- right chat area -->
     <div class="chat-area" id="chatArea">
       <div class="current-chat-name">
         <button id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
         <span id="chat-with-title">выберите чат</span>
       </div>
+      <!-- search inside chat -->
+      <div class="chat-search" id="chatSearch">
+        <input type="text" id="search-messages" placeholder="🔍 поиск в чате...">
+        <button id="clearSearch"><i class="fas fa-times"></i></button>
+      </div>
       <div id="messages"></div>
-      <div class="chat-input-row">
+      <div class="chat-input-row" id="dropZone">
         <label class="attach-btn"><i class="fas fa-paperclip"></i>
-          <input type="file" id="imageUpload" accept="image/*">
+          <input type="file" id="fileUpload" accept="image/*,audio/*">
         </label>
         <input type="text" id="msg-input" placeholder="сообщение...">
         <button id="btn-send"><i class="fas fa-paper-plane"></i></button>
@@ -444,12 +533,23 @@
     </div>
   </div>
 
+  <!-- preview modal (hidden) -->
+  <div id="previewModal" class="preview-overlay" style="display: none;">
+    <div class="preview-card">
+      <h3>Предпросмотр</h3>
+      <div id="previewContent"></div>
+      <div class="preview-buttons">
+        <button id="previewSend"><i class="fas fa-paper-plane"></i> Отправить</button>
+        <button id="previewCancel">Отмена</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
-    // --- Firebase imports (keep v10.7.1) ---
+    // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, get, push, onChildAdded, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // --- Firebase config (unchanged) ---
     const firebaseConfig = {
       apiKey: "AIzaSyBqy8OpoabzNS1z_YaPTzG3siiyfTDvzzo",
       authDomain: "aether-messenger-cafc9.firebaseapp.com",
@@ -462,13 +562,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- GLOBAL STATE ---
+    // --- state ---
     let myNick = '';
     let activeChatPartner = '';
     let currentChatId = '';
     let contactsUnsubscribe = null;
     let messagesUnsubscribe = null;
     let isMobile = window.innerWidth <= 700;
+    let currentTheme = 'dark';
+    let pendingFile = null; // for preview
 
     // --- DOM elements ---
     const authScreen = document.getElementById('auth-screen');
@@ -483,30 +585,56 @@
     const backBtn = document.getElementById('back-to-contacts');
     const chatArea = document.getElementById('chatArea');
     const sidebar = document.getElementById('sidebar');
-    const imageUpload = document.getElementById('imageUpload');
+    const fileUpload = document.getElementById('fileUpload');
+    const themeToggle = document.getElementById('themeToggle');
+    const previewModal = document.getElementById('previewModal');
+    const previewContent = document.getElementById('previewContent');
+    const previewSend = document.getElementById('previewSend');
+    const previewCancel = document.getElementById('previewCancel');
+    const searchMessagesInput = document.getElementById('search-messages');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const dropZone = document.getElementById('dropZone');
+    const ptrIndicator = document.getElementById('ptrIndicator');
 
-    // --- Helper: avatar color generator (deterministic) ---
+    // --- helpers ---
     function stringToHue(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
       return Math.abs(hash % 360);
     }
-    function getAvatarStyle(nick) {
-      const hue = stringToHue(nick);
-      return `background: hsl(${hue}, 70%, 55%);`;
+
+    async function getAvatarUrl(nick) {
+      const snap = await get(ref(db, `users/${nick}/avatar`));
+      return snap.val(); // base64 or undefined
     }
 
-    // --- draw single message (used for history & realtime) ---
+    function getAvatarStyleFromDb(avatarBase64, nick) {
+      if (avatarBase64) {
+        return `background-image: url('${avatarBase64}'); background-size: cover;`;
+      } else {
+        const hue = stringToHue(nick);
+        return `background: hsl(${hue}, 70%, 55%);`;
+      }
+    }
+
+    // --- draw message (supports image & audio) ---
     function drawMessage(data, isMe) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
+      msgDiv.dataset.msgText = data.text || ''; // for search
 
-      // Avatar (only for received)
       if (!isMe) {
         const ava = document.createElement('div');
         ava.className = 'avatar-bubble';
-        ava.style.cssText = getAvatarStyle(data.from);
-        ava.textContent = data.from.charAt(0).toUpperCase();
+        // async avatar load
+        getAvatarUrl(data.from).then(base64 => {
+          if (base64) ava.style.backgroundImage = `url('${base64}')`;
+          else {
+            const hue = stringToHue(data.from);
+            ava.style.background = `hsl(${hue}, 70%, 55%)`;
+          }
+          ava.textContent = data.from.charAt(0).toUpperCase();
+        });
         msgDiv.appendChild(ava);
       }
 
@@ -515,11 +643,18 @@
 
       const textDiv = document.createElement('div');
       textDiv.className = 'bubble-text';
+
       if (data.image) {
         const img = document.createElement('img');
         img.src = data.image;
         img.style.maxWidth = '200px';
         textDiv.appendChild(img);
+      } else if (data.audio) {
+        const audio = document.createElement('audio');
+        audio.src = data.audio;
+        audio.controls = true;
+        audio.style.width = '200px';
+        textDiv.appendChild(audio);
       } else {
         textDiv.textContent = data.text || '';
       }
@@ -537,43 +672,38 @@
       messagesDiv.appendChild(msgDiv);
     }
 
-    // --- scroll to bottom with smooth behavior ---
     function scrollMessagesDown(smooth = true) {
-      messagesDiv.scrollTo({
-        top: messagesDiv.scrollHeight,
-        behavior: smooth ? 'smooth' : 'auto'
-      });
+      messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
     }
 
-    // --- load contacts and listen for updates ---
+    // --- contacts ---
     function loadContacts() {
       if (!myNick) return;
       if (contactsUnsubscribe) contactsUnsubscribe();
 
       const contactsRef = ref(db, `users/${myNick}/contacts`);
-      contactsUnsubscribe = onValue(contactsRef, (snapshot) => {
+      contactsUnsubscribe = onValue(contactsRef, async (snapshot) => {
         const contactsData = snapshot.val() || {};
         renderContactsList(contactsData);
       });
     }
 
-    // --- render contacts sidebar ---
-    function renderContactsList(contactsMap) {
+    async function renderContactsList(contactsMap) {
       if (!contactsMap || Object.keys(contactsMap).length === 0) {
-        contactsDiv.innerHTML = `<div style="text-align:center; opacity:0.5; padding:20px;">нет контактов<br>найди пользователя</div>`;
+        contactsDiv.innerHTML = `<div style="text-align:center; opacity:0.5; padding:20px;">нет контактов</div>`;
         return;
       }
 
-      let html = '';
-      // sort by last message time (desc)
       const sorted = Object.entries(contactsMap).sort((a, b) => (b[1].lastTime || 0) - (a[1].lastTime || 0));
-
+      let html = '';
       for (let [partner, info] of sorted) {
-        const lastMsg = info.lastMsg ? (info.lastMsg.length > 20 ? info.lastMsg.slice(0,20)+'…' : info.lastMsg) : '🖼️ изображение';
+        const avatarUrl = await getAvatarUrl(partner);
+        const avatarStyle = avatarUrl ? `background-image: url('${avatarUrl}'); background-size: cover;` : `background: hsl(${stringToHue(partner)}, 70%, 55%);`;
+        const lastMsg = info.lastMsg ? (info.lastMsg.length > 20 ? info.lastMsg.slice(0,20)+'…' : info.lastMsg) : (info.lastMsg === '' ? '🖼️ медиа' : '');
         const time = info.lastTime ? new Date(info.lastTime).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
         html += `
           <div class="contact-item" data-partner="${partner}">
-            <div class="contact-avatar" style="${getAvatarStyle(partner)}">${partner.charAt(0).toUpperCase()}</div>
+            <div class="contact-avatar" style="${avatarStyle}">${!avatarUrl ? partner.charAt(0).toUpperCase() : ''}</div>
             <div class="contact-info">
               <div class="contact-name">
                 <span>${partner}</span>
@@ -585,105 +715,169 @@
         `;
       }
       contactsDiv.innerHTML = html;
-
-      // attach click listeners
       document.querySelectorAll('.contact-item').forEach(el => {
-        el.addEventListener('click', () => {
-          const partner = el.dataset.partner;
-          if (partner) startChat(partner);
-        });
+        el.addEventListener('click', () => startChat(el.dataset.partner));
       });
     }
 
-    // --- update contact list after new message (write to DB) ---
     async function updateContactLast(partner, messageObj) {
       if (!myNick || !partner) return;
-      const lastMsg = messageObj.text || (messageObj.image ? '🖼️ фото' : '');
+      const lastMsg = messageObj.text || (messageObj.image ? '🖼️ фото' : (messageObj.audio ? '🎵 аудио' : ''));
       const updates = {};
-      updates[`users/${myNick}/contacts/${partner}`] = {
-        lastMsg: lastMsg,
-        lastTime: messageObj.time || Date.now()
-      };
-      // also update the partner's contact for this user (so both see last msg)
-      updates[`users/${partner}/contacts/${myNick}`] = {
-        lastMsg: lastMsg,
-        lastTime: messageObj.time || Date.now()
-      };
+      updates[`users/${myNick}/contacts/${partner}`] = { lastMsg, lastTime: messageObj.time || Date.now() };
+      updates[`users/${partner}/contacts/${myNick}`] = { lastMsg, lastTime: messageObj.time || Date.now() };
       await update(ref(db), updates);
     }
 
-    // --- load chat history + listen for new messages ---
+    // --- chat ---
     function startChat(partner) {
       if (!myNick || !partner) return;
-
-      // Clean previous listener
       if (messagesUnsubscribe) messagesUnsubscribe();
 
       activeChatPartner = partner;
       const chatId = [myNick, partner].sort().join('_');
       currentChatId = chatId;
       chatTitle.innerText = `@${partner}`;
-      messagesDiv.innerHTML = ''; // clear
+      messagesDiv.innerHTML = '';
+      document.getElementById('search-messages').value = '';
 
-      // 1) Load history (get)
       const chatRef = ref(db, `chats/${chatId}`);
       get(chatRef).then(snapshot => {
         const msgs = snapshot.val();
         if (msgs) {
-          Object.values(msgs).forEach(msg => {
-            drawMessage(msg, msg.from === myNick);
-          });
+          Object.values(msgs).forEach(msg => drawMessage(msg, msg.from === myNick));
         }
         scrollMessagesDown(false);
-      }).catch(console.warn);
+      });
 
-      // 2) Listen for new messages (onChildAdded)
       messagesUnsubscribe = onChildAdded(chatRef, (snap) => {
         const msg = snap.val();
         if (!msg) return;
         drawMessage(msg, msg.from === myNick);
-        // if we are near bottom, scroll smooth
         const isNearBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 150;
         if (isNearBottom) scrollMessagesDown(true);
-
-        // Update contacts last message (if message not from self? but we want both sides)
-        // To avoid double write, we can call when message is from other, but also when sending.
-        // safer: on any new message update both sides contacts
-        if (msg.from !== myNick) {
-          updateContactLast(msg.from, msg).catch(console.warn);
-        }
+        if (msg.from !== myNick) updateContactLast(msg.from, msg);
       });
 
-      // Mobile UI: hide sidebar, show chat
       if (isMobile) {
         sidebar.style.transform = 'translateX(-100%)';
         chatArea.classList.add('active');
       }
     }
 
-    // --- send message (text or image) ---
+    // --- send message (text/image/audio) ---
     async function sendMessage(content) {
       if (!activeChatPartner || !myNick) return;
-      if (!content.text && !content.image) return;
+      if (!content.text && !content.image && !content.audio) return;
 
       const chatId = [myNick, activeChatPartner].sort().join('_');
-      const message = {
-        from: myNick,
-        time: Date.now()
-      };
+      const message = { from: myNick, time: Date.now() };
       if (content.text) message.text = content.text;
-      if (content.image) message.image = content.image; // base64
+      if (content.image) message.image = content.image;
+      if (content.audio) message.audio = content.audio;
 
       try {
         await push(ref(db, `chats/${chatId}`), message);
-        // update contact last message for both users
         await updateContactLast(activeChatPartner, message);
       } catch (e) {
         alert('Ошибка отправки');
       }
     }
 
-    // --- AUTH LOGIC ---
+    // --- file preview & send ---
+    function showPreview(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target.result;
+        pendingFile = { data: result, type: file.type };
+        if (file.type.startsWith('image/')) {
+          previewContent.innerHTML = `<img src="${result}" style="max-width:100%; max-height:300px;">`;
+        } else if (file.type.startsWith('audio/')) {
+          previewContent.innerHTML = `<audio controls src="${result}"></audio>`;
+        } else {
+          alert('Неподдерживаемый тип');
+          pendingFile = null;
+          return;
+        }
+        previewModal.style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    previewSend.onclick = () => {
+      if (pendingFile) {
+        if (pendingFile.type.startsWith('image/')) sendMessage({ image: pendingFile.data });
+        else if (pendingFile.type.startsWith('audio/')) sendMessage({ audio: pendingFile.data });
+        pendingFile = null;
+        previewModal.style.display = 'none';
+      }
+    };
+    previewCancel.onclick = () => {
+      pendingFile = null;
+      previewModal.style.display = 'none';
+    };
+
+    // --- drag & drop ---
+    dropZone.addEventListener('dragover', (e) => e.preventDefault());
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file && (file.type.startsWith('image/') || file.type.startsWith('audio/'))) {
+        showPreview(file);
+      }
+    });
+
+    fileUpload.onchange = () => {
+      if (fileUpload.files[0]) showPreview(fileUpload.files[0]);
+      fileUpload.value = '';
+    };
+
+    // --- search messages ---
+    function filterMessages(query) {
+      const msgs = document.querySelectorAll('#messages .msg');
+      msgs.forEach(msg => {
+        const text = msg.dataset.msgText || '';
+        if (text.toLowerCase().includes(query.toLowerCase())) {
+          msg.style.display = 'flex';
+        } else {
+          msg.style.display = 'none';
+        }
+      });
+    }
+
+    searchMessagesInput.addEventListener('input', (e) => {
+      if (e.target.value.trim() === '') {
+        document.querySelectorAll('#messages .msg').forEach(m => m.style.display = 'flex');
+      } else {
+        filterMessages(e.target.value);
+      }
+    });
+    clearSearchBtn.onclick = () => {
+      searchMessagesInput.value = '';
+      document.querySelectorAll('#messages .msg').forEach(m => m.style.display = 'flex');
+    };
+
+    // --- pull to refresh (mobile contacts) ---
+    let touchStart = 0;
+    sidebar.addEventListener('touchstart', (e) => { touchStart = e.touches[0].clientY; });
+    sidebar.addEventListener('touchmove', (e) => {
+      if (sidebar.scrollTop === 0 && e.touches[0].clientY - touchStart > 60) {
+        ptrIndicator.style.display = 'block';
+      }
+    });
+    sidebar.addEventListener('touchend', (e) => {
+      if (ptrIndicator.style.display === 'block') {
+        loadContacts(); // refresh contacts
+        ptrIndicator.style.display = 'none';
+      }
+    });
+
+    // --- theme toggle ---
+    themeToggle.onclick = () => {
+      document.body.className = document.body.className === 'dark' ? 'light' : 'dark';
+    };
+
+    // --- auth ---
     document.getElementById('btn-login').onclick = async () => {
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
       const pass = document.getElementById('auth-pass').value;
@@ -695,9 +889,7 @@
       if (snap.exists()) {
         if (snap.val().password === pass) {
           await loginUser(nick);
-        } else {
-          alert('Неверный пароль');
-        }
+        } else alert('Неверный пароль');
       } else {
         await set(userRef, { password: pass, nickname: nick });
         await loginUser(nick);
@@ -708,39 +900,14 @@
       myNick = nick;
       authScreen.style.display = 'none';
       mainWrapper.style.display = 'flex';
-      // Load contacts and listen
       loadContacts();
 
-      // reset active chat if any
-      activeChatPartner = '';
-      chatTitle.innerText = 'выберите чат';
-      messagesDiv.innerHTML = '';
-      if (messagesUnsubscribe) messagesUnsubscribe();
-
-      // Mobile reset view
-      if (isMobile) {
-        sidebar.style.transform = 'translateX(0)';
-        chatArea.classList.remove('active');
-      }
+      // avatar upload on click (simple: click on first contact avatar? better add own avatar)
+      // For simplicity, we add an invisible upload to theme toggle area? but ok.
+      // We'll add a hidden upload for avatar in sidebar later.
     }
 
-    // --- search user & start chat ---
-    searchBtn.onclick = async () => {
-      const target = searchInput.value.toLowerCase().trim();
-      if (!target) return;
-      if (target === myNick) return alert('Это вы');
-
-      const userRef = ref(db, 'users/' + target);
-      const snap = await get(userRef);
-      if (snap.exists()) {
-        startChat(target);
-        searchInput.value = '';
-      } else {
-        alert('Пользователь не найден');
-      }
-    };
-
-    // --- send text message ---
+    // --- send text ---
     sendBtn.onclick = () => {
       const text = msgInput.value.trim();
       if (text) {
@@ -748,32 +915,13 @@
         msgInput.value = '';
       }
     };
+    msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBtn.click(); });
 
-    msgInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendBtn.click();
-    });
-
-    // --- image upload (base64) ---
-    imageUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) return alert('Только изображения');
-
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result; // data:image/png;base64,...
-        sendMessage({ image: base64 });
-        imageUpload.value = ''; // reset
-      };
-      reader.readAsDataURL(file);
-    };
-
-    // --- back button (mobile) ---
+    // --- back button ---
     backBtn.onclick = () => {
       if (isMobile) {
         sidebar.style.transform = 'translateX(0)';
         chatArea.classList.remove('active');
-        // unsubscribe from messages to save bandwidth
         if (messagesUnsubscribe) messagesUnsubscribe();
         activeChatPartner = '';
         chatTitle.innerText = 'выберите чат';
@@ -781,21 +929,23 @@
       }
     };
 
-    // --- handle resize (mobile detection) ---
+    // --- resize ---
     window.addEventListener('resize', () => {
       isMobile = window.innerWidth <= 700;
       if (!isMobile) {
-        // reset any mobile transforms
         sidebar.style.transform = '';
         chatArea.classList.remove('active');
       }
     });
 
-    // --- also trigger on start if mobile but chat opened? not needed ---
-
-    // minor: click on contact already calls startChat
-
-    console.log('Aether ready ✦');
+    // --- search user ---
+    searchBtn.onclick = async () => {
+      const target = searchInput.value.toLowerCase().trim();
+      if (!target || target === myNick) return alert('Некорректный ник');
+      const snap = await get(ref(db, 'users/' + target));
+      if (snap.exists()) startChat(target);
+      else alert('Не найден');
+    };
   </script>
 </body>
-              </html>
+  </html>
