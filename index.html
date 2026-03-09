@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · Ultimate</title>
+  <title>Aether · Final</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
@@ -65,6 +65,14 @@
       margin-left: 6px;
       font-size: 0.9rem;
       display: inline-block;
+    }
+
+    .level-badge {
+      background: var(--accent);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 8px;
     }
 
     #auth-screen {
@@ -207,7 +215,12 @@
     .status-dnd { background: #ef4444; }
     .status-invisible { background: #94a3b8; }
 
-    #themeToggle {
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .header-btn {
       background: transparent;
       border: 1px solid var(--border-color);
       width: 40px;
@@ -265,6 +278,11 @@
       border-left: 3px solid var(--accent);
     }
 
+    .contact-item.blocked {
+      opacity: 0.5;
+      filter: grayscale(50%);
+    }
+
     .contact-avatar {
       width: 48px;
       height: 48px;
@@ -308,6 +326,15 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .blocked-badge {
+      background: #ef4444;
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 10px;
+      margin-left: 8px;
     }
 
     .unread-badge {
@@ -435,7 +462,7 @@
       box-shadow: 0 4px 12px rgba(99,102,241,0.3);
     }
 
-    .bubble-text img, .bubble-text video {
+    .bubble-text img, .bubble-text video, .bubble-text iframe {
       max-width: 200px;
       border-radius: 12px;
       cursor: pointer;
@@ -504,12 +531,36 @@
       margin-left: 8px;
     }
 
-    .translated-badge {
-      font-size: 0.7rem;
-      background: #10b981;
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 5px;
+      margin: 10px 0;
+    }
+    .game-cell {
+      width: 60px;
+      height: 60px;
+      background: var(--bg-surface);
+      border: 2px solid var(--accent);
       border-radius: 12px;
-      padding: 2px 8px;
-      margin-left: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    .game-cell:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .game-info {
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+    .game-score {
+      display: flex;
+      gap: 16px;
+      margin: 8px 0;
     }
 
     .action-bar {
@@ -559,12 +610,6 @@
       background: var(--bg-surface-light);
     }
 
-    .action-bar button.small {
-      font-size: 1rem;
-      width: 36px;
-      height: 36px;
-    }
-
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -607,55 +652,42 @@
       color: white;
     }
 
-    .participant-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .all-users-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .all-users-table th, .all-users-table td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-    }
-    .all-users-table tr:hover {
-      background: var(--bg-surface-light);
-    }
-
-    .emoji-picker {
+    .achievement-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      padding: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
     }
-    .emoji-item {
-      font-size: 2rem;
-      cursor: pointer;
-      text-align: center;
-      padding: 8px;
-      border-radius: 12px;
-    }
-    .emoji-item:hover {
+    .achievement-card {
       background: var(--bg-surface-light);
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+    }
+    .achievement-card.locked {
+      opacity: 0.5;
+    }
+    .achievement-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
     }
 
-    .quick-reply {
-      display: inline-block;
-      padding: 8px 16px;
-      background: var(--bg-surface-light);
-      border-radius: 40px;
-      margin: 4px;
-      cursor: pointer;
+    .gif-picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
     }
-    .quick-reply:hover {
-      background: var(--accent);
+    .gif-item {
+      cursor: pointer;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .gif-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
     }
 
     @media (max-width: 700px) {
@@ -687,12 +719,6 @@
       }
       .action-bar {
         bottom: 80px;
-        padding: 4px;
-      }
-      .action-bar button {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
       }
     }
 
@@ -724,13 +750,17 @@
               <div class="profile-status" id="headerStatus">online</div>
             </div>
           </div>
-          <div id="themeToggle"><i class="fas fa-palette"></i></div>
+          <div class="header-actions">
+            <div class="header-btn" id="soundToggleBtn" title="Звук"><i class="fas fa-volume-up"></i></div>
+            <div class="header-btn" id="themeToggle"><i class="fas fa-palette"></i></div>
+          </div>
         </div>
 
         <div class="search-box">
           <input type="text" id="search-user" placeholder="Поиск контактов...">
           <button id="btn-search"><i class="fas fa-search"></i></button>
           <button id="new-group"><i class="fas fa-users"></i></button>
+          <button id="achievementsBtn"><i class="fas fa-trophy"></i></button>
         </div>
 
         <div id="contacts-list"></div>
@@ -742,6 +772,7 @@
           <button id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
           <span id="chat-with-title">Выберите чат</span>
           <span id="typingIndicator"></span>
+          <span id="gameScore" style="margin-left:auto; margin-right:16px;"></span>
           <button id="groupSettingsBtn" style="background:transparent; border:none; color:var(--text-primary); display:none;"><i class="fas fa-cog"></i></button>
           <button id="deleteGroupBtn" style="background:transparent; border:none; color:var(--text-primary); display:none;"><i class="fas fa-trash"></i></button>
         </div>
@@ -764,6 +795,8 @@
               <i class="fas fa-paperclip"></i>
               <input type="file" id="fileUpload" accept="image/*,video/*,audio/*" hidden>
             </label>
+            <button id="gameBtn" style="width:48px; height:48px; border-radius:50%; background:var(--bg-surface-light);"><i class="fas fa-gamepad"></i></button>
+            <button id="gifBtn" style="width:48px; height:48px; border-radius:50%; background:var(--bg-surface-light);"><i class="fas fa-gift"></i></button>
             <button id="record-btn" style="width:48px; height:48px; border-radius:50%; background:var(--bg-surface-light);"><i class="fas fa-microphone"></i></button>
             <input type="text" id="msg-input" placeholder="Сообщение..." style="flex:1; background:var(--bg-surface-light);">
             <button id="btn-send" style="width:48px; height:48px; border-radius:50%;"><i class="fas fa-paper-plane"></i></button>
@@ -773,7 +806,7 @@
     </div>
   </div>
 
-  <!-- Панель действий над сообщением (с прокруткой) -->
+  <!-- Панель действий над сообщением -->
   <div class="action-bar" id="actionBar">
     <div class="action-bar-row" id="emojiRow">
       <button class="emoji-btn" data-emoji="❤️">❤️</button>
@@ -781,20 +814,34 @@
       <button class="emoji-btn" data-emoji="😮">😮</button>
       <button class="emoji-btn" data-emoji="😢">😢</button>
       <button class="emoji-btn" data-emoji="👍">👍</button>
-      <button class="emoji-btn" data-emoji="👎">👎</button>
       <button class="emoji-btn" data-emoji="🔥">🔥</button>
       <button class="emoji-btn" data-emoji="🎉">🎉</button>
       <button class="emoji-btn" data-emoji="💯">💯</button>
-      <button class="emoji-btn" data-emoji="⭐">⭐</button>
-      <button class="emoji-btn" data-emoji="🍆">🍆</button>
-      <button class="emoji-btn" data-emoji="💀">💀</button>
     </div>
     <div class="action-bar-row">
       <button id="replyMsg" title="Ответить" class="small"><i class="fas fa-reply"></i></button>
       <button id="copyMsg" title="Копировать" class="small"><i class="fas fa-copy"></i></button>
       <button id="forwardMsg" title="Переслать" class="small"><i class="fas fa-share"></i></button>
-      <button id="translateMsg" title="Перевести" class="small"><i class="fas fa-language"></i></button>
       <button id="deleteMsg" title="Удалить" class="small"><i class="fas fa-trash"></i></button>
+    </div>
+  </div>
+
+  <!-- Модальное окно ачивок -->
+  <div class="modal" id="achievementsModal">
+    <div class="modal-content" style="width:600px;">
+      <h2>Достижения <span id="userLevel"></span></h2>
+      <div class="achievement-grid" id="achievementsList"></div>
+      <button id="closeAchievements">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно выбора GIF -->
+  <div class="modal" id="gifModal">
+    <div class="modal-content" style="width:500px;">
+      <h2>Выберите GIF</h2>
+      <input type="text" id="gifSearch" placeholder="Поиск GIF..." style="margin-bottom:16px;">
+      <div class="gif-picker" id="gifList"></div>
+      <button id="closeGif">Закрыть</button>
     </div>
   </div>
 
@@ -824,7 +871,7 @@
       <div class="avatar-large" id="viewProfileAvatar">?</div>
       <div><strong>Имя:</strong> <span id="viewProfileName"></span></div>
       <div><strong>Ник:</strong> <span id="viewProfileNick"></span></div>
-      <div><strong>Пароль:</strong> <span id="viewProfilePassword"></span></div>
+      <div id="passwordField" style="display:none;"><strong>Пароль:</strong> <span id="viewProfilePassword"></span></div>
       <div><strong>Роль:</strong> <span id="viewProfileRole"></span></div>
       <div><strong>О себе:</strong> <span id="viewProfileBio"></span></div>
       <div><strong>Статус:</strong> <span id="viewProfileStatus"></span></div>
@@ -833,7 +880,7 @@
       <button id="closeUserProfile">Закрыть</button>
       <button id="banUserBtn" style="background:#ef4444; display:none;">Забанить</button>
       <button id="unbanUserBtn" style="background:#10b981; display:none;">Разбанить</button>
-      <button id="blockUserBtn" style="background:#f59e0b; display:none;">Заблокировать</button>
+      <button id="blockUserBtn" style="background:#f59e0b;">Заблокировать</button>
     </div>
   </div>
 
@@ -912,30 +959,8 @@
       <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
       <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
       <input type="file" id="wallpaperUpload" accept="image/*">
-      <h4>Звуки</h4>
-      <label><input type="checkbox" id="soundToggle" checked> Включить звуки</label>
-      <button id="reloadInterface" style="background:#10b981;">Перезагрузить интерфейс</button>
+      <button id="reloadInterface" style="background:#10b981; margin-top:16px;">Перезагрузить интерфейс</button>
       <button id="closeTheme">Закрыть</button>
-    </div>
-  </div>
-
-  <!-- Модальное окно перевода -->
-  <div class="modal" id="translateModal">
-    <div class="modal-content" style="width:400px;">
-      <h3>Перевод сообщения</h3>
-      <p id="originalText"></p>
-      <p><strong>Перевод:</strong> <span id="translatedText"></span></p>
-      <button id="closeTranslate">Закрыть</button>
-    </div>
-  </div>
-
-  <!-- Модальное окно с кастомными эмодзи -->
-  <div class="modal" id="customEmojiModal">
-    <div class="modal-content" style="width:400px;">
-      <h3>Загрузить свой эмодзи</h3>
-      <input type="file" id="customEmojiUpload" accept="image/*">
-      <div id="customEmojiPreview" style="display:flex; gap:8px; flex-wrap:wrap; margin:16px 0;"></div>
-      <button id="closeCustomEmoji">Закрыть</button>
     </div>
   </div>
 
@@ -980,8 +1005,25 @@
     const messageIds = new Set();
     let isCreator = false;
     let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
-    let customEmojis = JSON.parse(localStorage.getItem('customEmojis') || '[]');
-    let unreadCounts = new Map();
+    let blockedUsers = new Set(); // Кого заблокировал я
+    let blockedBy = new Set(); // Кто заблокировал меня
+
+    // Данные для игр и ачивок
+    let userStats = {
+      xp: 0,
+      level: 1,
+      games: { wins: 0, losses: 0, draws: 0 },
+      achievements: {}
+    };
+
+    const achievements = [
+      { id: 'first_message', name: 'Первое сообщение', desc: 'Отправить первое сообщение', icon: '💬', xp: 10 },
+      { id: 'game_win', name: 'Победитель', desc: 'Выиграть в крестики-нолики', icon: '🏆', xp: 50 },
+      { id: 'game_10', name: 'Игрок', desc: 'Сыграть 10 игр', icon: '🎮', xp: 100 },
+      { id: 'chatty', name: 'Болтун', desc: 'Отправить 100 сообщений', icon: '🗣️', xp: 200 },
+      { id: 'photographer', name: 'Фотограф', desc: 'Отправить 10 фото', icon: '📸', xp: 150 },
+      { id: 'gif_master', name: 'Гиф-мастер', desc: 'Отправить 5 GIF', icon: '🎞️', xp: 75 },
+    ];
 
     // DOM элементы
     const authScreen = document.getElementById('auth-screen');
@@ -1007,6 +1049,7 @@
     const headerAvatar = document.getElementById('headerAvatar');
     const headerName = document.getElementById('headerName');
     const headerStatus = document.getElementById('headerStatus');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
     const profileModal = document.getElementById('profileModal');
     const profileAvatar = document.getElementById('profileAvatar');
     const profileName = document.getElementById('profileName');
@@ -1022,7 +1065,6 @@
     const textColorInput = document.getElementById('textColor');
     const wallpaperUpload = document.getElementById('wallpaperUpload');
     const closeTheme = document.getElementById('closeTheme');
-    const soundToggle = document.getElementById('soundToggle');
     const reloadInterface = document.getElementById('reloadInterface');
     const searchMessagesInput = document.getElementById('search-messages');
     const clearSearchBtn = document.getElementById('clearSearch');
@@ -1034,6 +1076,7 @@
     const viewProfileName = document.getElementById('viewProfileName');
     const viewProfileNick = document.getElementById('viewProfileNick');
     const viewProfilePassword = document.getElementById('viewProfilePassword');
+    const passwordField = document.getElementById('passwordField');
     const viewProfileRole = document.getElementById('viewProfileRole');
     const viewProfileBio = document.getElementById('viewProfileBio');
     const viewProfileStatus = document.getElementById('viewProfileStatus');
@@ -1070,15 +1113,15 @@
     const allChatsList = document.getElementById('allChatsList');
     const allUsersList = document.getElementById('allUsersList');
     const closeMonitoring = document.getElementById('closeMonitoring');
-    const translateModal = document.getElementById('translateModal');
-    const originalText = document.getElementById('originalText');
-    const translatedText = document.getElementById('translatedText');
-    const closeTranslate = document.getElementById('closeTranslate');
-    const customEmojiModal = document.getElementById('customEmojiModal');
-    const customEmojiUpload = document.getElementById('customEmojiUpload');
-    const customEmojiPreview = document.getElementById('customEmojiPreview');
-    const closeCustomEmoji = document.getElementById('closeCustomEmoji');
+    const achievementsModal = document.getElementById('achievementsModal');
+    const achievementsList = document.getElementById('achievementsList');
+    const userLevel = document.getElementById('userLevel');
+    const closeAchievements = document.getElementById('closeAchievements');
+    const gifModal = document.getElementById('gifModal');
+    const gifList = document.getElementById('gifList');
+    const closeGif = document.getElementById('closeGif');
     const quickRepliesDiv = document.getElementById('quickReplies');
+    const emojiRow = document.getElementById('emojiRow');
 
     // Быстрые ответы
     const quickRepliesList = ['Привет! 👋', 'Как дела?', 'Что нового?', '👍', 'Спасибо!', 'Пока!'];
@@ -1101,7 +1144,75 @@
       }
     }
     applyTheme();
-    soundToggle.checked = soundEnabled;
+
+    // --- Звук ---
+    function updateSoundIcon() {
+      soundToggleBtn.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+    }
+    updateSoundIcon();
+
+    soundToggleBtn.onclick = () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('soundEnabled', soundEnabled);
+      updateSoundIcon();
+    };
+
+    function playNotification() {
+      if (!soundEnabled) return;
+      const audio = new Audio('data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      audio.play().catch(() => {});
+    }
+
+    // --- Загрузка блокировок ---
+    async function loadBlocks() {
+      const blocksSnap = await get(ref(db, `blocks/${myNick}`));
+      blockedUsers = new Set(Object.keys(blocksSnap.val() || {}));
+      
+      // Кто заблокировал меня (для фильтрации сообщений)
+      const usersSnap = await get(ref(db, 'users'));
+      const users = usersSnap.val() || {};
+      blockedBy.clear();
+      for (let [nick, data] of Object.entries(users)) {
+        const userBlocks = await get(ref(db, `blocks/${nick}/${myNick}`));
+        if (userBlocks.val() === true) blockedBy.add(nick);
+      }
+    }
+
+    // --- Проверка, может ли пользователь писать ---
+    function canChatWith(nick) {
+      return !blockedUsers.has(nick) && !blockedBy.has(nick);
+    }
+
+    // --- Загрузка статистики пользователя ---
+    async function loadUserStats() {
+      const snap = await get(ref(db, `users/${myNick}/stats`));
+      if (snap.exists()) {
+        userStats = snap.val();
+      } else {
+        await set(ref(db, `users/${myNick}/stats`), userStats);
+      }
+      updateLevelDisplay();
+    }
+
+    // --- Добавление опыта и проверка ачивок ---
+    async function addXP(amount, achievementId = null) {
+      userStats.xp += amount;
+      userStats.level = Math.floor(userStats.xp / 100) + 1;
+      
+      if (achievementId && !userStats.achievements[achievementId]) {
+        userStats.achievements[achievementId] = Date.now();
+        alert(`🎉 Достижение получено: ${achievements.find(a => a.id === achievementId)?.name}`);
+      }
+      
+      await update(ref(db, `users/${myNick}/stats`), userStats);
+      updateLevelDisplay();
+    }
+
+    function updateLevelDisplay() {
+      if (userLevel) {
+        userLevel.textContent = `Уровень ${userStats.level} (${userStats.xp} XP)`;
+      }
+    }
 
     // --- Функции для работы с профилем ---
     async function loadProfile() {
@@ -1122,7 +1233,6 @@
         headerAvatar.textContent = myNick.charAt(0).toUpperCase();
       }
       
-      // Статус
       const statusSnap = await get(ref(db, `status/${myNick}`));
       const status = statusSnap.val() || 'online';
       updateStatusDisplay(status);
@@ -1182,9 +1292,10 @@
       
       // Показываем пароль только для Hard
       if (isCreator) {
+        passwordField.style.display = 'block';
         viewProfilePassword.textContent = data.password || 'неизвестно';
       } else {
-        viewProfilePassword.textContent = '***';
+        passwordField.style.display = 'none';
       }
       
       let role = 'Пользователь';
@@ -1215,10 +1326,6 @@
       const banSnap = await get(ref(db, `bans/${nick}`));
       const isBanned = banSnap.val() === true;
       
-      // Проверка на блокировку
-      const blockSnap = await get(ref(db, `blocks/${myNick}/${nick}`));
-      const isBlocked = blockSnap.val() === true;
-      
       if (isCreator && nick !== myNick) {
         if (isBanned) {
           banUserBtn.style.display = 'none';
@@ -1247,22 +1354,27 @@
       
       // Кнопка блокировки для всех
       if (nick !== myNick) {
+        const isBlocked = blockedUsers.has(nick);
         if (isBlocked) {
           blockUserBtn.textContent = 'Разблокировать';
           blockUserBtn.style.background = '#10b981';
           blockUserBtn.onclick = () => {
             showConfirm('Разблокировать', `Разблокировать ${nick}?`, async () => {
               await remove(ref(db, `blocks/${myNick}/${nick}`));
+              blockedUsers.delete(nick);
               userProfileModal.style.display = 'none';
+              loadContacts();
             });
           };
         } else {
           blockUserBtn.textContent = 'Заблокировать';
           blockUserBtn.style.background = '#f59e0b';
           blockUserBtn.onclick = () => {
-            showConfirm('Заблокировать', `Заблокировать ${nick}?`, async () => {
+            showConfirm('Заблокировать', `Заблокировать ${nick}? Вы не сможете получать от него сообщения.`, async () => {
               await set(ref(db, `blocks/${myNick}/${nick}`), true);
+              blockedUsers.add(nick);
               userProfileModal.style.display = 'none';
+              loadContacts();
             });
           };
         }
@@ -1316,24 +1428,246 @@
     }
     closeGroupProfile.onclick = () => groupProfileModal.style.display = 'none';
 
-    // --- Звук уведомления ---
-    function playNotification() {
-      if (!soundEnabled) return;
-      const audio = new Audio('data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-      audio.play().catch(() => {});
+    // --- Полноэкранный просмотр медиа ---
+    function openMedia(src, type) {
+      modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}" style="max-width:100%; max-height:80vh;">`;
+      mediaModal.style.display = 'flex';
+    }
+    closeModal.onclick = () => mediaModal.style.display = 'none';
+    mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
+
+    // --- Обработчики эмодзи (мгновенные) ---
+    emojiRow.querySelectorAll('.emoji-btn').forEach(btn => {
+      btn.onclick = () => {
+        const emoji = btn.dataset.emoji;
+        if (selectedMsgId) {
+          toggleReaction(selectedMsgId, emoji);
+          // Мгновенное обновление в UI
+          const msgDiv = document.querySelector(`[data-id="${selectedMsgId}"]`);
+          if (msgDiv) {
+            let reactionsDiv = msgDiv.querySelector('.reactions');
+            if (!reactionsDiv) {
+              reactionsDiv = document.createElement('div');
+              reactionsDiv.className = 'reactions';
+              msgDiv.querySelector('.bubble-content').appendChild(reactionsDiv);
+            }
+            
+            // Проверяем, есть ли уже такая реакция
+            let existingReaction = Array.from(reactionsDiv.children).find(
+              el => el.textContent.includes(emoji)
+            );
+            
+            if (existingReaction) {
+              // Увеличиваем счётчик
+              const match = existingReaction.textContent.match(/(\d+)/);
+              const count = match ? parseInt(match[0]) + 1 : 2;
+              existingReaction.textContent = `${emoji} ${count}`;
+            } else {
+              // Добавляем новую
+              const newReaction = document.createElement('span');
+              newReaction.className = 'reaction';
+              newReaction.textContent = `${emoji} 1`;
+              newReaction.onclick = (e) => {
+                e.stopPropagation();
+                toggleReaction(selectedMsgId, emoji);
+              };
+              reactionsDiv.appendChild(newReaction);
+            }
+          }
+        }
+        actionBar.style.display = 'none';
+      };
+    });
+
+    // --- Реакции (синхронизация с Firebase) ---
+    async function toggleReaction(msgId, emoji) {
+      if (!activeChat) return;
+      const reactionRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions/${emoji}`);
+      const snap = await get(reactionRef);
+      let users = snap.val() || [];
+      if (users.includes(myNick)) {
+        users = users.filter(u => u !== myNick);
+      } else {
+        users.push(myNick);
+      }
+      await set(reactionRef, users);
     }
 
-    // --- Отрисовка сообщения с Markdown ---
-    function parseMarkdown(text) {
-      if (!text) return '';
-      return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`(.*?)`/g, '<code>$1</code>')
-        .replace(/\n/g, '<br>');
+    // --- Крестики-нолики ---
+    function createGameBoard(gameId, board, nextPlayer, players) {
+      const container = document.createElement('div');
+      container.className = 'game-container';
+      container.dataset.gameId = gameId;
+      
+      const info = document.createElement('div');
+      info.className = 'game-info';
+      info.textContent = `Ход: ${nextPlayer === myNick ? 'Ваш' : nextPlayer}`;
+      
+      const boardDiv = document.createElement('div');
+      boardDiv.className = 'game-board';
+      
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('button');
+        cell.className = 'game-cell';
+        cell.textContent = board[i] || '';
+        cell.disabled = board[i] || nextPlayer !== myNick;
+        cell.onclick = () => makeMove(gameId, i);
+        boardDiv.appendChild(cell);
+      }
+      
+      const score = document.createElement('div');
+      score.className = 'game-score';
+      score.innerHTML = `${players[0]}: ${userStats.games.wins} | ${players[1]}: ${userStats.games.losses}`;
+      
+      container.appendChild(info);
+      container.appendChild(boardDiv);
+      container.appendChild(score);
+      
+      return container;
     }
 
+    async function makeMove(gameId, index) {
+      const gameRef = ref(db, `games/${gameId}`);
+      const snap = await get(gameRef);
+      const game = snap.val();
+      
+      if (!game || game.nextPlayer !== myNick || game.board[index]) return;
+      
+      game.board[index] = game.players[0] === myNick ? 'X' : 'O';
+      
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      
+      let winner = null;
+      for (let pattern of winPatterns) {
+        const [a,b,c] = pattern;
+        if (game.board[a] && game.board[a] === game.board[b] && game.board[a] === game.board[c]) {
+          winner = game.players[0] === myNick ? myNick : game.players[1];
+          break;
+        }
+      }
+      
+      if (winner) {
+        game.status = 'finished';
+        game.winner = winner;
+        
+        if (winner === myNick) {
+          userStats.games.wins++;
+          await addXP(50, 'game_win');
+        } else {
+          userStats.games.losses++;
+        }
+        
+        await push(ref(db, `chats/${activeChat.id}/messages`), {
+          from: 'system',
+          text: `🎮 Игра завершена! Победил ${winner === myNick ? 'вы' : winner}`,
+          time: Date.now()
+        });
+      } else if (!game.board.includes(null)) {
+        game.status = 'finished';
+        game.winner = 'draw';
+        userStats.games.draws++;
+        
+        await push(ref(db, `chats/${activeChat.id}/messages`), {
+          from: 'system',
+          text: `🎮 Ничья!`,
+          time: Date.now()
+        });
+      } else {
+        game.nextPlayer = game.players.find(p => p !== myNick);
+      }
+      
+      await update(gameRef, game);
+      
+      const gameMsg = document.querySelector(`[data-game-id="${gameId}"]`);
+      if (gameMsg) {
+        const newBoard = createGameBoard(gameId, game.board, game.nextPlayer, game.players);
+        gameMsg.innerHTML = newBoard.innerHTML;
+      }
+    }
+
+    async function sendGameInvite() {
+      if (!activeChat || activeChat.type !== 'private') {
+        alert('Играть можно только в личном чате');
+        return;
+      }
+      
+      const partner = activeChat.participants.find(p => p !== myNick);
+      if (!canChatWith(partner)) {
+        alert('Вы не можете играть с этим пользователем (блокировка)');
+        return;
+      }
+      
+      const gameId = `game_${Date.now()}`;
+      const game = {
+        board: Array(9).fill(null),
+        players: [myNick, partner],
+        nextPlayer: myNick,
+        status: 'active',
+        createdAt: Date.now()
+      };
+      
+      await set(ref(db, `games/${gameId}`), game);
+      
+      await push(ref(db, `chats/${activeChat.id}/messages`), {
+        from: myNick,
+        type: 'game',
+        gameId: gameId,
+        text: '🎮 Приглашение в крестики-нолики!',
+        time: Date.now()
+      });
+    }
+
+    // --- GIF стикеры ---
+    async function searchGifs(query) {
+      const mockGifs = [
+        'https://media.giphy.com/media/3o7abB06u9bNzA8LC8/giphy.gif',
+        'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
+        'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
+        'https://media.giphy.com/media/26ufnwz3wDUli7GU0/giphy.gif',
+      ];
+      return mockGifs;
+    }
+
+    async function showGifPicker() {
+      const gifs = await searchGifs('funny');
+      gifList.innerHTML = gifs.map(url => 
+        `<div class="gif-item" onclick="window.sendGif('${url}')"><img src="${url}"></div>`
+      ).join('');
+      gifModal.style.display = 'flex';
+    }
+
+    window.sendGif = (url) => {
+      sendMessage({ image: url });
+      gifModal.style.display = 'none';
+    };
+
+    // --- Отрисовка сообщений с поддержкой игр и блокировок ---
     function drawMessage(msg, isMe) {
+      // Не показываем сообщения от заблокированных пользователей
+      if (!isMe && blockedBy.has(msg.from)) {
+        return null;
+      }
+      
+      if (msg.type === 'game') {
+        const gameDiv = document.createElement('div');
+        gameDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
+        gameDiv.dataset.gameId = msg.gameId;
+        
+        get(ref(db, `games/${msg.gameId}`)).then(snap => {
+          const game = snap.val();
+          if (game) {
+            const board = createGameBoard(msg.gameId, game.board, game.nextPlayer, game.players);
+            gameDiv.appendChild(board);
+          }
+        });
+        
+        return gameDiv;
+      }
+      
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
       msgDiv.dataset.id = msg.id;
@@ -1374,13 +1708,6 @@
         bubble.appendChild(fwd);
       }
 
-      if (msg.translated) {
-        const trans = document.createElement('span');
-        trans.className = 'translated-badge';
-        trans.textContent = '🌐 переведено';
-        bubble.appendChild(trans);
-      }
-
       const textDiv = document.createElement('div');
       textDiv.className = 'bubble-text';
       
@@ -1413,32 +1740,20 @@
       const reactionsDiv = document.createElement('div');
       reactionsDiv.className = 'reactions';
       
-      // Добавляем кастомные эмодзи
-      const allEmojis = { ...(msg.reactions || {}), ...customEmojis.reduce((acc, em) => ({ ...acc, [em]: [] }), {}) };
-      
-      for (let [emoji, users] of Object.entries(allEmojis)) {
-        if (!users) users = [];
-        const span = document.createElement('span');
-        span.className = 'reaction';
-        
-        if (emoji.startsWith('http')) {
-          // Кастомный эмодзи
-          span.innerHTML = `<img src="${emoji}" style="width:20px; height:20px; vertical-align:middle;"> ${users.length}`;
-        } else {
+      if (msg.reactions) {
+        for (let [emoji, users] of Object.entries(msg.reactions)) {
+          const span = document.createElement('span');
+          span.className = 'reaction';
           span.textContent = `${emoji} ${users.length}`;
-        }
-        
-        span.onclick = (e) => { 
-          e.stopPropagation(); 
-          toggleReaction(msg.id, emoji);
-          const count = users.includes(myNick) ? users.length - 1 : users.length + 1;
-          if (emoji.startsWith('http')) {
-            span.innerHTML = `<img src="${emoji}" style="width:20px; height:20px;"> ${count}`;
-          } else {
+          span.onclick = (e) => { 
+            e.stopPropagation(); 
+            toggleReaction(msg.id, emoji);
+            // Мгновенное обновление
+            const count = users.includes(myNick) ? users.length - 1 : users.length + 1;
             span.textContent = `${emoji} ${count}`;
-          }
-        };
-        reactionsDiv.appendChild(span);
+          };
+          reactionsDiv.appendChild(span);
+        }
       }
 
       bubble.appendChild(textDiv);
@@ -1446,7 +1761,6 @@
       bubble.appendChild(reactionsDiv);
       msgDiv.appendChild(bubble);
 
-      // Клик для вызова action bar
       msgDiv.onclick = (e) => {
         e.stopPropagation();
         if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO' || e.target.tagName === 'SPAN') return;
@@ -1461,18 +1775,13 @@
       return msgDiv;
     }
 
-    // --- Реакции (мгновенные) ---
-    async function toggleReaction(msgId, emoji) {
-      if (!activeChat) return;
-      const reactionRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions/${emoji}`);
-      const snap = await get(reactionRef);
-      let users = snap.val() || [];
-      if (users.includes(myNick)) {
-        users = users.filter(u => u !== myNick);
-      } else {
-        users.push(myNick);
-      }
-      await set(reactionRef, users);
+    function parseMarkdown(text) {
+      if (!text) return '';
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
     }
 
     // --- Удаление сообщения ---
@@ -1488,23 +1797,7 @@
       actionBar.style.display = 'none';
     }
 
-    // --- Перевод сообщения (имитация) ---
-    async function translateMessage(text) {
-      // В реальном проекте здесь был бы вызов API перевода
-      return `[Перевод] ${text} (en)`;
-    }
-
     // --- Обработчики action bar ---
-    document.querySelectorAll('.emoji-btn').forEach(btn => {
-      btn.onclick = () => {
-        const emoji = btn.dataset.emoji;
-        if (selectedMsgId) {
-          toggleReaction(selectedMsgId, emoji);
-        }
-        actionBar.style.display = 'none';
-      };
-    });
-
     document.getElementById('replyMsg').onclick = () => {
       if (currentMsg) {
         replyTo = { id: currentMsg.id, from: currentMsg.from, text: currentMsg.text || 'Медиа' };
@@ -1528,25 +1821,13 @@
       actionBar.style.display = 'none';
     };
 
-    document.getElementById('translateMsg').onclick = async () => {
-      if (currentMsg && currentMsg.text) {
-        const translation = await translateMessage(currentMsg.text);
-        originalText.textContent = currentMsg.text;
-        translatedText.textContent = translation;
-        translateModal.style.display = 'flex';
-      }
-      actionBar.style.display = 'none';
-    };
-
     document.getElementById('deleteMsg').onclick = () => {
       if (currentMsg) {
         showConfirm('Удалить сообщение', 'Удалить это сообщение?', () => deleteMessage(currentMsg.id));
       }
     };
 
-    closeTranslate.onclick = () => translateModal.style.display = 'none';
-
-    // --- Загрузка чата с уведомлениями ---
+    // --- Загрузка чата с фильтрацией блокировок ---
     function loadChat(chatId, participants) {
       if (messagesUnsubscribe) messagesUnsubscribe();
       messagesDiv.innerHTML = '';
@@ -1559,13 +1840,13 @@
           Object.entries(msgs).forEach(([id, msg]) => {
             if (!messageIds.has(id)) {
               messageIds.add(id);
-              messagesDiv.appendChild(drawMessage({ id, ...msg }, msg.from === myNick));
+              const msgEl = drawMessage({ id, ...msg }, msg.from === myNick);
+              if (msgEl) messagesDiv.appendChild(msgEl);
             }
           });
         }
         scrollToBottom();
         
-        // Сбрасываем счётчик непрочитанных для этого чата
         if (unreadCounts.has(chatId)) {
           unreadCounts.delete(chatId);
           loadContacts();
@@ -1577,10 +1858,12 @@
         if (messageIds.has(id)) return;
         messageIds.add(id);
         const msg = { id, ...snap.val() };
-        messagesDiv.appendChild(drawMessage(msg, msg.from === myNick));
-        scrollIfNeeded();
+        const msgEl = drawMessage(msg, msg.from === myNick);
+        if (msgEl) {
+          messagesDiv.appendChild(msgEl);
+          scrollIfNeeded();
+        }
         
-        // Уведомление, если чат не активен
         if (msg.from !== myNick && activeChat?.id !== chatId) {
           unreadCounts.set(chatId, (unreadCounts.get(chatId) || 0) + 1);
           loadContacts();
@@ -1588,7 +1871,6 @@
         }
       });
 
-      // Показываем кнопки управления группой
       if (activeChat?.type === 'group') {
         get(ref(db, `chats/${chatId}`)).then(snap => {
           const data = snap.val();
@@ -1613,7 +1895,7 @@
       if (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100) scrollToBottom();
     }
 
-    // --- Контакты и пересылка ---
+    // --- Контакты с учётом блокировок ---
     function loadContacts() {
       if (!myNick) return;
       if (contactsUnsubscribe) contactsUnsubscribe();
@@ -1631,26 +1913,26 @@
           const online = status === 'online';
           const lastSeen = isGroup ? '' : await get(ref(db, `users/${id}/lastSeen`)).then(s => s.val());
           const unread = unreadCounts.get(id) || 0;
+          const isBlocked = blockedUsers.has(id) || blockedBy.has(id);
           
           html += `
-            <div class="contact-item ${unread > 0 ? 'unread' : ''}" data-id="${id}" data-type="${isGroup ? 'group' : 'private'}">
+            <div class="contact-item ${unread > 0 ? 'unread' : ''} ${isBlocked ? 'blocked' : ''}" data-id="${id}" data-type="${isGroup ? 'group' : 'private'}">
               <div class="contact-avatar" style="${avatarUrl ? `background-image:url('${avatarUrl}')` : `background:${getAvatarColor(id)}`}">
                 ${!avatarUrl ? (isGroup ? '👥' : name.charAt(0).toUpperCase()) : ''}
                 ${!isGroup ? (online ? '<span class="online-indicator" style="background:#4ade80;"></span>' : '<span class="online-indicator" style="background:#94a3b8;"></span>') : ''}
               </div>
               <div class="contact-info">
                 <div class="contact-name">
-                  <span>${name}</span>
+                  <span>${name} ${isBlocked ? '<span class="blocked-badge">заблокирован</span>' : ''}</span>
                   <span style="font-size:12px;">${data.lastTime ? new Date(data.lastTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''} ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}</span>
                 </div>
-                <div class="contact-last-msg">${data.lastMsg || ''}</div>
+                <div class="contact-last-msg">${isBlocked ? 'Нет доступа' : (data.lastMsg || '')}</div>
                 ${!isGroup && !online ? `<div class="last-seen">был(а) ${formatLastSeen(lastSeen)}</div>` : ''}
               </div>
             </div>
           `;
         }
         
-        // Для создателя добавляем специальные пункты
         if (isCreator) {
           html += `
             <div class="contact-item" data-id="monitoring" data-type="monitoring">
@@ -1658,13 +1940,6 @@
               <div class="contact-info">
                 <div class="contact-name">Мониторинг чатов</div>
                 <div class="contact-last-msg">Просмотр всех чатов и пользователей</div>
-              </div>
-            </div>
-            <div class="contact-item" data-id="custom-emojis" data-type="custom-emojis">
-              <div class="contact-avatar" style="background:#8b5cf6;">😊</div>
-              <div class="contact-info">
-                <div class="contact-name">Кастомные эмодзи</div>
-                <div class="contact-last-msg">Загрузить свои эмодзи</div>
               </div>
             </div>
           `;
@@ -1682,13 +1957,15 @@
               return;
             }
             
-            if (type === 'custom-emojis') {
-              customEmojiModal.style.display = 'flex';
-              return;
-            }
-            
             if (forwardQueue) {
               const chatId = type === 'private' ? [myNick, id].sort().join('_') : id;
+              const partner = type === 'private' ? id : null;
+              
+              if (partner && !canChatWith(partner)) {
+                alert('Вы не можете переслать сообщение этому пользователю (блокировка)');
+                return;
+              }
+              
               const msg = {
                 from: myNick,
                 time: Date.now(),
@@ -1703,8 +1980,15 @@
               forwardQueue = null;
               alert('Сообщение переслано');
             } else {
-              if (type === 'private') startPrivateChat(id);
-              else if (type === 'group') startGroupChat(id);
+              if (type === 'private') {
+                if (!canChatWith(id)) {
+                  alert('Вы не можете общаться с этим пользователем (блокировка)');
+                  return;
+                }
+                startPrivateChat(id);
+              } else if (type === 'group') {
+                startGroupChat(id);
+              }
             }
           });
         });
@@ -1741,7 +2025,6 @@
     }
     closeMonitoring.onclick = () => monitoringModal.style.display = 'none';
     
-    // Глобальные функции
     window.openChat = (chatId) => {
       monitoringModal.style.display = 'none';
       get(ref(db, `chats/${chatId}`)).then(snap => {
@@ -1760,57 +2043,19 @@
       showUserProfile(nick);
     };
 
-    // --- Кастомные эмодзи ---
-    customEmojiUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          customEmojis.push(ev.target.result);
-          localStorage.setItem('customEmojis', JSON.stringify(customEmojis));
-          
-          const img = document.createElement('img');
-          img.src = ev.target.result;
-          img.style.width = '40px';
-          img.style.height = '40px';
-          img.style.cursor = 'pointer';
-          img.onclick = () => {
-            if (selectedMsgId) {
-              toggleReaction(selectedMsgId, ev.target.result);
-            }
-          };
-          customEmojiPreview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-    
-    closeCustomEmoji.onclick = () => customEmojiModal.style.display = 'none';
-
-    // --- Быстрые ответы ---
-    function renderQuickReplies() {
-      quickRepliesDiv.innerHTML = '';
-      quickRepliesList.forEach(text => {
-        const btn = document.createElement('span');
-        btn.className = 'quick-reply';
-        btn.textContent = text;
-        btn.onclick = () => {
-          msgInput.value = text;
-        };
-        quickRepliesDiv.appendChild(btn);
-      });
-    }
-    renderQuickReplies();
-
     // --- Старт приватного чата ---
     function startPrivateChat(partner) {
+      if (!canChatWith(partner)) {
+        alert('Вы не можете общаться с этим пользователем (блокировка)');
+        return;
+      }
+      
       const chatId = [myNick, partner].sort().join('_');
       activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
       chatTitle.innerHTML = `@${partner}`;
       chatTitle.onclick = () => showUserProfile(partner);
       loadChat(chatId, [myNick, partner]);
       
-      // Сбрасываем счётчик
       unreadCounts.delete(chatId);
       
       if (window.innerWidth <= 700) {
@@ -1828,14 +2073,22 @@
         chatTitle.onclick = () => showGroupProfile(groupId);
         loadChat(groupId, data.participants);
         
-        // Сбрасываем счётчик
         unreadCounts.delete(groupId);
       });
     }
 
-    // --- Отправка сообщения ---
+    // --- Отправка сообщения с проверкой блокировки ---
     async function sendMessage(content) {
       if (!activeChat) return;
+      
+      if (activeChat.type === 'private') {
+        const partner = activeChat.participants.find(p => p !== myNick);
+        if (!canChatWith(partner)) {
+          alert('Вы не можете отправить сообщение этому пользователю (блокировка)');
+          return;
+        }
+      }
+      
       const msg = {
         from: myNick,
         time: Date.now(),
@@ -1850,7 +2103,7 @@
       const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : (content.audio ? '🎤' : '')));
       
       for (let p of activeChat.participants) {
-        if (p !== myNick) {
+        if (p !== myNick && !blockedBy.has(p)) {
           await update(ref(db, `users/${p}/contacts/${myNick}`), { 
             lastMsg, 
             lastTime: Date.now(),
@@ -1868,13 +2121,24 @@
       
       if (activeChat.type === 'group') {
         for (let p of activeChat.participants) {
-          await update(ref(db, `users/${p}/contacts/${activeChat.id}`), {
-            lastMsg,
-            lastTime: Date.now(),
-            isGroup: true,
-            groupName: activeChat.name
-          });
+          if (!blockedBy.has(p)) {
+            await update(ref(db, `users/${p}/contacts/${activeChat.id}`), {
+              lastMsg,
+              lastTime: Date.now(),
+              isGroup: true,
+              groupName: activeChat.name
+            });
+          }
         }
+      }
+      
+      // Добавляем опыт за сообщение
+      const messageCount = Object.keys(await get(ref(db, `chats/${activeChat.id}/messages`)).then(s => s.val() || {})).length;
+      if (messageCount === 1) {
+        await addXP(10, 'first_message');
+      }
+      if (messageCount % 100 === 0) {
+        await addXP(200, 'chatty');
       }
     }
 
@@ -2029,6 +2293,9 @@
       localStorage.setItem('aether_nick', nick);
       authScreen.style.display = 'none';
       mainWrapper.style.display = 'flex';
+      
+      await loadBlocks();
+      await loadUserStats();
       await loadProfile();
       loadContacts();
       
@@ -2042,10 +2309,16 @@
     searchBtn.onclick = async () => {
       const target = searchInput.value.trim().toLowerCase();
       if (!target || target === myNick) return alert('Некорректный ник');
+      
       const banSnap = await get(ref(db, `bans/${target}`));
       if (banSnap.val() === true) {
         return alert('Этот пользователь забанен');
       }
+      
+      if (!canChatWith(target)) {
+        return alert('Вы не можете общаться с этим пользователем (блокировка)');
+      }
+      
       const snap = await get(ref(db, 'users/' + target));
       if (snap.exists()) {
         startPrivateChat(target);
@@ -2069,6 +2342,10 @@
         const banSnap = await get(ref(db, `bans/${p}`));
         if (banSnap.val() === true) {
           alert(`Пользователь ${p} забанен и не может быть добавлен`);
+          return;
+        }
+        if (blockedBy.has(p) || blockedUsers.has(p)) {
+          alert(`Пользователь ${p} заблокирован и не может быть добавлен`);
           return;
         }
       }
@@ -2109,15 +2386,20 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (file.type.startsWith('image/')) sendMessage({ image: e.target.result });
-        else if (file.type.startsWith('video/')) sendMessage({ video: e.target.result });
-        else if (file.type.startsWith('audio/')) sendMessage({ audio: e.target.result });
+        if (file.type.startsWith('image/')) {
+          sendMessage({ image: e.target.result });
+          addXP(150, 'photographer');
+        } else if (file.type.startsWith('video/')) {
+          sendMessage({ video: e.target.result });
+        } else if (file.type.startsWith('audio/')) {
+          sendMessage({ audio: e.target.result });
+        }
       };
       reader.readAsDataURL(file);
       fileUpload.value = '';
     };
 
-    // --- Голосовые сообщения с визуализацией ---
+    // --- Голосовые сообщения ---
     recordBtn.onclick = async () => {
       if (!mediaRecorder) {
         try {
@@ -2202,6 +2484,43 @@
       closeProfile.click();
     };
 
+    // --- Ачивки ---
+    function showAchievements() {
+      achievementsList.innerHTML = achievements.map(a => {
+        const unlocked = userStats.achievements[a.id];
+        return `
+          <div class="achievement-card ${unlocked ? '' : 'locked'}">
+            <div class="achievement-icon">${a.icon}</div>
+            <div><strong>${a.name}</strong></div>
+            <div><small>${a.desc}</small></div>
+            <div>${unlocked ? '✅' : '🔒'} +${a.xp} XP</div>
+          </div>
+        `;
+      }).join('');
+      achievementsModal.style.display = 'flex';
+    }
+
+    document.getElementById('achievementsBtn').onclick = showAchievements;
+    closeAchievements.onclick = () => achievementsModal.style.display = 'none';
+    document.getElementById('gameBtn').onclick = sendGameInvite;
+    document.getElementById('gifBtn').onclick = showGifPicker;
+    closeGif.onclick = () => gifModal.style.display = 'none';
+
+    // --- Быстрые ответы ---
+    function renderQuickReplies() {
+      quickRepliesDiv.innerHTML = '';
+      quickRepliesList.forEach(text => {
+        const btn = document.createElement('span');
+        btn.className = 'quick-reply';
+        btn.textContent = text;
+        btn.onclick = () => {
+          msgInput.value = text;
+        };
+        quickRepliesDiv.appendChild(btn);
+      });
+    }
+    renderQuickReplies();
+
     // --- Тема и перезагрузка ---
     themeToggle.onclick = () => themeModal.style.display = 'flex';
     closeTheme.onclick = () => themeModal.style.display = 'none';
@@ -2237,22 +2556,9 @@
         reader.readAsDataURL(file);
       }
     };
-    soundToggle.onchange = (e) => {
-      soundEnabled = e.target.checked;
-      localStorage.setItem('soundEnabled', soundEnabled);
-    };
     reloadInterface.onclick = () => {
-      // Перезагрузка без потери авторизации
       location.reload();
     };
-
-    // --- Полноэкранный просмотр медиа ---
-    function openMedia(src, type) {
-      modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}" style="max-width:100%; max-height:80vh;">`;
-      mediaModal.style.display = 'flex';
-    }
-    closeModal.onclick = () => mediaModal.style.display = 'none';
-    mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
   </script>
 </body>
   </html>
