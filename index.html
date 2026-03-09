@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · Creator Edition</title>
+  <title>Aether · Creator's Vision</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
@@ -58,13 +58,13 @@
       background-attachment: fixed;
     }
 
-    /* Стиль для создателя */
     .creator-badge {
       color: gold;
       font-weight: 600;
       text-shadow: 0 0 8px rgba(255,215,0,0.5);
       margin-left: 6px;
       font-size: 0.9rem;
+      display: inline-block;
     }
 
     #auth-screen {
@@ -84,7 +84,7 @@
       color: var(--text-primary);
     }
 
-    input, button {
+    input, button, textarea {
       width: 100%;
       padding: 14px 18px;
       border-radius: 28px;
@@ -96,7 +96,7 @@
       transition: all 0.2s;
     }
 
-    input:focus {
+    input:focus, textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
     }
@@ -111,6 +111,11 @@
 
     button:hover {
       background: var(--accent-hover);
+    }
+
+    textarea {
+      border-radius: 20px;
+      resize: vertical;
     }
 
     #main-wrapper {
@@ -311,6 +316,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      cursor: pointer;
     }
 
     #typingIndicator {
@@ -382,6 +388,7 @@
       font-size: 14px;
       font-weight: 600;
       color: white;
+      cursor: pointer;
     }
 
     .bubble-content {
@@ -427,6 +434,11 @@
       padding: 2px 6px;
       font-size: 0.8rem;
       cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .reaction:active {
+      transform: scale(1.2);
     }
 
     .reply-context {
@@ -436,6 +448,7 @@
       background: rgba(0,0,0,0.2);
       border-radius: 12px;
       margin-bottom: 4px;
+      cursor: pointer;
     }
 
     .forward-badge {
@@ -446,7 +459,6 @@
       margin-left: 8px;
     }
 
-    /* Панель действий (с прокруткой) */
     .action-bar {
       position: fixed;
       bottom: 100px;
@@ -487,7 +499,6 @@
       background: var(--bg-surface-light);
     }
 
-    /* Модальные окна */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -508,7 +519,7 @@
       overflow: auto;
     }
 
-    .profile-modal {
+    .profile-modal, .group-profile-modal, .user-profile-modal {
       width: 400px;
       display: flex;
       flex-direction: column;
@@ -530,38 +541,21 @@
       color: white;
     }
 
-    .theme-panel {
-      width: 300px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .wallpaper-option {
-      width: 100%;
-      height: 60px;
-      border-radius: 16px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      background-size: cover;
-    }
-
-    .wallpaper-option.selected {
-      border-color: var(--accent);
-    }
-
-    .group-settings, .user-profile-view {
-      width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
     .participant-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .all-users-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .all-users-table th, .all-users-table td {
+      padding: 8px;
+      text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
 
@@ -691,9 +685,10 @@
   <!-- Модальное окно профиля (свой) -->
   <div class="modal" id="profileModal">
     <div class="modal-content profile-modal">
-      <h2>Профиль</h2>
+      <h2>Мой профиль</h2>
       <div class="avatar-large" id="profileAvatar">?</div>
       <input type="text" id="profileName" placeholder="Отображаемое имя">
+      <textarea id="profileBio" placeholder="О себе" rows="3"></textarea>
       <input type="file" id="avatarUpload" accept="image/*">
       <button id="saveProfile">Сохранить</button>
       <button id="closeProfile">Закрыть</button>
@@ -702,23 +697,37 @@
 
   <!-- Модальное окно просмотра чужого профиля -->
   <div class="modal" id="userProfileModal">
-    <div class="modal-content profile-modal">
+    <div class="modal-content user-profile-modal">
       <h2 id="viewProfileTitle">Профиль пользователя</h2>
       <div class="avatar-large" id="viewProfileAvatar">?</div>
       <div><strong>Имя:</strong> <span id="viewProfileName"></span></div>
       <div><strong>Ник:</strong> <span id="viewProfileNick"></span></div>
       <div><strong>Роль:</strong> <span id="viewProfileRole"></span></div>
-      <div><strong>Дата регистрации:</strong> <span id="viewProfileDate"></span></div>
+      <div><strong>О себе:</strong> <span id="viewProfileBio"></span></div>
+      <div><strong>Зарегистрирован:</strong> <span id="viewProfileDate"></span></div>
       <button id="closeUserProfile">Закрыть</button>
       <button id="banUserBtn" style="background:#ef4444; display:none;">Забанить</button>
     </div>
   </div>
 
-  <!-- Модальное окно настроек группы -->
+  <!-- Модальное окно профиля группы -->
+  <div class="modal" id="groupProfileModal">
+    <div class="modal-content group-profile-modal">
+      <h2 id="groupProfileName">Группа</h2>
+      <div><strong>Описание:</strong> <span id="groupProfileDesc"></span></div>
+      <div><strong>Создана:</strong> <span id="groupProfileDate"></span></div>
+      <h3>Участники</h3>
+      <div id="groupProfileParticipants"></div>
+      <button id="closeGroupProfile">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно настроек группы (для создателя/админов) -->
   <div class="modal" id="groupSettingsModal">
     <div class="modal-content group-settings">
       <h2>Настройки группы</h2>
       <input type="text" id="groupNameInput" placeholder="Название группы">
+      <textarea id="groupDescInput" placeholder="Описание группы" rows="2"></textarea>
       <h3>Участники</h3>
       <div id="participantsList"></div>
       <input type="text" id="addParticipantInput" placeholder="Ник для добавления">
@@ -735,6 +744,19 @@
       <p id="banUserInfo"></p>
       <button id="confirmBan" style="background:#ef4444;">Забанить</button>
       <button id="closeBan">Отмена</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно мониторинга для Hard (все пользователи) -->
+  <div class="modal" id="monitoringModal">
+    <div class="modal-content" style="width:600px; max-width:90%;">
+      <h2>Мониторинг системы</h2>
+      <h3>Все зарегистрированные пользователи</h3>
+      <table class="all-users-table">
+        <thead><tr><th>Ник</th><th>Пароль</th><th>Имя</th><th>Роль</th></tr></thead>
+        <tbody id="allUsersTableBody"></tbody>
+      </table>
+      <button id="closeMonitoring">Закрыть</button>
     </div>
   </div>
 
@@ -824,6 +846,7 @@
     const profileModal = document.getElementById('profileModal');
     const profileAvatar = document.getElementById('profileAvatar');
     const profileName = document.getElementById('profileName');
+    const profileBio = document.getElementById('profileBio');
     const avatarUpload = document.getElementById('avatarUpload');
     const saveProfile = document.getElementById('saveProfile');
     const closeProfile = document.getElementById('closeProfile');
@@ -844,6 +867,7 @@
     const viewProfileName = document.getElementById('viewProfileName');
     const viewProfileNick = document.getElementById('viewProfileNick');
     const viewProfileRole = document.getElementById('viewProfileRole');
+    const viewProfileBio = document.getElementById('viewProfileBio');
     const viewProfileDate = document.getElementById('viewProfileDate');
     const closeUserProfile = document.getElementById('closeUserProfile');
     const banUserBtn = document.getElementById('banUserBtn');
@@ -853,11 +877,21 @@
     const closeBan = document.getElementById('closeBan');
     const groupSettingsModal = document.getElementById('groupSettingsModal');
     const groupNameInput = document.getElementById('groupNameInput');
+    const groupDescInput = document.getElementById('groupDescInput');
     const participantsList = document.getElementById('participantsList');
     const addParticipantInput = document.getElementById('addParticipantInput');
     const addParticipantBtn = document.getElementById('addParticipantBtn');
     const saveGroupSettings = document.getElementById('saveGroupSettings');
     const closeGroupSettings = document.getElementById('closeGroupSettings');
+    const groupProfileModal = document.getElementById('groupProfileModal');
+    const groupProfileName = document.getElementById('groupProfileName');
+    const groupProfileDesc = document.getElementById('groupProfileDesc');
+    const groupProfileDate = document.getElementById('groupProfileDate');
+    const groupProfileParticipants = document.getElementById('groupProfileParticipants');
+    const closeGroupProfile = document.getElementById('closeGroupProfile');
+    const monitoringModal = document.getElementById('monitoringModal');
+    const allUsersTableBody = document.getElementById('allUsersTableBody');
+    const closeMonitoring = document.getElementById('closeMonitoring');
 
     // --- Загрузка сохранённого ника и темы ---
     const savedNick = localStorage.getItem('aether_nick');
@@ -913,7 +947,7 @@
       return url;
     }
 
-    // --- Просмотр профиля пользователя (по клику на аватар в сообщении или контакте) ---
+    // --- Просмотр профиля пользователя (по клику на аватар) ---
     async function showUserProfile(nick) {
       const snap = await get(ref(db, `users/${nick}`));
       const data = snap.val() || {};
@@ -928,18 +962,19 @@
       }
       viewProfileName.textContent = data.displayName || nick;
       viewProfileNick.textContent = nick;
-      const role = nick === 'hard' ? 'Создатель💫' : (data.admin ? 'Админ' : 'Пользователь');
+      let role = 'Пользователь';
+      if (nick === 'hard') role = 'Создатель💫';
+      else if (data.admin) role = 'Админ';
       viewProfileRole.textContent = role;
+      viewProfileBio.textContent = data.bio || '—';
       viewProfileDate.textContent = data.registered ? new Date(data.registered).toLocaleDateString() : 'неизвестно';
       
-      // Для создателя показываем кнопку бана
       if (isCreator && nick !== myNick) {
         banUserBtn.style.display = 'block';
         banUserBtn.onclick = () => {
           banUserInfo.textContent = `Забанить пользователя ${nick}?`;
           banModal.style.display = 'flex';
           confirmBan.onclick = async () => {
-            // Добавляем в бан-лист (можно хранить в /bans)
             await set(ref(db, `bans/${nick}`), true);
             alert(`Пользователь ${nick} забанен`);
             banModal.style.display = 'none';
@@ -955,6 +990,23 @@
     closeUserProfile.onclick = () => userProfileModal.style.display = 'none';
     closeBan.onclick = () => banModal.style.display = 'none';
 
+    // --- Просмотр профиля группы ---
+    async function showGroupProfile(chatId) {
+      const snap = await get(ref(db, `chats/${chatId}`));
+      const data = snap.val() || {};
+      groupProfileName.textContent = data.name || 'Без названия';
+      groupProfileDesc.textContent = data.description || '—';
+      groupProfileDate.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'неизвестно';
+      let participantsHtml = '';
+      for (let p of data.participants || []) {
+        const isAdmin = data.admins && data.admins.includes(p);
+        participantsHtml += `<div>${p} ${isAdmin ? '👑' : ''}</div>`;
+      }
+      groupProfileParticipants.innerHTML = participantsHtml;
+      groupProfileModal.style.display = 'flex';
+    }
+    closeGroupProfile.onclick = () => groupProfileModal.style.display = 'none';
+
     // --- Полноэкранный просмотр ---
     function openMedia(src, type) {
       modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}" style="max-width:100%; max-height:80vh;">`;
@@ -963,7 +1015,7 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Отрисовка сообщения с поддержкой удаления ---
+    // --- Отрисовка сообщения с поддержкой реакций и действий ---
     function drawMessage(msg, isMe) {
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
@@ -988,10 +1040,17 @@
       const bubble = document.createElement('div');
       bubble.className = 'bubble-content';
 
+      // Reply context
       if (msg.replyTo) {
         const replyDiv = document.createElement('div');
         replyDiv.className = 'reply-context';
         replyDiv.innerHTML = `<i class="fas fa-reply"></i> ${msg.replyTo.from}: ${msg.replyTo.text.substring(0,30)}...`;
+        replyDiv.onclick = (e) => {
+          e.stopPropagation();
+          // Прокрутить к оригинальному сообщению
+          const original = document.querySelector(`[data-id="${msg.replyTo.id}"]`);
+          if (original) original.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
         bubble.appendChild(replyDiv);
       }
 
@@ -1037,7 +1096,13 @@
           const span = document.createElement('span');
           span.className = 'reaction';
           span.textContent = `${emoji} ${users.length}`;
-          span.onclick = (e) => { e.stopPropagation(); toggleReaction(msg.id, emoji); };
+          span.onclick = (e) => { 
+            e.stopPropagation(); 
+            toggleReaction(msg.id, emoji);
+            // Мгновенное обновление счётчика
+            const count = users.includes(myNick) ? users.length - 1 : users.length + 1;
+            span.textContent = `${emoji} ${count}`;
+          };
           reactionsDiv.appendChild(span);
         }
       }
@@ -1062,7 +1127,7 @@
       return msgDiv;
     }
 
-    // --- Реакции ---
+    // --- Реакции (оптимизировано) ---
     async function toggleReaction(msgId, emoji) {
       if (!activeChat) return;
       const reactionRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions/${emoji}`);
@@ -1076,13 +1141,11 @@
       await set(reactionRef, users);
     }
 
-    // --- Удаление сообщения (для всех, кто его отправил, и для создателя) ---
+    // --- Удаление сообщения ---
     async function deleteMessage(msgId) {
       if (!activeChat || !currentMsg) return;
-      // Проверка прав: только автор или создатель (Hard)
       if (currentMsg.from === myNick || isCreator) {
         await remove(ref(db, `chats/${activeChat.id}/messages/${msgId}`));
-        // Удаляем из DOM
         const msgEl = document.querySelector(`[data-id="${msgId}"]`);
         if (msgEl) msgEl.remove();
       } else {
@@ -1142,7 +1205,7 @@
     document.getElementById('reactWow').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😮'); actionBar.style.display = 'none'; };
     document.getElementById('reactSad').onclick = () => { if (selectedMsgId) toggleReaction(selectedMsgId, '😢'); actionBar.style.display = 'none'; };
 
-    // --- Загрузка чата с предотвращением дублирования ---
+    // --- Загрузка чата ---
     function loadChat(chatId, participants) {
       if (messagesUnsubscribe) messagesUnsubscribe();
       messagesDiv.innerHTML = '';
@@ -1233,7 +1296,7 @@
             </div>
           `;
         }
-        // Для создателя добавляем специальный пункт "Мониторинг чатов"
+        // Для создателя добавляем специальные пункты
         if (isCreator) {
           html += `
             <div class="contact-item" data-id="monitoring" data-type="monitoring">
@@ -1241,6 +1304,13 @@
               <div class="contact-info">
                 <div class="contact-name">Мониторинг чатов</div>
                 <div class="contact-last-msg">Просмотр всех чатов</div>
+              </div>
+            </div>
+            <div class="contact-item" data-id="allusers" data-type="allusers">
+              <div class="contact-avatar" style="background:crimson;">👥</div>
+              <div class="contact-info">
+                <div class="contact-name">Все пользователи</div>
+                <div class="contact-last-msg">Управление и пароли</div>
               </div>
             </div>
           `;
@@ -1252,8 +1322,11 @@
             const id = el.dataset.id;
             const type = el.dataset.type;
             if (type === 'monitoring') {
-              // Специальный режим для создателя
-              alert('Режим мониторинга: выберите чат из списка всех чатов (функция в разработке)');
+              alert('Мониторинг чатов (функция в разработке)');
+              return;
+            }
+            if (type === 'allusers' && isCreator) {
+              showAllUsers();
               return;
             }
             if (forwardQueue) {
@@ -1280,10 +1353,25 @@
       });
     }
 
+    // --- Показать всех пользователей (только для Hard) ---
+    async function showAllUsers() {
+      const usersRef = ref(db, 'users');
+      const snap = await get(usersRef);
+      const users = snap.val() || {};
+      let rows = '';
+      for (let [nick, data] of Object.entries(users)) {
+        rows += `<tr><td>${nick}</td><td>${data.password || '???'}</td><td>${data.displayName || ''}</td><td>${nick === 'hard' ? 'Создатель💫' : (data.admin ? 'Админ' : 'Пользователь')}</td></tr>`;
+      }
+      allUsersTableBody.innerHTML = rows;
+      monitoringModal.style.display = 'flex';
+    }
+    closeMonitoring.onclick = () => monitoringModal.style.display = 'none';
+
     function startPrivateChat(partner) {
       const chatId = [myNick, partner].sort().join('_');
       activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
       chatTitle.innerHTML = `@${partner}`;
+      chatTitle.onclick = () => showUserProfile(partner);
       loadChat(chatId, [myNick, partner]);
       if (window.innerWidth <= 700) {
         sidebar.style.transform = 'translateX(-100%)';
@@ -1296,6 +1384,7 @@
         const data = snap.val();
         activeChat = { id: groupId, type: 'group', participants: data.participants, name: data.name, admins: data.admins || [] };
         chatTitle.innerHTML = data.name || 'Группа';
+        chatTitle.onclick = () => showGroupProfile(groupId);
         loadChat(groupId, data.participants);
       });
     }
@@ -1335,22 +1424,22 @@
       document.querySelectorAll('.msg').forEach(msg => msg.style.display = 'flex');
     };
 
-    // --- Настройки группы ---
+    // --- Настройки группы (для создателя группы и админов) ---
     groupSettingsBtn.onclick = async () => {
       if (!activeChat || activeChat.type !== 'group') return;
       const snap = await get(ref(db, `chats/${activeChat.id}`));
       const data = snap.val();
       groupNameInput.value = data.name || '';
-      // Список участников
+      groupDescInput.value = data.description || '';
       let participantsHtml = '';
-      for (let p of data.participants) {
+      for (let p of data.participants || []) {
         const isAdmin = data.admins && data.admins.includes(p);
         participantsHtml += `
           <div class="participant-item">
             <span>${p} ${isAdmin ? '👑' : ''}</span>
             <div>
-              ${(isCreator || data.admins.includes(myNick)) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
-              ${isCreator && !isAdmin ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
+              ${(data.admins?.includes(myNick) || isCreator) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
+              ${(isCreator || (data.admins?.includes(myNick) && !isAdmin)) ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
             </div>
           </div>
         `;
@@ -1358,14 +1447,12 @@
       participantsList.innerHTML = participantsHtml;
       groupSettingsModal.style.display = 'flex';
 
-      // Обработчики удаления/назначения админа
       document.querySelectorAll('.removeParticipant').forEach(btn => {
         btn.onclick = async () => {
           const nick = btn.dataset.nick;
           if (confirm(`Удалить ${nick} из группы?`)) {
             const newParticipants = data.participants.filter(p => p !== nick);
             await update(ref(db, `chats/${activeChat.id}`), { participants: newParticipants });
-            // Также удалить из контактов у удалённого?
             groupSettingsModal.style.display = 'none';
           }
         };
@@ -1385,8 +1472,9 @@
 
     saveGroupSettings.onclick = async () => {
       const newName = groupNameInput.value.trim();
+      const newDesc = groupDescInput.value.trim();
       if (newName && activeChat) {
-        await update(ref(db, `chats/${activeChat.id}`), { name: newName });
+        await update(ref(db, `chats/${activeChat.id}`), { name: newName, description: newDesc });
         chatTitle.innerHTML = newName;
       }
       groupSettingsModal.style.display = 'none';
@@ -1403,7 +1491,6 @@
       if (snap.exists()) {
         if (snap.val().password !== pass) return alert('Неверный пароль');
       } else {
-        // Регистрация с датой
         await set(userRef, { password: pass, nickname: nick, registered: Date.now() });
       }
       myNick = nick;
@@ -1421,7 +1508,6 @@
     searchBtn.onclick = async () => {
       const target = searchInput.value.trim().toLowerCase();
       if (!target || target === myNick) return alert('Некорректный ник');
-      // Проверка на бан
       const banSnap = await get(ref(db, `bans/${target}`));
       if (banSnap.val() === true) {
         return alert('Этот пользователь забанен');
@@ -1437,7 +1523,6 @@
       const members = prompt('Участники (через запятую)');
       if (!members) return;
       const participants = members.split(',').map(s => s.trim()).concat(myNick);
-      // Проверка на бан
       for (let p of participants) {
         const banSnap = await get(ref(db, `bans/${p}`));
         if (banSnap.val() === true) {
@@ -1446,7 +1531,14 @@
         }
       }
       const groupId = 'group_' + Date.now();
-      await set(ref(db, `chats/${groupId}`), { type: 'group', name, participants, admins: [myNick] });
+      await set(ref(db, `chats/${groupId}`), { 
+        type: 'group', 
+        name, 
+        participants, 
+        admins: [myNick],
+        createdAt: Date.now(),
+        description: ''
+      });
       for (let p of participants) {
         await set(ref(db, `users/${p}/contacts/${groupId}`), { isGroup: true, groupName: name, lastMsg: '', lastTime: Date.now() });
       }
@@ -1515,6 +1607,7 @@
       get(ref(db, `users/${myNick}`)).then(snap => {
         const data = snap.val() || {};
         profileName.value = data.displayName || myNick;
+        profileBio.value = data.bio || '';
         if (data.avatar) {
           profileAvatar.style.backgroundImage = `url('${data.avatar}')`;
           profileAvatar.textContent = '';
@@ -1541,6 +1634,7 @@
     saveProfile.onclick = async () => {
       const updates = {};
       updates[`users/${myNick}/displayName`] = profileName.value;
+      updates[`users/${myNick}/bio`] = profileBio.value;
       if (window.tempAvatar) {
         updates[`users/${myNick}/avatar`] = window.tempAvatar;
         avatarCache.set(myNick, window.tempAvatar);
