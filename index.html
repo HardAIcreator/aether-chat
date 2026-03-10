@@ -88,6 +88,7 @@
       box-shadow: var(--shadow);
       text-align: center;
       animation: fadeIn 0.4s ease;
+      transition: opacity 0.3s ease;
     }
 
     #auth-screen h2 {
@@ -214,40 +215,6 @@
       75% { transform: translateX(5px); }
     }
 
-    input, button, textarea, select {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 28px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-surface-light);
-      color: var(--text-primary);
-      font-size: 16px;
-      outline: none;
-      transition: all 0.2s;
-    }
-
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-
-    button {
-      background: var(--accent);
-      color: white;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: var(--accent-hover);
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     #main-wrapper {
       display: none;
       width: 100%;
@@ -258,6 +225,8 @@
       background: var(--bg-surface);
       box-shadow: var(--shadow);
       margin: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .app-container {
@@ -2497,11 +2466,15 @@
 
     monitoringBtn.onclick = showMonitoring;
 
-    // --- НОВАЯ КНОПКА ВХОДА (ПОЛНОСТЬЮ ПЕРЕДЕЛАНА) ---
+    // --- ИСПРАВЛЕННАЯ КНОПКА ВХОДА (УБРАН КОНФЛИКТ) ---
     const loginBtn = document.getElementById('btn-login');
     const authError = document.getElementById('auth-error');
     
-    loginBtn.addEventListener('click', async function(e) {
+    // Убираем все предыдущие обработчики
+    loginBtn.replaceWith(loginBtn.cloneNode(true));
+    const newLoginBtn = document.getElementById('btn-login');
+    
+    newLoginBtn.addEventListener('click', async function(e) {
       e.preventDefault();
       
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
@@ -2523,8 +2496,8 @@
       }
       
       // Анимация загрузки
-      loginBtn.classList.add('loading');
-      loginBtn.querySelector('.btn-text').style.opacity = '0';
+      newLoginBtn.classList.add('loading');
+      newLoginBtn.querySelector('.btn-text').style.opacity = '0';
       
       try {
         // Проверка бана
@@ -2532,8 +2505,8 @@
         if (banSnap.val() === true) {
           authError.textContent = '❌ Этот пользователь забанен';
           authError.classList.add('show');
-          loginBtn.classList.remove('loading');
-          loginBtn.querySelector('.btn-text').style.opacity = '1';
+          newLoginBtn.classList.remove('loading');
+          newLoginBtn.querySelector('.btn-text').style.opacity = '1';
           return;
         }
         
@@ -2545,8 +2518,8 @@
           if (snap.val().password !== pass) {
             authError.textContent = '❌ Неверный пароль';
             authError.classList.add('show');
-            loginBtn.classList.remove('loading');
-            loginBtn.querySelector('.btn-text').style.opacity = '1';
+            newLoginBtn.classList.remove('loading');
+            newLoginBtn.querySelector('.btn-text').style.opacity = '1';
             return;
           }
         } else {
@@ -2592,8 +2565,8 @@
         console.error('Login error:', error);
         authError.textContent = '❌ Ошибка подключения к базе данных';
         authError.classList.add('show');
-        loginBtn.classList.remove('loading');
-        loginBtn.querySelector('.btn-text').style.opacity = '1';
+        newLoginBtn.classList.remove('loading');
+        newLoginBtn.querySelector('.btn-text').style.opacity = '1';
       }
     });
 
@@ -2915,4 +2888,4 @@
     }
   </script>
 </body>
-  </html>
+          </html>
