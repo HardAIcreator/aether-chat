@@ -787,7 +787,7 @@
           <button id="btn-search"><i class="fas fa-search"></i></button>
           <button id="new-group"><i class="fas fa-users"></i></button>
           <button id="achievementsBtn"><i class="fas fa-trophy"></i></button>
-          <button id="monitoringBtn" style="background:gold; color:black; display:none;"><i class="fas fa-eye"></i></button>
+          <!-- Глаз теперь появляется только для Hard через JS -->
         </div>
 
         <div id="contacts-list"></div>
@@ -1155,7 +1155,7 @@
     const mediaModal = document.getElementById('mediaModal');
     const modalContent = document.getElementById('modalContent');
     const closeModal = document.getElementById('closeModal');
-    const monitoringBtn = document.getElementById('monitoringBtn');
+    const monitoringBtn = document.createElement('button'); // Создадим позже
     const monitoringModal = document.getElementById('monitoringModal');
     const allChatsList = document.getElementById('allChatsList');
     const allUsersList = document.getElementById('allUsersList');
@@ -1433,40 +1433,16 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Смайлики ---
+    // --- Смайлики (ИСПРАВЛЕНО - теперь множественные реакции) ---
     emojiBtns.forEach(btn => {
       btn.onclick = () => {
         const emoji = btn.dataset.emoji;
         if (selectedMsgId) {
           toggleReaction(selectedMsgId, emoji);
-          updateReactionUI(selectedMsgId, emoji);
         }
         actionBar.style.display = 'none';
       };
     });
-
-    function updateReactionUI(msgId, newEmoji) {
-      const msgDiv = document.querySelector(`[data-id="${msgId}"]`);
-      if (!msgDiv) return;
-      
-      let reactionsDiv = msgDiv.querySelector('.reactions');
-      if (!reactionsDiv) {
-        reactionsDiv = document.createElement('div');
-        reactionsDiv.className = 'reactions';
-        msgDiv.querySelector('.bubble-content').appendChild(reactionsDiv);
-      }
-      
-      reactionsDiv.innerHTML = '';
-      
-      const newReaction = document.createElement('span');
-      newReaction.className = 'reaction';
-      newReaction.textContent = `${newEmoji} 1`;
-      newReaction.onclick = (e) => {
-        e.stopPropagation();
-        toggleReaction(msgId, newEmoji);
-      };
-      reactionsDiv.appendChild(newReaction);
-    }
 
     async function toggleReaction(msgId, emoji) {
       if (!activeChat) return;
@@ -1475,26 +1451,26 @@
       const snap = await get(reactionsRef);
       let reactions = snap.val() || {};
       
-      for (let e in reactions) {
-        if (reactions[e].includes(myNick)) {
-          reactions[e] = reactions[e].filter(u => u !== myNick);
-          if (reactions[e].length === 0) {
-            delete reactions[e];
-          }
-        }
-      }
-      
+      // Добавляем/удаляем только конкретный emoji для текущего пользователя
       if (!reactions[emoji]) {
         reactions[emoji] = [];
       }
-      if (!reactions[emoji].includes(myNick)) {
+      
+      if (reactions[emoji].includes(myNick)) {
+        // Если уже поставил этот emoji - убираем
+        reactions[emoji] = reactions[emoji].filter(u => u !== myNick);
+        if (reactions[emoji].length === 0) {
+          delete reactions[emoji];
+        }
+      } else {
+        // Добавляем новый emoji
         reactions[emoji].push(myNick);
       }
       
       await set(reactionsRef, reactions);
     }
 
-    // --- Крестики-нолики (ИСПРАВЛЕНО) ---
+    // --- Крестики-нолики ---
     function createGameBoard(gameId, game) {
       const container = document.createElement('div');
       container.className = 'game-container';
@@ -1666,13 +1642,11 @@
         time: Date.now()
       });
       
-      // Открываем модальное окно игры
       openGameModal(gameId);
     }
 
     function openGameModal(gameId) {
       currentGameId = gameId;
-      // Создаем модальное окно для игры, если его нет
       if (!document.getElementById('gameModal')) {
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -2017,30 +1991,12 @@
           `;
         }
         
-        // Для создателя добавляем мониторинг
-        if (isCreator) {
-          html += `
-            <div class="contact-item" data-id="monitoring" data-type="monitoring">
-              <div class="contact-avatar" style="background:gold;">👁️</div>
-              <div class="contact-info">
-                <div class="contact-name">Мониторинг</div>
-                <div class="contact-last-msg">Все чаты и пользователи</div>
-              </div>
-            </div>
-          `;
-        }
-        
         contactsDiv.innerHTML = html || '<div style="padding:20px; text-align:center;">Нет контактов</div>';
         
         document.querySelectorAll('.contact-item').forEach(el => {
           el.addEventListener('click', () => {
             const id = el.dataset.id;
             const type = el.dataset.type;
-            
-            if (type === 'monitoring') {
-              showMonitoring();
-              return;
-            }
             
             if (type === 'private') {
               if (!canChatWith(id)) {
@@ -2104,7 +2060,21 @@
       showUserProfile(nick);
     };
 
+    // Создаем кнопку мониторинга только для Hard
+    monitoringBtn.id = 'monitoringBtn';
+    monitoringBtn.className = 'header-btn';
+    monitoringBtn.style.background = 'gold';
+    monitoringBtn.style.color = 'black';
+    monitoringBtn.style.display = 'none';
+    monitoringBtn.innerHTML = '<i class="fas fa-eye"></i>';
+    monitoringBtn.title = 'Мониторинг';
     monitoringBtn.onclick = showMonitoring;
+    
+    // Добавляем кнопку в header-actions после звука и темы
+    const headerActions = document.querySelector('.header-actions');
+    if (headerActions) {
+      headerActions.appendChild(monitoringBtn);
+    }
 
     function startPrivateChat(partner) {
       if (!canChatWith(partner)) {
@@ -2277,7 +2247,7 @@
       closeProfile.click();
     };
 
-    // --- Ачивки (ИСПРАВЛЕНО) ---
+    // --- Ачивки ---
     function showAchievements() {
       achievementsList.innerHTML = achievements.map(a => {
         const unlocked = userStats.achievements[a.id];
@@ -2467,6 +2437,7 @@
       authScreen.style.display = 'none';
       mainWrapper.style.display = 'flex';
       
+      // Показываем кнопку мониторинга только для Hard
       if (isCreator) {
         monitoringBtn.style.display = 'flex';
       }
