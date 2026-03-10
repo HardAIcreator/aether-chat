@@ -521,7 +521,8 @@
       display: grid;
       grid-template-columns: repeat(3, 60px);
       gap: 5px;
-      margin: 10px 0;
+      margin: 10px auto;
+      justify-content: center;
     }
     .game-cell {
       width: 60px;
@@ -534,6 +535,12 @@
       justify-content: center;
       font-size: 2rem;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .game-cell:hover:not(:disabled) {
+      background: var(--accent);
+      color: white;
+      transform: scale(1.05);
     }
     .game-cell:disabled {
       opacity: 0.5;
@@ -542,11 +549,13 @@
     .game-info {
       margin: 8px 0;
       font-size: 0.9rem;
+      text-align: center;
     }
     .game-score {
       display: flex;
       gap: 16px;
       margin: 8px 0;
+      justify-content: center;
     }
 
     .action-bar {
@@ -778,7 +787,7 @@
           <button id="btn-search"><i class="fas fa-search"></i></button>
           <button id="new-group"><i class="fas fa-users"></i></button>
           <button id="achievementsBtn"><i class="fas fa-trophy"></i></button>
-          <button id="monitoringBtn" style="background:gold; color:black;"><i class="fas fa-eye"></i></button>
+          <button id="monitoringBtn" style="background:gold; color:black; display:none;"><i class="fas fa-eye"></i></button>
         </div>
 
         <div id="contacts-list"></div>
@@ -863,7 +872,7 @@
     </div>
   </div>
 
-  <!-- Модальное окно выбора GIF (без поиска) -->
+  <!-- Модальное окно выбора GIF -->
   <div class="modal" id="gifModal">
     <div class="modal-content" style="width:600px;">
       <h2>Выберите GIF</h2>
@@ -1033,6 +1042,8 @@
     let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
     let blockedUsers = new Set();
     let blockedBy = new Set();
+    let currentGameId = null;
+    let gameListener = null;
 
     // Данные для игр и ачивок
     let userStats = {
@@ -1422,15 +1433,12 @@
     closeModal.onclick = () => mediaModal.style.display = 'none';
     mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Смайлики (замена предыдущей реакции) ---
+    // --- Смайлики ---
     emojiBtns.forEach(btn => {
       btn.onclick = () => {
         const emoji = btn.dataset.emoji;
         if (selectedMsgId) {
-          // Отправляем новую реакцию в Firebase
           toggleReaction(selectedMsgId, emoji);
-          
-          // Мгновенное обновление UI
           updateReactionUI(selectedMsgId, emoji);
         }
         actionBar.style.display = 'none';
@@ -1448,8 +1456,6 @@
         msgDiv.querySelector('.bubble-content').appendChild(reactionsDiv);
       }
       
-      // Очищаем все реакции (для простоты перезагрузим из Firebase позже)
-      // Пока покажем новую
       reactionsDiv.innerHTML = '';
       
       const newReaction = document.createElement('span');
@@ -1462,7 +1468,6 @@
       reactionsDiv.appendChild(newReaction);
     }
 
-    // --- Реакции в Firebase ---
     async function toggleReaction(msgId, emoji) {
       if (!activeChat) return;
       
@@ -1470,7 +1475,6 @@
       const snap = await get(reactionsRef);
       let reactions = snap.val() || {};
       
-      // Удаляем все реакции пользователя
       for (let e in reactions) {
         if (reactions[e].includes(myNick)) {
           reactions[e] = reactions[e].filter(u => u !== myNick);
@@ -1480,7 +1484,6 @@
         }
       }
       
-      // Добавляем новую реакцию
       if (!reactions[emoji]) {
         reactions[emoji] = [];
       }
@@ -1491,37 +1494,76 @@
       await set(reactionsRef, reactions);
     }
 
-    // --- Крестики-нолики ---
-    function createGameBoard(gameId, board, nextPlayer, players) {
+    // --- Крестики-нолики (ИСПРАВЛЕНО) ---
+    function createGameBoard(gameId, game) {
       const container = document.createElement('div');
       container.className = 'game-container';
       container.dataset.gameId = gameId;
       
-      const info = document.createElement('div');
-      info.className = 'game-info';
-      info.textContent = `Ход: ${nextPlayer === myNick ? 'Ваш' : nextPlayer}`;
-      
-      const boardDiv = document.createElement('div');
-      boardDiv.className = 'game-board';
-      
-      for (let i = 0; i < 9; i++) {
-        const cell = document.createElement('button');
-        cell.className = 'game-cell';
-        cell.textContent = board[i] || '';
-        cell.disabled = board[i] || nextPlayer !== myNick;
-        cell.onclick = () => makeMove(gameId, i);
-        boardDiv.appendChild(cell);
+      if (game.status === 'waiting') {
+        const waitingDiv = document.createElement('div');
+        waitingDiv.style.textAlign = 'center';
+        waitingDiv.innerHTML = `
+          <p>⏳ Ожидание игрока ${game.players[1]}...</p>
+          ${game.createdBy === myNick ? '<button id="startGameBtn">Начать игру</button>' : ''}
+        `;
+        container.appendChild(waitingDiv);
+        
+        if (game.createdBy === myNick) {
+          setTimeout(() => {
+            const startBtn = document.getElementById('startGameBtn');
+            if (startBtn) {
+              startBtn.onclick = () => startGame(gameId);
+            }
+          }, 100);
+        }
+      } else if (game.status === 'active') {
+        const info = document.createElement('div');
+        info.className = 'game-info';
+        info.textContent = `Ход: ${game.nextPlayer === myNick ? 'Ваш' : game.nextPlayer}`;
+        
+        const boardDiv = document.createElement('div');
+        boardDiv.className = 'game-board';
+        
+        for (let i = 0; i < 9; i++) {
+          const cell = document.createElement('button');
+          cell.className = 'game-cell';
+          cell.textContent = game.board[i] || '';
+          cell.disabled = game.board[i] || game.nextPlayer !== myNick;
+          cell.onclick = () => makeMove(gameId, i);
+          boardDiv.appendChild(cell);
+        }
+        
+        const score = document.createElement('div');
+        score.className = 'game-score';
+        score.innerHTML = `${game.players[0]}: ${userStats.games.wins} | ${game.players[1]}: ${userStats.games.losses}`;
+        
+        container.appendChild(info);
+        container.appendChild(boardDiv);
+        container.appendChild(score);
+      } else if (game.status === 'finished') {
+        let resultText = '';
+        if (game.winner === 'draw') {
+          resultText = 'Ничья!';
+        } else {
+          resultText = `Победил: ${game.winner === myNick ? 'Вы' : game.winner}`;
+        }
+        
+        container.innerHTML = `
+          <div style="text-align:center;">
+            <p>🎮 Игра завершена</p>
+            <p>${resultText}</p>
+            <button onclick="document.getElementById('closeGameModal').click()">Закрыть</button>
+          </div>
+        `;
       }
       
-      const score = document.createElement('div');
-      score.className = 'game-score';
-      score.innerHTML = `${players[0]}: ${userStats.games.wins} | ${players[1]}: ${userStats.games.losses}`;
-      
-      container.appendChild(info);
-      container.appendChild(boardDiv);
-      container.appendChild(score);
-      
       return container;
+    }
+
+    async function startGame(gameId) {
+      const gameRef = ref(db, `games/${gameId}`);
+      await update(gameRef, { status: 'active', nextPlayer: myNick });
     }
 
     async function makeMove(gameId, index) {
@@ -1559,6 +1601,10 @@
           userStats.games.losses++;
         }
         
+        if (userStats.games.wins + userStats.games.losses + userStats.games.draws === 10) {
+          await addXP(100, 'game_10');
+        }
+        
         await push(ref(db, `chats/${activeChat.id}/messages`), {
           from: 'system',
           text: `🎮 Игра завершена! Победил ${winner === myNick ? 'вы' : winner}`,
@@ -1582,8 +1628,9 @@
       
       const gameMsg = document.querySelector(`[data-game-id="${gameId}"]`);
       if (gameMsg) {
-        const newBoard = createGameBoard(gameId, game.board, game.nextPlayer, game.players);
-        gameMsg.innerHTML = newBoard.innerHTML;
+        const updatedGame = await get(gameRef).then(s => s.val());
+        gameMsg.innerHTML = '';
+        gameMsg.appendChild(createGameBoard(gameId, updatedGame));
       }
     }
 
@@ -1604,7 +1651,8 @@
         board: Array(9).fill(null),
         players: [myNick, partner],
         nextPlayer: myNick,
-        status: 'active',
+        status: 'waiting',
+        createdBy: myNick,
         createdAt: Date.now()
       };
       
@@ -1616,6 +1664,52 @@
         gameId: gameId,
         text: '🎮 Приглашение в крестики-нолики!',
         time: Date.now()
+      });
+      
+      // Открываем модальное окно игры
+      openGameModal(gameId);
+    }
+
+    function openGameModal(gameId) {
+      currentGameId = gameId;
+      // Создаем модальное окно для игры, если его нет
+      if (!document.getElementById('gameModal')) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'gameModal';
+        modal.innerHTML = `
+          <div class="modal-content" style="width:400px; text-align:center;">
+            <span class="modal-close" id="closeGameModal">&times;</span>
+            <h2 id="gameModalTitle">Крестики-нолики</h2>
+            <div id="gameModalContent"></div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('closeGameModal').onclick = () => {
+          modal.style.display = 'none';
+          if (gameListener) {
+            gameListener();
+            gameListener = null;
+          }
+        };
+      }
+      
+      const gameModal = document.getElementById('gameModal');
+      const gameModalContent = document.getElementById('gameModalContent');
+      
+      gameModal.style.display = 'flex';
+      
+      if (gameListener) {
+        gameListener();
+      }
+      
+      const gameRef = ref(db, `games/${gameId}`);
+      gameListener = onValue(gameRef, (snap) => {
+        const game = snap.val();
+        if (game) {
+          gameModalContent.innerHTML = '';
+          gameModalContent.appendChild(createGameBoard(gameId, game));
+        }
       });
     }
 
@@ -1629,10 +1723,7 @@
       'https://media.giphy.com/media/26gR2qGRnxxXAvhBu/giphy.gif',
       'https://media.giphy.com/media/l0MYt5jH6gkTWm8qo/giphy.gif',
       'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
-      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif',
-      'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
-      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
-      'https://media.giphy.com/media/l0HlNQ03J5JxX6lZ6/giphy.gif',
+      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif'
     ];
 
     async function showGifPicker() {
@@ -1669,13 +1760,16 @@
         gameDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
         gameDiv.dataset.gameId = msg.gameId;
         
-        get(ref(db, `games/${msg.gameId}`)).then(snap => {
-          const game = snap.val();
-          if (game) {
-            const board = createGameBoard(msg.gameId, game.board, game.nextPlayer, game.players);
-            gameDiv.appendChild(board);
-          }
-        });
+        const gameLink = document.createElement('div');
+        gameLink.className = 'bubble-content';
+        gameLink.innerHTML = `
+          <div style="cursor:pointer; text-align:center;">
+            <i class="fas fa-gamepad" style="font-size:2rem;"></i>
+            <p>${msg.text}</p>
+            <button onclick="window.openGameModal('${msg.gameId}')">Открыть игру</button>
+          </div>
+        `;
+        gameDiv.appendChild(gameLink);
         
         return gameDiv;
       }
@@ -1777,6 +1871,8 @@
 
       return msgDiv;
     }
+
+    window.openGameModal = openGameModal;
 
     // --- Удаление сообщения ---
     async function deleteMessage(msgId) {
@@ -2181,7 +2277,7 @@
       closeProfile.click();
     };
 
-    // --- Ачивки ---
+    // --- Ачивки (ИСПРАВЛЕНО) ---
     function showAchievements() {
       achievementsList.innerHTML = achievements.map(a => {
         const unlocked = userStats.achievements[a.id];
@@ -2371,6 +2467,10 @@
       authScreen.style.display = 'none';
       mainWrapper.style.display = 'flex';
       
+      if (isCreator) {
+        monitoringBtn.style.display = 'flex';
+      }
+      
       await loadBlocks();
       await loadUserStats();
       await loadProfile();
@@ -2553,4 +2653,4 @@
     };
   </script>
 </body>
-              </html>
+  </html>
