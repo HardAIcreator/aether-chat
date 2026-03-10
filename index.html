@@ -96,6 +96,124 @@
       color: var(--text-primary);
     }
 
+    .auth-input {
+      width: 100%;
+      padding: 16px 20px;
+      margin: 10px 0;
+      border-radius: 40px;
+      border: 2px solid transparent;
+      background: var(--bg-surface-light);
+      color: var(--text-primary);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .auth-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+      transform: scale(1.02);
+    }
+
+    .auth-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .auth-button {
+      width: 100%;
+      padding: 16px 20px;
+      margin: 20px 0 10px;
+      border-radius: 40px;
+      border: none;
+      background: linear-gradient(45deg, var(--accent), #8183f4);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+    }
+
+    .auth-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+    }
+
+    .auth-button:active {
+      transform: translateY(0);
+    }
+
+    .auth-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .auth-button:hover::before {
+      left: 100%;
+    }
+
+    .auth-button.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .auth-button.loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin-left: -10px;
+      margin-top: -10px;
+      border: 2px solid transparent;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .auth-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 15px;
+      opacity: 0.8;
+    }
+
+    .auth-error {
+      color: #ff5e7c;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 20px;
+      background: rgba(255,94,124,0.1);
+      display: none;
+    }
+
+    .auth-error.show {
+      display: block;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
     input, button, textarea, select {
       width: 100%;
       padding: 14px 18px;
@@ -789,9 +907,15 @@
   <!-- Экран авторизации -->
   <div id="auth-screen">
     <h2><i class="fas fa-cube" style="color: #6366f1;"></i> AETHER CHAT</h2>
-    <input type="text" id="auth-nick" placeholder="никнейм" autocomplete="off">
-    <input type="password" id="auth-pass" placeholder="пароль">
-    <button id="btn-login"><i class="fas fa-key"></i> Войти / Создать</button>
+    <input type="text" class="auth-input" id="auth-nick" placeholder="никнейм" autocomplete="off">
+    <input type="password" class="auth-input" id="auth-pass" placeholder="пароль">
+    <div class="auth-error" id="auth-error"></div>
+    <button class="auth-button" id="btn-login">
+      <span class="btn-text">Войти / Создать</span>
+    </button>
+    <div class="auth-hint">
+      <i class="fas fa-shield-alt"></i> Пароль защищает ваш ник в базе
+    </div>
   </div>
 
   <!-- Основное приложение -->
@@ -2373,20 +2497,43 @@
 
     monitoringBtn.onclick = showMonitoring;
 
-    // --- АВТОРИЗАЦИЯ (ИСПРАВЛЕНО) ---
-    document.getElementById('btn-login').onclick = async () => {
+    // --- НОВАЯ КНОПКА ВХОДА (ПОЛНОСТЬЮ ПЕРЕДЕЛАНА) ---
+    const loginBtn = document.getElementById('btn-login');
+    const authError = document.getElementById('auth-error');
+    
+    loginBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
       const pass = document.getElementById('auth-pass').value;
       
+      // Валидация
       if (!nick || !pass) {
-        alert('Заполните ник и пароль');
+        authError.textContent = '❌ Заполните ник и пароль';
+        authError.classList.add('show');
+        setTimeout(() => authError.classList.remove('show'), 3000);
         return;
       }
       
+      if (nick.length < 3) {
+        authError.textContent = '❌ Ник должен быть минимум 3 символа';
+        authError.classList.add('show');
+        setTimeout(() => authError.classList.remove('show'), 3000);
+        return;
+      }
+      
+      // Анимация загрузки
+      loginBtn.classList.add('loading');
+      loginBtn.querySelector('.btn-text').style.opacity = '0';
+      
       try {
+        // Проверка бана
         const banSnap = await get(ref(db, `bans/${nick}`));
         if (banSnap.val() === true) {
-          alert('Этот пользователь забанен и не может войти');
+          authError.textContent = '❌ Этот пользователь забанен';
+          authError.classList.add('show');
+          loginBtn.classList.remove('loading');
+          loginBtn.querySelector('.btn-text').style.opacity = '1';
           return;
         }
         
@@ -2394,12 +2541,16 @@
         const snap = await get(userRef);
         
         if (snap.exists()) {
+          // Вход существующего пользователя
           if (snap.val().password !== pass) {
-            alert('Неверный пароль');
+            authError.textContent = '❌ Неверный пароль';
+            authError.classList.add('show');
+            loginBtn.classList.remove('loading');
+            loginBtn.querySelector('.btn-text').style.opacity = '1';
             return;
           }
         } else {
-          // Создаём нового пользователя
+          // Регистрация нового пользователя
           await set(userRef, { 
             password: pass, 
             nickname: nick, 
@@ -2408,21 +2559,30 @@
           });
         }
         
+        // Успешный вход
         myNick = nick;
         isCreator = (myNick === 'hard');
         localStorage.setItem('aether_nick', nick);
-        authScreen.style.display = 'none';
-        mainWrapper.style.display = 'flex';
+        
+        // Плавный переход
+        authScreen.style.opacity = '0';
+        setTimeout(() => {
+          authScreen.style.display = 'none';
+          mainWrapper.style.display = 'flex';
+          setTimeout(() => mainWrapper.style.opacity = '1', 50);
+        }, 300);
         
         if (isCreator) {
           monitoringBtn.style.display = 'flex';
         }
         
+        // Загрузка данных
         await loadBlocks();
         await loadUserStats();
         await loadProfile();
         loadContacts();
         
+        // Установка статуса онлайн
         const userStatusRef = ref(db, `status/${myNick}`);
         set(userStatusRef, 'online');
         onDisconnect(userStatusRef).set('offline');
@@ -2430,9 +2590,12 @@
         
       } catch (error) {
         console.error('Login error:', error);
-        alert('Ошибка при входе. Проверьте подключение к интернету.');
+        authError.textContent = '❌ Ошибка подключения к базе данных';
+        authError.classList.add('show');
+        loginBtn.classList.remove('loading');
+        loginBtn.querySelector('.btn-text').style.opacity = '1';
       }
-    };
+    });
 
     // --- Поиск пользователей ---
     searchBtn.onclick = async () => {
@@ -2752,4 +2915,4 @@
     }
   </script>
 </body>
-            </html>
+  </html>
