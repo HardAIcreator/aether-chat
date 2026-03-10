@@ -1186,7 +1186,6 @@
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       
       if (type === 'send') {
-        // Короткий звук отправки
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         oscillator.connect(gainNode);
@@ -1196,7 +1195,6 @@
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.05);
       } else if (type === 'game') {
-        // Звук хода в игре
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         oscillator.connect(gainNode);
@@ -1206,7 +1204,6 @@
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.1);
       } else if (type === 'win') {
-        // Звук победы
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         oscillator.connect(gainNode);
@@ -1308,7 +1305,6 @@
       myDisplayName = data.displayName || myNick;
       headerName.innerHTML = myDisplayName;
       
-      // Добавляем титулы
       const statsSnap = await get(ref(db, `users/${myNick}/stats`));
       const stats = statsSnap.val() || { titles: [] };
       
@@ -1369,7 +1365,7 @@
       return new Date(timestamp).toLocaleDateString();
     }
 
-    // --- Просмотр профиля (ИСПРАВЛЕНО) ---
+    // --- Просмотр профиля ---
     async function showUserProfile(nick) {
       console.log('Opening profile for:', nick);
       try {
@@ -1390,7 +1386,6 @@
         viewProfileName.textContent = data.displayName || nick;
         viewProfileNick.textContent = nick;
         
-        // Показываем титулы
         let titlesHtml = '';
         if (nick === 'hard') {
           titlesHtml = '<span class="creator-badge">Создатель💫</span>';
@@ -2378,48 +2373,65 @@
 
     monitoringBtn.onclick = showMonitoring;
 
-    // --- Авторизация ---
+    // --- АВТОРИЗАЦИЯ (ИСПРАВЛЕНО) ---
     document.getElementById('btn-login').onclick = async () => {
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
       const pass = document.getElementById('auth-pass').value;
-      if (!nick || !pass) return alert('Заполните поля');
       
-      const banSnap = await get(ref(db, `bans/${nick}`));
-      if (banSnap.val() === true) {
-        return alert('Этот пользователь забанен и не может войти');
+      if (!nick || !pass) {
+        alert('Заполните ник и пароль');
+        return;
       }
       
-      const userRef = ref(db, 'users/' + nick);
-      const snap = await get(userRef);
-      if (snap.exists()) {
-        if (snap.val().password !== pass) return alert('Неверный пароль');
-      } else {
-        await set(userRef, { 
-          password: pass, 
-          nickname: nick, 
-          registered: Date.now(),
-          lastSeen: Date.now()
-        });
+      try {
+        const banSnap = await get(ref(db, `bans/${nick}`));
+        if (banSnap.val() === true) {
+          alert('Этот пользователь забанен и не может войти');
+          return;
+        }
+        
+        const userRef = ref(db, 'users/' + nick);
+        const snap = await get(userRef);
+        
+        if (snap.exists()) {
+          if (snap.val().password !== pass) {
+            alert('Неверный пароль');
+            return;
+          }
+        } else {
+          // Создаём нового пользователя
+          await set(userRef, { 
+            password: pass, 
+            nickname: nick, 
+            registered: Date.now(),
+            lastSeen: Date.now()
+          });
+        }
+        
+        myNick = nick;
+        isCreator = (myNick === 'hard');
+        localStorage.setItem('aether_nick', nick);
+        authScreen.style.display = 'none';
+        mainWrapper.style.display = 'flex';
+        
+        if (isCreator) {
+          monitoringBtn.style.display = 'flex';
+        }
+        
+        await loadBlocks();
+        await loadUserStats();
+        await loadProfile();
+        loadContacts();
+        
+        const userStatusRef = ref(db, `status/${myNick}`);
+        set(userStatusRef, 'online');
+        onDisconnect(userStatusRef).set('offline');
+        onDisconnect(ref(db, `users/${myNick}/lastSeen`)).set(Date.now());
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Ошибка при входе. Проверьте подключение к интернету.');
       }
-      myNick = nick;
-      isCreator = (myNick === 'hard');
-      localStorage.setItem('aether_nick', nick);
-      authScreen.style.display = 'none';
-      mainWrapper.style.display = 'flex';
-      
-      if (isCreator) {
-        monitoringBtn.style.display = 'flex';
-      }
-      
-      await loadBlocks();
-      await loadUserStats();
-      await loadProfile();
-      loadContacts();
-      
-      const userStatusRef = ref(db, `status/${myNick}`);
-      set(userStatusRef, 'online');
-      onDisconnect(userStatusRef).set('offline');
-      onDisconnect(ref(db, `users/${myNick}/lastSeen`)).set(Date.now());
     };
 
     // --- Поиск пользователей ---
@@ -2599,6 +2611,145 @@
     reloadInterface.onclick = () => {
       location.reload();
     };
+
+    // --- Профиль группы ---
+    async function showGroupProfile(groupId) {
+      const snap = await get(ref(db, `chats/${groupId}`));
+      const data = snap.val() || {};
+      groupProfileName.textContent = data.name || 'Без названия';
+      groupProfileDesc.textContent = data.description || '—';
+      groupProfileCreator.textContent = data.createdBy || 'неизвестно';
+      groupProfileDate.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'неизвестно';
+      
+      if (data.avatar) {
+        groupProfileAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        groupProfileAvatar.textContent = '';
+      } else {
+        groupProfileAvatar.style.backgroundImage = '';
+        groupProfileAvatar.style.background = getAvatarColor(groupId);
+        groupProfileAvatar.textContent = '👥';
+      }
+      
+      let participantsHtml = '';
+      for (let p of data.participants || []) {
+        const isAdmin = data.admins && data.admins.includes(p);
+        participantsHtml += `<div>${p} ${isAdmin ? '👑' : ''}</div>`;
+      }
+      groupProfileParticipants.innerHTML = participantsHtml;
+      groupProfileModal.style.display = 'flex';
+    }
+    closeGroupProfile.onclick = () => groupProfileModal.style.display = 'none';
+
+    // --- Настройки группы ---
+    groupSettingsBtn.onclick = async () => {
+      if (!activeChat || activeChat.type !== 'group') return;
+      const snap = await get(ref(db, `chats/${activeChat.id}`));
+      const data = snap.val();
+      groupNameInput.value = data.name || '';
+      groupDescInput.value = data.description || '';
+      
+      if (data.avatar) {
+        groupSettingsAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        groupSettingsAvatar.textContent = '';
+      } else {
+        groupSettingsAvatar.style.backgroundImage = '';
+        groupSettingsAvatar.style.background = getAvatarColor(activeChat.id);
+        groupSettingsAvatar.textContent = '👥';
+      }
+      
+      let participantsHtml = '';
+      for (let p of data.participants || []) {
+        const isAdmin = data.admins && data.admins.includes(p);
+        participantsHtml += `
+          <div class="participant-item">
+            <span>${p} ${isAdmin ? '👑' : ''}</span>
+            <div>
+              ${(data.admins?.includes(myNick) || isCreator) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
+              ${(isCreator || (data.admins?.includes(myNick) && !isAdmin && p !== myNick)) ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
+            </div>
+          </div>
+        `;
+      }
+      participantsList.innerHTML = participantsHtml;
+      groupSettingsModal.style.display = 'flex';
+
+      document.querySelectorAll('.removeParticipant').forEach(btn => {
+        btn.onclick = async () => {
+          const nick = btn.dataset.nick;
+          showConfirm('Удалить участника', `Удалить ${nick} из группы?`, async () => {
+            const newParticipants = data.participants.filter(p => p !== nick);
+            await update(ref(db, `chats/${activeChat.id}`), { participants: newParticipants });
+            await remove(ref(db, `users/${nick}/contacts/${activeChat.id}`));
+            groupSettingsModal.style.display = 'none';
+          });
+        };
+      });
+      document.querySelectorAll('.makeAdmin').forEach(btn => {
+        btn.onclick = async () => {
+          const nick = btn.dataset.nick;
+          const admins = data.admins || [];
+          if (!admins.includes(nick)) {
+            admins.push(nick);
+            await update(ref(db, `chats/${activeChat.id}`), { admins });
+          }
+          groupSettingsModal.style.display = 'none';
+        };
+      });
+    };
+
+    groupAvatarUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          groupSettingsAvatar.style.backgroundImage = `url('${ev.target.result}')`;
+          groupSettingsAvatar.textContent = '';
+          window.tempGroupAvatar = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    saveGroupSettings.onclick = async () => {
+      const newName = groupNameInput.value.trim();
+      const newDesc = groupDescInput.value.trim();
+      const updates = {};
+      if (newName) updates.name = newName;
+      if (newDesc) updates.description = newDesc;
+      if (window.tempGroupAvatar) updates.avatar = window.tempGroupAvatar;
+      
+      if (activeChat) {
+        await update(ref(db, `chats/${activeChat.id}`), updates);
+        if (newName) {
+          activeChat.name = newName;
+          chatTitle.innerHTML = newName;
+        }
+        const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
+        for (let p of data.participants) {
+          await update(ref(db, `users/${p}/contacts/${activeChat.id}`), { groupName: newName });
+        }
+      }
+      groupSettingsModal.style.display = 'none';
+    };
+
+    deleteGroupBtn.onclick = deleteGroup;
+    deleteGroupBtnModal.onclick = deleteGroup;
+
+    closeGroupSettings.onclick = () => groupSettingsModal.style.display = 'none';
+
+    async function deleteGroup() {
+      if (!activeChat || activeChat.type !== 'group') return;
+      const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
+      showConfirm('Удалить группу', `Удалить группу ${data.name}?`, async () => {
+        for (let p of data.participants) {
+          await remove(ref(db, `users/${p}/contacts/${activeChat.id}`));
+        }
+        await remove(ref(db, `chats/${activeChat.id}`));
+        sidebar.style.transform = 'translateX(0)';
+        chatArea.classList.remove('active');
+        activeChat = null;
+      });
+    }
   </script>
 </body>
-</html>
+                                                                                                                                                          </html>
