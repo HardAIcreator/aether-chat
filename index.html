@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aether · Hard Creator Edition</title>
+  <title>Aether Chat · Hard Creator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
@@ -65,6 +65,17 @@
       margin-left: 6px;
       font-size: 0.9rem;
       display: inline-block;
+    }
+
+    .title-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 4px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
     }
 
     #auth-screen {
@@ -650,7 +661,7 @@
 
     .achievement-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 16px;
       margin: 20px 0;
     }
@@ -659,6 +670,10 @@
       border-radius: 20px;
       padding: 16px;
       text-align: center;
+      transition: transform 0.2s;
+    }
+    .achievement-card:hover {
+      transform: translateY(-5px);
     }
     .achievement-card.locked {
       opacity: 0.5;
@@ -666,6 +681,23 @@
     .achievement-icon {
       font-size: 3rem;
       margin-bottom: 8px;
+    }
+    .achievement-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .achievement-desc {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .achievement-reward {
+      font-size: 0.9rem;
+      padding: 4px 8px;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      border-radius: 20px;
+      display: inline-block;
+      color: #333;
     }
 
     .gif-picker {
@@ -757,7 +789,7 @@
 <body>
   <!-- Экран авторизации -->
   <div id="auth-screen">
-    <h2><i class="fas fa-cube" style="color: #6366f1;"></i> AETHER</h2>
+    <h2><i class="fas fa-cube" style="color: #6366f1;"></i> AETHER CHAT</h2>
     <input type="text" id="auth-nick" placeholder="никнейм" autocomplete="off">
     <input type="password" id="auth-pass" placeholder="пароль">
     <button id="btn-login"><i class="fas fa-key"></i> Войти / Создать</button>
@@ -787,7 +819,7 @@
           <button id="btn-search"><i class="fas fa-search"></i></button>
           <button id="new-group"><i class="fas fa-users"></i></button>
           <button id="achievementsBtn"><i class="fas fa-trophy"></i></button>
-          <!-- Глаз теперь появляется только для Hard через JS -->
+          <!-- Кнопка мониторинга будет добавлена через JS только для Hard -->
         </div>
 
         <div id="contacts-list"></div>
@@ -865,27 +897,38 @@
 
   <!-- Модальное окно ачивок -->
   <div class="modal" id="achievementsModal">
-    <div class="modal-content" style="width:600px;">
-      <h2>Достижения</h2>
+    <div class="modal-content" style="width:700px;">
+      <h2>🏆 Достижения и титулы</h2>
       <div class="achievement-grid" id="achievementsList"></div>
       <button id="closeAchievements">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно игры -->
+  <div class="modal" id="gameModal">
+    <div class="modal-content" style="width:400px; text-align:center;">
+      <span class="modal-close" id="closeGameModal" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
+      <h2 id="gameModalTitle">Крестики-нолики</h2>
+      <div id="gameModalContent"></div>
     </div>
   </div>
 
   <!-- Модальное окно выбора GIF -->
   <div class="modal" id="gifModal">
     <div class="modal-content" style="width:600px;">
+      <span class="modal-close" id="closeGif" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h2>Выберите GIF</h2>
       <div class="gif-picker" id="gifList"></div>
-      <button id="closeGif">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно профиля (свой) -->
   <div class="modal" id="profileModal">
     <div class="modal-content profile-modal">
+      <span class="modal-close" id="closeProfile" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h2>Мой профиль</h2>
       <div class="avatar-large" id="profileAvatar">?</div>
+      <div><strong>Титулы:</strong> <span id="profileTitles"></span></div>
       <input type="text" id="profileName" placeholder="Отображаемое имя">
       <textarea id="profileBio" placeholder="О себе" rows="3"></textarea>
       <select id="profileStatus">
@@ -896,24 +939,24 @@
       </select>
       <input type="file" id="avatarUpload" accept="image/*">
       <button id="saveProfile">Сохранить</button>
-      <button id="closeProfile">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно просмотра чужого профиля -->
   <div class="modal" id="userProfileModal">
     <div class="modal-content user-profile-modal">
+      <span class="modal-close" id="closeUserProfile" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h2 id="viewProfileTitle">Профиль пользователя</h2>
       <div class="avatar-large" id="viewProfileAvatar">?</div>
       <div><strong>Имя:</strong> <span id="viewProfileName"></span></div>
       <div><strong>Ник:</strong> <span id="viewProfileNick"></span></div>
+      <div><strong>Титулы:</strong> <span id="viewProfileTitles"></span></div>
       <div id="passwordField" style="display:none;"><strong>Пароль:</strong> <span id="viewProfilePassword"></span></div>
       <div><strong>Роль:</strong> <span id="viewProfileRole"></span></div>
       <div><strong>О себе:</strong> <span id="viewProfileBio"></span></div>
       <div><strong>Статус:</strong> <span id="viewProfileStatus"></span></div>
       <div><strong>Последний визит:</strong> <span id="viewProfileLastSeen"></span></div>
       <div><strong>Зарегистрирован:</strong> <span id="viewProfileDate"></span></div>
-      <button id="closeUserProfile">Закрыть</button>
       <button id="banUserBtn" style="background:#ef4444; display:none;">Забанить</button>
       <button id="unbanUserBtn" style="background:#10b981; display:none;">Разбанить</button>
       <button id="blockUserBtn" style="background:#f59e0b;">Заблокировать</button>
@@ -923,22 +966,23 @@
   <!-- Модальное окно профиля группы -->
   <div class="modal" id="groupProfileModal">
     <div class="modal-content group-profile-modal">
+      <span class="modal-close" id="closeGroupProfile" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h2 id="groupProfileName">Группа</h2>
-      <div class="avatar-large" id="groupProfileAvatar" style="margin-bottom:16px;">👥</div>
+      <div class="avatar-large" id="groupProfileAvatar">👥</div>
       <div><strong>Описание:</strong> <span id="groupProfileDesc"></span></div>
       <div><strong>Создатель:</strong> <span id="groupProfileCreator"></span></div>
       <div><strong>Создана:</strong> <span id="groupProfileDate"></span></div>
       <h3>Участники</h3>
       <div id="groupProfileParticipants"></div>
-      <button id="closeGroupProfile">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно настроек группы -->
   <div class="modal" id="groupSettingsModal">
     <div class="modal-content group-settings">
+      <span class="modal-close" id="closeGroupSettings" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h2>Настройки группы</h2>
-      <div class="avatar-large" id="groupSettingsAvatar" style="margin-bottom:16px;">👥</div>
+      <div class="avatar-large" id="groupSettingsAvatar">👥</div>
       <input type="file" id="groupAvatarUpload" accept="image/*">
       <input type="text" id="groupNameInput" placeholder="Название группы">
       <textarea id="groupDescInput" placeholder="Описание группы" rows="2"></textarea>
@@ -948,7 +992,6 @@
       <button id="addParticipantBtn">Добавить участника</button>
       <button id="saveGroupSettings">Сохранить</button>
       <button id="deleteGroupBtnModal" style="background:#ef4444;">Удалить группу</button>
-      <button id="closeGroupSettings">Закрыть</button>
     </div>
   </div>
 
@@ -965,6 +1008,7 @@
   <!-- Модальное окно мониторинга для Hard -->
   <div class="modal" id="monitoringModal">
     <div class="modal-content" style="width:800px;">
+      <span class="modal-close" id="closeMonitoring" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h2>Мониторинг системы</h2>
       <div class="monitoring-panel">
         <div class="monitoring-col">
@@ -976,34 +1020,37 @@
           <div id="allUsersList"></div>
         </div>
       </div>
-      <button id="closeMonitoring">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно настроек темы -->
   <div class="modal" id="themeModal">
     <div class="modal-content theme-panel">
+      <span class="modal-close" id="closeTheme" style="position:absolute; top:10px; right:20px; font-size:24px; cursor:pointer;">&times;</span>
       <h3>Настройки темы</h3>
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex; gap:8px; margin:10px 0;">
         <button id="themeDark">Тёмная</button>
         <button id="themeLight">Светлая</button>
       </div>
       <h4>Цвет текста</h4>
       <input type="color" id="textColor" value="#f0f4ff">
       <h4>Обои</h4>
-      <div class="wallpaper-option" style="background: #0b0f19;" data-wall="none"></div>
-      <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
-      <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
-      <input type="file" id="wallpaperUpload" accept="image/*">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="wallpaper-option" style="width:60px; height:60px; background:#0b0f19; border-radius:12px; cursor:pointer;" data-wall="none"></div>
+        <div class="wallpaper-option" style="width:60px; height:60px; background:url('https://images.unsplash.com/photo-1557683316-973673baf926?w=100') center/cover; border-radius:12px; cursor:pointer;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
+        <div class="wallpaper-option" style="width:60px; height:60px; background:url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=100') center/cover; border-radius:12px; cursor:pointer;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
+      </div>
+      <input type="file" id="wallpaperUpload" accept="image/*" style="margin:10px 0;">
+      <h4>Звуки</h4>
+      <label><input type="checkbox" id="soundToggle" checked> Включить звуки</label>
       <button id="reloadInterface" style="background:#10b981; margin-top:16px;">Перезагрузить интерфейс</button>
-      <button id="closeTheme">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно для полноэкранного просмотра медиа -->
   <div class="modal" id="mediaModal">
-    <div class="modal-content" style="background:transparent; padding:0; max-width:90%; max-height:90%;">
-      <span style="position:absolute; top:20px; right:30px; font-size:40px; cursor:pointer; color:white;" id="closeModal">&times;</span>
+    <div class="modal-content" style="background:transparent; padding:0;">
+      <span class="modal-close" id="closeModal" style="position:absolute; top:20px; right:30px; font-size:40px; cursor:pointer; color:white;">&times;</span>
       <div id="modalContent"></div>
     </div>
   </div>
@@ -1050,496 +1097,310 @@
       xp: 0,
       level: 1,
       games: { wins: 0, losses: 0, draws: 0 },
-      achievements: {}
+      achievements: {},
+      titles: []
     };
 
+    // Достижения и титулы (разноцветные)
     const achievements = [
-      { id: 'first_message', name: 'Первое сообщение', desc: 'Отправить первое сообщение', icon: '💬', xp: 10 },
-      { id: 'game_win', name: 'Победитель', desc: 'Выиграть в крестики-нолики', icon: '🏆', xp: 50 },
-      { id: 'game_10', name: 'Игрок', desc: 'Сыграть 10 игр', icon: '🎮', xp: 100 },
-      { id: 'chatty', name: 'Болтун', desc: 'Отправить 100 сообщений', icon: '🗣️', xp: 200 },
-      { id: 'photographer', name: 'Фотограф', desc: 'Отправить 10 фото', icon: '📸', xp: 150 },
-      { id: 'gif_master', name: 'Гиф-мастер', desc: 'Отправить 5 GIF', icon: '🎞️', xp: 75 },
+      { 
+        id: 'first_message', 
+        name: 'Первое сообщение', 
+        desc: 'Отправить первое сообщение', 
+        icon: '💬', 
+        xp: 10, 
+        title: 'Новичок',
+        color: 'linear-gradient(135deg, #667eea, #764ba2)'
+      },
+      { 
+        id: 'game_win', 
+        name: 'Победитель', 
+        desc: 'Выиграть в крестики-нолики', 
+        icon: '🏆', 
+        xp: 50, 
+        title: 'Тактик',
+        color: 'linear-gradient(135deg, #f6d365, #fda085)'
+      },
+      { 
+        id: 'game_10', 
+        name: 'Игрок', 
+        desc: 'Сыграть 10 игр', 
+        icon: '🎮', 
+        xp: 100, 
+        title: 'Геймер',
+        color: 'linear-gradient(135deg, #84fab0, #8fd3f4)'
+      },
+      { 
+        id: 'chatty', 
+        name: 'Болтун', 
+        desc: 'Отправить 100 сообщений', 
+        icon: '🗣️', 
+        xp: 200, 
+        title: 'Болтун',
+        color: 'linear-gradient(135deg, #a8edea, #fed6e3)'
+      },
+      { 
+        id: 'photographer', 
+        name: 'Фотограф', 
+        desc: 'Отправить 10 фото', 
+        icon: '📸', 
+        xp: 150, 
+        title: 'Фотограф',
+        color: 'linear-gradient(135deg, #ff9a9e, #fad0c4)'
+      },
+      { 
+        id: 'gif_master', 
+        name: 'Гиф-мастер', 
+        desc: 'Отправить 5 GIF', 
+        icon: '🎞️', 
+        xp: 75, 
+        title: 'Гифоман',
+        color: 'linear-gradient(135deg, #cfd9df, #e2ebf0)'
+      },
+      { 
+        id: 'group_creator', 
+        name: 'Основатель', 
+        desc: 'Создать группу', 
+        icon: '👥', 
+        xp: 100, 
+        title: 'Лидер',
+        color: 'linear-gradient(135deg, #fa709a, #fee140)'
+      },
+      { 
+        id: 'friend_add', 
+        name: 'Дружелюбный', 
+        desc: 'Добавить 5 контактов', 
+        icon: '🤝', 
+        xp: 50, 
+        title: 'Дружелюбный',
+        color: 'linear-gradient(135deg, #96fbc4, #f9f586)'
+      }
     ];
 
-    // DOM элементы
-    const authScreen = document.getElementById('auth-screen');
-    const mainWrapper = document.getElementById('main-wrapper');
-    const contactsDiv = document.getElementById('contacts-list');
-    const messagesDiv = document.getElementById('messages');
-    const chatTitle = document.getElementById('chat-with-title');
-    const msgInput = document.getElementById('msg-input');
-    const sendBtn = document.getElementById('btn-send');
-    const searchInput = document.getElementById('search-user');
-    const searchBtn = document.getElementById('btn-search');
-    const backBtn = document.getElementById('back-to-contacts');
-    const chatArea = document.getElementById('chatArea');
-    const sidebar = document.getElementById('sidebar');
-    const fileUpload = document.getElementById('fileUpload');
-    const recordBtn = document.getElementById('record-btn');
-    const newGroupBtn = document.getElementById('new-group');
-    const typingSpan = document.getElementById('typingIndicator');
-    const actionBar = document.getElementById('actionBar');
-    const groupSettingsBtn = document.getElementById('groupSettingsBtn');
-    const deleteGroupBtn = document.getElementById('deleteGroupBtn');
-    const profileBtn = document.getElementById('profileBtn');
-    const headerAvatar = document.getElementById('headerAvatar');
-    const headerName = document.getElementById('headerName');
-    const headerStatus = document.getElementById('headerStatus');
-    const soundToggleBtn = document.getElementById('soundToggleBtn');
-    const gameBtn = document.getElementById('gameBtn');
-    const gifBtn = document.getElementById('gifBtn');
-    const gifModal = document.getElementById('gifModal');
-    const gifList = document.getElementById('gifList');
-    const closeGif = document.getElementById('closeGif');
-    const achievementsModal = document.getElementById('achievementsModal');
-    const achievementsList = document.getElementById('achievementsList');
-    const closeAchievements = document.getElementById('closeAchievements');
-    const emojiRow = document.getElementById('emojiRow');
-    const emojiBtns = document.querySelectorAll('.emoji-btn');
-    const quickRepliesDiv = document.getElementById('quickReplies');
-    const themeToggle = document.getElementById('themeToggle');
-    const themeModal = document.getElementById('themeModal');
-    const themeDark = document.getElementById('themeDark');
-    const themeLight = document.getElementById('themeLight');
-    const textColorInput = document.getElementById('textColor');
-    const wallpaperUpload = document.getElementById('wallpaperUpload');
-    const closeTheme = document.getElementById('closeTheme');
-    const reloadInterface = document.getElementById('reloadInterface');
-    const profileModal = document.getElementById('profileModal');
-    const profileAvatar = document.getElementById('profileAvatar');
-    const profileNameInput = document.getElementById('profileName');
-    const profileBio = document.getElementById('profileBio');
-    const profileStatusSelect = document.getElementById('profileStatus');
-    const avatarUpload = document.getElementById('avatarUpload');
-    const saveProfile = document.getElementById('saveProfile');
-    const closeProfile = document.getElementById('closeProfile');
-    const userProfileModal = document.getElementById('userProfileModal');
-    const viewProfileAvatar = document.getElementById('viewProfileAvatar');
-    const viewProfileName = document.getElementById('viewProfileName');
-    const viewProfileNick = document.getElementById('viewProfileNick');
-    const viewProfilePassword = document.getElementById('viewProfilePassword');
-    const passwordField = document.getElementById('passwordField');
-    const viewProfileRole = document.getElementById('viewProfileRole');
-    const viewProfileBio = document.getElementById('viewProfileBio');
-    const viewProfileStatus = document.getElementById('viewProfileStatus');
-    const viewProfileLastSeen = document.getElementById('viewProfileLastSeen');
-    const viewProfileDate = document.getElementById('viewProfileDate');
-    const closeUserProfile = document.getElementById('closeUserProfile');
-    const banUserBtn = document.getElementById('banUserBtn');
-    const unbanUserBtn = document.getElementById('unbanUserBtn');
-    const blockUserBtn = document.getElementById('blockUserBtn');
-    const confirmModal = document.getElementById('confirmModal');
-    const confirmTitle = document.getElementById('confirmTitle');
-    const confirmMessage = document.getElementById('confirmMessage');
-    const confirmAction = document.getElementById('confirmAction');
-    const closeConfirm = document.getElementById('closeConfirm');
-    const groupSettingsModal = document.getElementById('groupSettingsModal');
-    const groupNameInput = document.getElementById('groupNameInput');
-    const groupDescInput = document.getElementById('groupDescInput');
-    const participantsList = document.getElementById('participantsList');
-    const addParticipantInput = document.getElementById('addParticipantInput');
-    const addParticipantBtn = document.getElementById('addParticipantBtn');
-    const saveGroupSettings = document.getElementById('saveGroupSettings');
-    const deleteGroupBtnModal = document.getElementById('deleteGroupBtnModal');
-    const closeGroupSettings = document.getElementById('closeGroupSettings');
-    const groupProfileModal = document.getElementById('groupProfileModal');
-    const groupProfileName = document.getElementById('groupProfileName');
-    const groupProfileDesc = document.getElementById('groupProfileDesc');
-    const groupProfileCreator = document.getElementById('groupProfileCreator');
-    const groupProfileDate = document.getElementById('groupProfileDate');
-    const groupProfileParticipants = document.getElementById('groupProfileParticipants');
-    const groupProfileAvatar = document.getElementById('groupProfileAvatar');
-    const groupSettingsAvatar = document.getElementById('groupSettingsAvatar');
-    const groupAvatarUpload = document.getElementById('groupAvatarUpload');
-    const mediaModal = document.getElementById('mediaModal');
-    const modalContent = document.getElementById('modalContent');
-    const closeModal = document.getElementById('closeModal');
-    const monitoringBtn = document.createElement('button'); // Создадим позже
-    const monitoringModal = document.getElementById('monitoringModal');
-    const allChatsList = document.getElementById('allChatsList');
-    const allUsersList = document.getElementById('allUsersList');
-    const closeMonitoring = document.getElementById('closeMonitoring');
+    // Массив рабочих GIF
+    const gifUrls = [
+      'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
+      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
+      'https://media.giphy.com/media/26gR2qGRnxxXAvhBu/giphy.gif',
+      'https://media.giphy.com/media/l0MYt5jH6gkTWm8qo/giphy.gif',
+      'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
+      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif'
+    ];
 
-    // --- Быстрые ответы ---
-    const quickRepliesList = ['Привет! 👋', 'Как дела?', 'Что нового?', '👍', 'Спасибо!', 'Пока!'];
-
-    // --- Загрузка сохранённого ника ---
-    const savedNick = localStorage.getItem('aether_nick');
-    if (savedNick) {
-      document.getElementById('auth-nick').value = savedNick;
-    }
-
-    // --- Применение темы ---
-    function applyTheme() {
-      const savedWall = localStorage.getItem('wallpaper') || 'none';
-      const savedColor = localStorage.getItem('textColor') || '#f0f4ff';
-      document.body.style.setProperty('--wallpaper', savedWall === 'none' ? 'var(--bg-gradient)' : savedWall);
-      document.body.style.setProperty('--text-primary', savedColor);
-      if (savedWall !== 'none') {
-        document.body.classList.add('wallpaper-custom');
-      } else {
-        document.body.classList.remove('wallpaper-custom');
-      }
-    }
-    applyTheme();
-
-    // --- Звук ---
-    function updateSoundIcon() {
-      soundToggleBtn.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
-    }
-    updateSoundIcon();
-
-    soundToggleBtn.onclick = () => {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem('soundEnabled', soundEnabled);
-      updateSoundIcon();
+    // Звуки
+    const playSound = (type) => {
+      if (!soundEnabled) return;
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      if (type==='send'){ osc.frequency.value=800; gain.gain.value=0.1; osc.start(); osc.stop(audioCtx.currentTime+0.05); }
+      else if (type==='game'){ osc.frequency.value=600; gain.gain.value=0.1; osc.start(); osc.stop(audioCtx.currentTime+0.1); }
+      else if (type==='win'){ osc.frequency.value=1000; gain.gain.value=0.1; osc.start(); osc.stop(audioCtx.currentTime+0.3); }
     };
 
-    function playNotification() {
-      if (!soundEnabled) return;
-      const audio = new Audio('data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-      audio.play().catch(() => {});
+    // --- Вспомогательные функции ---
+    function getAvatarColor(nick){
+      let hash=0; for(let i=0;i<nick.length;i++) hash=nick.charCodeAt(i)+((hash<<5)-hash);
+      return `hsl(${Math.abs(hash%360)},70%,55%)`;
+    }
+    const avatarCache = new Map();
+    async function loadAvatar(nick){
+      if(avatarCache.has(nick)) return avatarCache.get(nick);
+      const snap = await get(ref(db, `users/${nick}/avatar`));
+      avatarCache.set(nick, snap.val());
+      return snap.val();
+    }
+    function formatLastSeen(t){
+      if(!t) return 'никогда';
+      let d=Date.now()-t;
+      if(d<60000) return 'только что';
+      if(d<3600000) return `${Math.floor(d/60000)} мин. назад`;
+      if(d<86400000) return `${Math.floor(d/3600000)} ч. назад`;
+      return new Date(t).toLocaleDateString();
     }
 
     // --- Загрузка блокировок ---
-    async function loadBlocks() {
-      const blocksSnap = await get(ref(db, `blocks/${myNick}`));
-      blockedUsers = new Set(Object.keys(blocksSnap.val() || {}));
-      
-      const usersSnap = await get(ref(db, 'users'));
-      const users = usersSnap.val() || {};
+    async function loadBlocks(){
+      const b = (await get(ref(db, `blocks/${myNick}`))).val()||{};
+      blockedUsers = new Set(Object.keys(b));
+      const users = (await get(ref(db, 'users'))).val()||{};
       blockedBy.clear();
-      for (let [nick, data] of Object.entries(users)) {
-        const userBlocks = await get(ref(db, `blocks/${nick}/${myNick}`));
-        if (userBlocks.val() === true) blockedBy.add(nick);
+      for(let n in users){
+        const r = await get(ref(db, `blocks/${n}/${myNick}`));
+        if(r.val()===true) blockedBy.add(n);
       }
     }
-
-    function canChatWith(nick) {
-      return !blockedUsers.has(nick) && !blockedBy.has(nick);
-    }
+    function canChatWith(n){ return !blockedUsers.has(n) && !blockedBy.has(n); }
 
     // --- Загрузка статистики ---
-    async function loadUserStats() {
-      const snap = await get(ref(db, `users/${myNick}/stats`));
-      if (snap.exists()) {
-        userStats = snap.val();
-      } else {
-        await set(ref(db, `users/${myNick}/stats`), userStats);
-      }
+    async function loadUserStats(){
+      const s = await get(ref(db, `users/${myNick}/stats`));
+      if(s.exists()) userStats = s.val();
+      else await set(ref(db, `users/${myNick}/stats`), userStats);
     }
 
-    // --- Добавление опыта ---
-    async function addXP(amount, achievementId = null) {
+    // --- Добавление опыта и титулов ---
+    async function addXP(amount, achievementId){
       userStats.xp += amount;
-      userStats.level = Math.floor(userStats.xp / 100) + 1;
-      
-      if (achievementId && !userStats.achievements[achievementId]) {
+      userStats.level = Math.floor(userStats.xp/100)+1;
+      if(achievementId && !userStats.achievements[achievementId]){
         userStats.achievements[achievementId] = Date.now();
-        alert(`🎉 Достижение получено: ${achievements.find(a => a.id === achievementId)?.name}`);
+        const a = achievements.find(a=>a.id===achievementId);
+        if(a?.title) userStats.titles.push(a.title);
+        alert(`🎉 Достижение: ${a.name}\n+${amount} XP\nПолучен титул: ${a.title}`);
       }
-      
       await update(ref(db, `users/${myNick}/stats`), userStats);
     }
 
-    // --- Функции для работы с профилем ---
-    async function loadProfile() {
-      if (!myNick) return;
-      const snap = await get(ref(db, `users/${myNick}`));
-      const data = snap.val() || {};
-      myDisplayName = data.displayName || myNick;
+    // --- Профиль ---
+    async function loadProfile(){
+      const d = (await get(ref(db, `users/${myNick}`))).val()||{};
+      myDisplayName = d.displayName||myNick;
       headerName.innerHTML = myDisplayName;
-      if (isCreator) {
-        headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
+      if(myNick==='hard') headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
+      if(userStats.titles) {
+        userStats.titles.forEach((title, index) => {
+          const a = achievements.find(a => a.title === title);
+          const color = a?.color || 'linear-gradient(135deg, #667eea, #764ba2)';
+          headerName.innerHTML += `<span class="title-badge" style="background:${color}">${title}</span>`;
+        });
       }
-      if (data.avatar) {
-        headerAvatar.style.backgroundImage = `url('${data.avatar}')`;
-        headerAvatar.textContent = '';
-      } else {
-        headerAvatar.style.backgroundImage = '';
-        headerAvatar.style.background = getAvatarColor(myNick);
-        headerAvatar.textContent = myNick.charAt(0).toUpperCase();
-      }
-      
-      const statusSnap = await get(ref(db, `status/${myNick}`));
-      const status = statusSnap.val() || 'online';
-      updateStatusDisplay(status);
+      if(d.avatar){ headerAvatar.style.backgroundImage=`url('${d.avatar}')`; headerAvatar.textContent=''; }
+      else{ headerAvatar.style.background=getAvatarColor(myNick); headerAvatar.textContent=myNick[0].toUpperCase(); }
+      const st = (await get(ref(db, `status/${myNick}`))).val()||'online';
+      updateStatusDisplay(st);
     }
-
-    function updateStatusDisplay(status) {
-      const statusMap = {
-        'online': 'В сети',
-        'away': 'Отошёл',
-        'dnd': 'Не беспокоить',
-        'invisible': 'Невидимка'
-      };
-      headerStatus.innerHTML = `<span class="status-badge status-${status}"></span>${statusMap[status] || 'В сети'}`;
-    }
-
-    function getAvatarColor(nick) {
-      let hash = 0;
-      for (let i = 0; i < nick.length; i++) hash = nick.charCodeAt(i) + ((hash << 5) - hash);
-      return `hsl(${Math.abs(hash % 360)}, 70%, 55%)`;
-    }
-
-    const avatarCache = new Map();
-    async function loadAvatar(nick) {
-      if (avatarCache.has(nick)) return avatarCache.get(nick);
-      const snap = await get(ref(db, `users/${nick}/avatar`));
-      const url = snap.val();
-      avatarCache.set(nick, url);
-      return url;
-    }
-
-    // --- Форматирование времени ---
-    function formatLastSeen(timestamp) {
-      if (!timestamp) return 'никогда';
-      const now = Date.now();
-      const diff = now - timestamp;
-      if (diff < 60000) return 'только что';
-      if (diff < 3600000) return `${Math.floor(diff / 60000)} мин. назад`;
-      if (diff < 86400000) return `${Math.floor(diff / 3600000)} ч. назад`;
-      return new Date(timestamp).toLocaleDateString();
+    function updateStatusDisplay(s){
+      const map={online:'В сети',away:'Отошёл',dnd:'Не беспокоить',invisible:'Невидимка'};
+      headerStatus.innerHTML = `<span class="status-badge status-${s}"></span>${map[s]||'В сети'}`;
     }
 
     // --- Просмотр профиля ---
-    async function showUserProfile(nick) {
-      const snap = await get(ref(db, `users/${nick}`));
-      const data = snap.val() || {};
-      const avatarUrl = await loadAvatar(nick);
-      if (avatarUrl) {
-        viewProfileAvatar.style.backgroundImage = `url('${avatarUrl}')`;
-        viewProfileAvatar.textContent = '';
-      } else {
-        viewProfileAvatar.style.backgroundImage = '';
-        viewProfileAvatar.style.background = getAvatarColor(nick);
-        viewProfileAvatar.textContent = nick.charAt(0).toUpperCase();
-      }
-      viewProfileName.textContent = data.displayName || nick;
+    async function showUserProfile(nick){
+      const d = (await get(ref(db, `users/${nick}`))).val()||{};
+      const st = (await get(ref(db, `users/${nick}/stats`))).val()||{titles:[]};
+      const av = await loadAvatar(nick);
+      viewProfileAvatar.style.background = av?`url('${av}') center/cover`:getAvatarColor(nick);
+      viewProfileAvatar.textContent = av?'':nick[0].toUpperCase();
+      viewProfileName.textContent = d.displayName||nick;
       viewProfileNick.textContent = nick;
-      
-      if (isCreator) {
-        passwordField.style.display = 'block';
-        viewProfilePassword.textContent = data.password || 'неизвестно';
-      } else {
-        passwordField.style.display = 'none';
-      }
-      
-      let role = 'Пользователь';
-      if (nick === 'hard') role = 'Создатель💫';
-      else if (data.admin) role = 'Админ';
-      viewProfileRole.textContent = role;
-      viewProfileBio.textContent = data.bio || '—';
-      
-      const statusSnap = await get(ref(db, `status/${nick}`));
-      const status = statusSnap.val();
-      const statusMap = {
-        'online': 'В сети',
-        'away': 'Отошёл',
-        'dnd': 'Не беспокоить',
-        'invisible': 'Невидимка'
-      };
-      viewProfileStatus.textContent = statusMap[status] || 'В сети';
-      
-      if (status === 'online') {
-        viewProfileLastSeen.textContent = 'сейчас';
-      } else {
-        viewProfileLastSeen.textContent = formatLastSeen(data.lastSeen);
-      }
-      
-      viewProfileDate.textContent = data.registered ? new Date(data.registered).toLocaleDateString() : 'неизвестно';
-      
-      const banSnap = await get(ref(db, `bans/${nick}`));
-      const isBanned = banSnap.val() === true;
-      
-      if (isCreator && nick !== myNick) {
-        if (isBanned) {
-          banUserBtn.style.display = 'none';
-          unbanUserBtn.style.display = 'block';
-          unbanUserBtn.onclick = () => {
-            showConfirm('Разбанить пользователя', `Разбанить ${nick}?`, async () => {
-              await remove(ref(db, `bans/${nick}`));
-              userProfileModal.style.display = 'none';
-            });
-          };
+      let titles = (nick==='hard'?'<span class="creator-badge">Создатель💫</span>':'');
+      st.titles.forEach(title => {
+        const a = achievements.find(a => a.title === title);
+        const color = a?.color || 'linear-gradient(135deg, #667eea, #764ba2)';
+        titles += `<span class="title-badge" style="background:${color}">${title}</span>`;
+      });
+      viewProfileTitles.innerHTML = titles||'—';
+      if(isCreator){ passwordField.style.display='block'; viewProfilePassword.textContent = d.password||'неизвестно'; }
+      else passwordField.style.display='none';
+      viewProfileRole.textContent = nick==='hard'?'Создатель💫':(d.admin?'Админ':'Пользователь');
+      viewProfileBio.textContent = d.bio||'—';
+      const status = (await get(ref(db, `status/${nick}`))).val();
+      viewProfileStatus.textContent = status==='online'?'В сети':(status==='away'?'Отошёл':(status==='dnd'?'Не беспокоить':'Невидимка'));
+      viewProfileLastSeen.textContent = status==='online'?'сейчас':formatLastSeen(d.lastSeen);
+      viewProfileDate.textContent = d.registered?new Date(d.registered).toLocaleDateString():'неизвестно';
+      const banned = (await get(ref(db, `bans/${nick}`))).val()===true;
+      if(isCreator && nick!==myNick){
+        if(banned){
+          banUserBtn.style.display='none'; unbanUserBtn.style.display='block';
+          unbanUserBtn.onclick = ()=>showConfirm('Разбанить',`Разбанить ${nick}?`,async()=>{ await remove(ref(db,`bans/${nick}`)); userProfileModal.style.display='none'; });
         } else {
-          banUserBtn.style.display = 'block';
-          unbanUserBtn.style.display = 'none';
-          banUserBtn.onclick = () => {
-            showConfirm('Забанить пользователя', `Забанить ${nick}? Это удалит его аккаунт.`, async () => {
-              await set(ref(db, `bans/${nick}`), true);
-              await remove(ref(db, `users/${nick}`));
-              userProfileModal.style.display = 'none';
-            });
-          };
+          banUserBtn.style.display='block'; unbanUserBtn.style.display='none';
+          banUserBtn.onclick = ()=>showConfirm('Забанить',`Забанить ${nick}?`,async()=>{ await set(ref(db,`bans/${nick}`),true); await remove(ref(db,`users/${nick}`)); userProfileModal.style.display='none'; });
         }
-      } else {
-        banUserBtn.style.display = 'none';
-        unbanUserBtn.style.display = 'none';
-      }
-      
-      if (nick !== myNick) {
+      } else { banUserBtn.style.display='none'; unbanUserBtn.style.display='none'; }
+      if(nick!==myNick){
         const isBlocked = blockedUsers.has(nick);
-        if (isBlocked) {
-          blockUserBtn.textContent = 'Разблокировать';
-          blockUserBtn.style.background = '#10b981';
-          blockUserBtn.onclick = () => {
-            showConfirm('Разблокировать', `Разблокировать ${nick}?`, async () => {
-              await remove(ref(db, `blocks/${myNick}/${nick}`));
-              blockedUsers.delete(nick);
-              userProfileModal.style.display = 'none';
-              loadContacts();
-            });
-          };
-        } else {
-          blockUserBtn.textContent = 'Заблокировать';
-          blockUserBtn.style.background = '#f59e0b';
-          blockUserBtn.onclick = () => {
-            showConfirm('Заблокировать', `Заблокировать ${nick}?`, async () => {
-              await set(ref(db, `blocks/${myNick}/${nick}`), true);
-              blockedUsers.add(nick);
-              userProfileModal.style.display = 'none';
-              loadContacts();
-            });
-          };
-        }
-        blockUserBtn.style.display = 'block';
-      } else {
-        blockUserBtn.style.display = 'none';
-      }
-      
-      userProfileModal.style.display = 'flex';
+        blockUserBtn.textContent = isBlocked?'Разблокировать':'Заблокировать';
+        blockUserBtn.style.background = isBlocked?'#10b981':'#f59e0b';
+        blockUserBtn.onclick = ()=>showConfirm(isBlocked?'Разблокировать':'Заблокировать', `${isBlocked?'Разблокировать':'Заблокировать'} ${nick}?`, async()=>{
+          if(isBlocked){ await remove(ref(db,`blocks/${myNick}/${nick}`)); blockedUsers.delete(nick); }
+          else { await set(ref(db,`blocks/${myNick}/${nick}`),true); blockedUsers.add(nick); }
+          userProfileModal.style.display='none'; loadContacts();
+        });
+        blockUserBtn.style.display='block';
+      } else blockUserBtn.style.display='none';
+      userProfileModal.style.display='flex';
     }
 
-    closeUserProfile.onclick = () => userProfileModal.style.display = 'none';
-
-    function showConfirm(title, message, onConfirm) {
-      confirmTitle.textContent = title;
-      confirmMessage.textContent = message;
-      confirmModal.style.display = 'flex';
-      confirmAction.onclick = () => {
-        onConfirm();
-        confirmModal.style.display = 'none';
-      };
+    function showConfirm(title,msg,onOk){
+      confirmTitle.textContent=title; confirmMessage.textContent=msg;
+      confirmModal.style.display='flex';
+      confirmAction.onclick = ()=>{ onOk(); confirmModal.style.display='none'; };
     }
-    closeConfirm.onclick = () => confirmModal.style.display = 'none';
 
     // --- Полноэкранный просмотр ---
-    function openMedia(src, type) {
-      modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}" style="max-width:100%; max-height:80vh;">`;
-      mediaModal.style.display = 'flex';
+    function openMedia(src,type){
+      modalContent.innerHTML = type==='video'?`<video src="${src}" controls style="max-width:100%; max-height:80vh;"></video>`:`<img src="${src}" style="max-width:100%; max-height:80vh;">`;
+      mediaModal.style.display='flex';
     }
-    closeModal.onclick = () => mediaModal.style.display = 'none';
-    mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
 
-    // --- Смайлики (ИСПРАВЛЕНО - теперь множественные реакции) ---
-    emojiBtns.forEach(btn => {
-      btn.onclick = () => {
+    // --- Смайлики (ИСПРАВЛЕНО - теперь как в WhatsApp) ---
+    document.querySelectorAll('.emoji-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
         const emoji = btn.dataset.emoji;
-        if (selectedMsgId) {
+        if (selectedMsgId && activeChat) {
           toggleReaction(selectedMsgId, emoji);
         }
         actionBar.style.display = 'none';
-      };
+      });
     });
 
     async function toggleReaction(msgId, emoji) {
       if (!activeChat) return;
       
-      const reactionsRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions`);
-      const snap = await get(reactionsRef);
-      let reactions = snap.val() || {};
+      const reactionRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions/${emoji}`);
+      const snap = await get(reactionRef);
+      let users = snap.val() || [];
       
-      // Добавляем/удаляем только конкретный emoji для текущего пользователя
-      if (!reactions[emoji]) {
-        reactions[emoji] = [];
-      }
-      
-      if (reactions[emoji].includes(myNick)) {
+      if (users.includes(myNick)) {
         // Если уже поставил этот emoji - убираем
-        reactions[emoji] = reactions[emoji].filter(u => u !== myNick);
-        if (reactions[emoji].length === 0) {
-          delete reactions[emoji];
-        }
+        users = users.filter(u => u !== myNick);
       } else {
         // Добавляем новый emoji
-        reactions[emoji].push(myNick);
+        users.push(myNick);
       }
       
-      await set(reactionsRef, reactions);
+      if (users.length === 0) {
+        // Если никого нет - удаляем реакцию
+        await remove(reactionRef);
+      } else {
+        await set(reactionRef, users);
+      }
     }
 
-    // --- Крестики-нолики ---
+    // --- Крестики-нолики (ИСПРАВЛЕНО - моментальный старт) ---
     function createGameBoard(gameId, game) {
       const container = document.createElement('div');
       container.className = 'game-container';
       container.dataset.gameId = gameId;
       
-      if (game.status === 'waiting') {
-        const waitingDiv = document.createElement('div');
-        waitingDiv.style.textAlign = 'center';
-        waitingDiv.innerHTML = `
-          <p>⏳ Ожидание игрока ${game.players[1]}...</p>
-          ${game.createdBy === myNick ? '<button id="startGameBtn">Начать игру</button>' : ''}
-        `;
-        container.appendChild(waitingDiv);
-        
-        if (game.createdBy === myNick) {
-          setTimeout(() => {
-            const startBtn = document.getElementById('startGameBtn');
-            if (startBtn) {
-              startBtn.onclick = () => startGame(gameId);
-            }
-          }, 100);
-        }
-      } else if (game.status === 'active') {
-        const info = document.createElement('div');
-        info.className = 'game-info';
-        info.textContent = `Ход: ${game.nextPlayer === myNick ? 'Ваш' : game.nextPlayer}`;
-        
-        const boardDiv = document.createElement('div');
-        boardDiv.className = 'game-board';
-        
-        for (let i = 0; i < 9; i++) {
-          const cell = document.createElement('button');
-          cell.className = 'game-cell';
-          cell.textContent = game.board[i] || '';
-          cell.disabled = game.board[i] || game.nextPlayer !== myNick;
-          cell.onclick = () => makeMove(gameId, i);
-          boardDiv.appendChild(cell);
-        }
-        
-        const score = document.createElement('div');
-        score.className = 'game-score';
-        score.innerHTML = `${game.players[0]}: ${userStats.games.wins} | ${game.players[1]}: ${userStats.games.losses}`;
-        
-        container.appendChild(info);
-        container.appendChild(boardDiv);
-        container.appendChild(score);
-      } else if (game.status === 'finished') {
-        let resultText = '';
-        if (game.winner === 'draw') {
-          resultText = 'Ничья!';
-        } else {
-          resultText = `Победил: ${game.winner === myNick ? 'Вы' : game.winner}`;
-        }
-        
-        container.innerHTML = `
-          <div style="text-align:center;">
-            <p>🎮 Игра завершена</p>
-            <p>${resultText}</p>
-            <button onclick="document.getElementById('closeGameModal').click()">Закрыть</button>
-          </div>
-        `;
+      const info = document.createElement('div');
+      info.className = 'game-info';
+      info.textContent = `Ход: ${game.nextPlayer === myNick ? 'Ваш' : game.nextPlayer}`;
+      
+      const boardDiv = document.createElement('div');
+      boardDiv.className = 'game-board';
+      
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('button');
+        cell.className = 'game-cell';
+        cell.textContent = game.board[i] || '';
+        cell.disabled = game.board[i] || game.nextPlayer !== myNick || game.status !== 'active';
+        cell.onclick = () => makeMove(gameId, i);
+        boardDiv.appendChild(cell);
       }
       
+      const score = document.createElement('div');
+      score.className = 'game-score';
+      score.innerHTML = `${game.players[0]}: ${userStats.games.wins} | ${game.players[1]}: ${userStats.games.losses}`;
+      
+      container.appendChild(info);
+      container.appendChild(boardDiv);
+      container.appendChild(score);
+      
       return container;
-    }
-
-    async function startGame(gameId) {
-      const gameRef = ref(db, `games/${gameId}`);
-      await update(gameRef, { status: 'active', nextPlayer: myNick });
     }
 
     async function makeMove(gameId, index) {
@@ -1547,9 +1408,10 @@
       const snap = await get(gameRef);
       const game = snap.val();
       
-      if (!game || game.nextPlayer !== myNick || game.board[index]) return;
+      if (!game || game.nextPlayer !== myNick || game.board[index] || game.status !== 'active') return;
       
       game.board[index] = game.players[0] === myNick ? 'X' : 'O';
+      playSound('game');
       
       const winPatterns = [
         [0,1,2], [3,4,5], [6,7,8],
@@ -1573,6 +1435,7 @@
         if (winner === myNick) {
           userStats.games.wins++;
           await addXP(50, 'game_win');
+          playSound('win');
         } else {
           userStats.games.losses++;
         }
@@ -1626,9 +1489,8 @@
       const game = {
         board: Array(9).fill(null),
         players: [myNick, partner],
-        nextPlayer: myNick,
-        status: 'waiting',
-        createdBy: myNick,
+        nextPlayer: myNick, // Кто создал - тот ходит первым (крестиком)
+        status: 'active',
         createdAt: Date.now()
       };
       
@@ -1638,36 +1500,16 @@
         from: myNick,
         type: 'game',
         gameId: gameId,
-        text: '🎮 Приглашение в крестики-нолики!',
+        text: '🎮 Игра в крестики-нолики началась!',
         time: Date.now()
       });
       
+      // Открываем модальное окно игры
       openGameModal(gameId);
     }
 
     function openGameModal(gameId) {
       currentGameId = gameId;
-      if (!document.getElementById('gameModal')) {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.id = 'gameModal';
-        modal.innerHTML = `
-          <div class="modal-content" style="width:400px; text-align:center;">
-            <span class="modal-close" id="closeGameModal">&times;</span>
-            <h2 id="gameModalTitle">Крестики-нолики</h2>
-            <div id="gameModalContent"></div>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('closeGameModal').onclick = () => {
-          modal.style.display = 'none';
-          if (gameListener) {
-            gameListener();
-            gameListener = null;
-          }
-        };
-      }
-      
       const gameModal = document.getElementById('gameModal');
       const gameModalContent = document.getElementById('gameModalContent');
       
@@ -1687,19 +1529,17 @@
       });
     }
 
-    // --- GIF стикеры (только рабочие) ---
-    const gifUrls = [
-      'https://media.giphy.com/media/3o7abB06u9bNzA8LC8/giphy.gif',
-      'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
-      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
-      'https://media.giphy.com/media/l0HlNQ03J5JxX6lZ6/giphy.gif',
-      'https://media.giphy.com/media/3o7abldj0b3rxrZUxW/giphy.gif',
-      'https://media.giphy.com/media/26gR2qGRnxxXAvhBu/giphy.gif',
-      'https://media.giphy.com/media/l0MYt5jH6gkTWm8qo/giphy.gif',
-      'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
-      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif'
-    ];
+    document.getElementById('closeGameModal').addEventListener('click', () => {
+      document.getElementById('gameModal').style.display = 'none';
+      if (gameListener) {
+        gameListener();
+        gameListener = null;
+      }
+    });
 
+    window.openGameModal = openGameModal;
+
+    // --- GIF стикеры ---
     async function showGifPicker() {
       gifList.innerHTML = gifUrls.map(url => 
         `<div class="gif-item" onclick="window.sendGif('${url}')"><img src="${url}"></div>`
@@ -1712,7 +1552,9 @@
       gifModal.style.display = 'none';
     };
 
-    closeGif.onclick = () => gifModal.style.display = 'none';
+    document.getElementById('closeGif').addEventListener('click', () => {
+      gifModal.style.display = 'none';
+    });
 
     // --- Отрисовка сообщений ---
     function parseMarkdown(text) {
@@ -1845,8 +1687,6 @@
 
       return msgDiv;
     }
-
-    window.openGameModal = openGameModal;
 
     // --- Удаление сообщения ---
     async function deleteMessage(msgId) {
@@ -2040,8 +1880,7 @@
       
       monitoringModal.style.display = 'flex';
     }
-    closeMonitoring.onclick = () => monitoringModal.style.display = 'none';
-    
+
     window.openChat = (chatId) => {
       monitoringModal.style.display = 'none';
       get(ref(db, `chats/${chatId}`)).then(snap => {
@@ -2060,7 +1899,8 @@
       showUserProfile(nick);
     };
 
-    // Создаем кнопку мониторинга только для Hard
+    // Создаем кнопку мониторинга для Hard
+    const monitoringBtn = document.createElement('button');
     monitoringBtn.id = 'monitoringBtn';
     monitoringBtn.className = 'header-btn';
     monitoringBtn.style.background = 'gold';
@@ -2070,7 +1910,7 @@
     monitoringBtn.title = 'Мониторинг';
     monitoringBtn.onclick = showMonitoring;
     
-    // Добавляем кнопку в header-actions после звука и темы
+    // Добавляем кнопку в header-actions
     const headerActions = document.querySelector('.header-actions');
     if (headerActions) {
       headerActions.appendChild(monitoringBtn);
@@ -2130,6 +1970,8 @@
         msgInput.placeholder = 'Сообщение...';
       }
       await push(ref(db, `chats/${activeChat.id}/messages`), msg);
+      playSound('send');
+      
       const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : (content.audio ? '🎤' : '')));
       
       for (let p of activeChat.participants) {
@@ -2189,6 +2031,8 @@
         quickRepliesDiv.appendChild(btn);
       });
     }
+
+    const quickRepliesList = ['Привет! 👋', 'Как дела?', 'Что нового?', '👍', 'Спасибо!', 'Пока!'];
     renderQuickReplies();
 
     // --- Профиль (свой) ---
@@ -2199,13 +2043,21 @@
         profileNameInput.value = data.displayName || myNick;
         profileBio.value = data.bio || '';
         profileStatusSelect.value = data.status || 'online';
+        
+        let titles = isCreator ? '<span class="creator-badge">Создатель💫</span>' : '';
+        userStats.titles.forEach(title => {
+          const a = achievements.find(a => a.title === title);
+          const color = a?.color || 'linear-gradient(135deg, #667eea, #764ba2)';
+          titles += `<span class="title-badge" style="background:${color}">${title}</span>`;
+        });
+        profileTitles.innerHTML = titles || '—';
+        
         if (data.avatar) {
           profileAvatar.style.backgroundImage = `url('${data.avatar}')`;
           profileAvatar.textContent = '';
         } else {
-          profileAvatar.style.backgroundImage = '';
           profileAvatar.style.background = getAvatarColor(myNick);
-          profileAvatar.textContent = myNick.charAt(0).toUpperCase();
+          profileAvatar.textContent = myNick[0].toUpperCase();
         }
       });
     };
@@ -2238,25 +2090,31 @@
       myDisplayName = profileNameInput.value;
       headerName.innerHTML = myDisplayName;
       if (isCreator) headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
+      userStats.titles.forEach(title => {
+        const a = achievements.find(a => a.title === title);
+        const color = a?.color || 'linear-gradient(135deg, #667eea, #764ba2)';
+        headerName.innerHTML += `<span class="title-badge" style="background:${color}">${title}</span>`;
+      });
       if (window.tempAvatar) {
         headerAvatar.style.backgroundImage = `url('${window.tempAvatar}')`;
         headerAvatar.textContent = '';
       }
       set(ref(db, `status/${myNick}`), profileStatusSelect.value);
       updateStatusDisplay(profileStatusSelect.value);
-      closeProfile.click();
+      profileModal.style.display = 'none';
     };
 
-    // --- Ачивки ---
+    // --- Ачивки (ИСПРАВЛЕНО - теперь работает) ---
     function showAchievements() {
       achievementsList.innerHTML = achievements.map(a => {
         const unlocked = userStats.achievements[a.id];
         return `
           <div class="achievement-card ${unlocked ? '' : 'locked'}">
             <div class="achievement-icon">${a.icon}</div>
-            <div><strong>${a.name}</strong></div>
-            <div><small>${a.desc}</small></div>
+            <div class="achievement-title">${a.name}</div>
+            <div class="achievement-desc">${a.desc}</div>
             <div>${unlocked ? '✅' : '🔒'} +${a.xp} XP</div>
+            <div class="achievement-reward" style="background:${a.color}">🏅 ${a.title}</div>
           </div>
         `;
       }).join('');
@@ -2282,7 +2140,6 @@
         groupSettingsAvatar.style.backgroundImage = `url('${data.avatar}')`;
         groupSettingsAvatar.textContent = '';
       } else {
-        groupSettingsAvatar.style.backgroundImage = '';
         groupSettingsAvatar.style.background = getAvatarColor(activeChat.id);
         groupSettingsAvatar.textContent = '👥';
       }
@@ -2393,7 +2250,6 @@
         groupProfileAvatar.style.backgroundImage = `url('${data.avatar}')`;
         groupProfileAvatar.textContent = '';
       } else {
-        groupProfileAvatar.style.backgroundImage = '';
         groupProfileAvatar.style.background = getAvatarColor(groupId);
         groupProfileAvatar.textContent = '👥';
       }
@@ -2515,6 +2371,10 @@
           lastTime: Date.now() 
         });
       }
+      
+      // Достижение за создание группы
+      await addXP(100, 'group_creator');
+      
       startGroupChat(groupId);
     };
 
@@ -2622,6 +2482,19 @@
     reloadInterface.onclick = () => {
       location.reload();
     };
+
+    // --- Звук ---
+    soundToggle.onchange = (e) => {
+      soundEnabled = e.target.checked;
+      localStorage.setItem('soundEnabled', soundEnabled);
+    };
+
+    // --- Закрытие модалок по клику на крестик ---
+    document.querySelectorAll('.modal-close, #closeConfirm, #closeGroupProfile, #closeGroupSettings, #closeUserProfile, #closeProfile, #closeGameModal, #closeAchievements, #closeGif, #closeMonitoring, #closeTheme, #closeModal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.closest('.modal').style.display = 'none';
+      });
+    });
   </script>
 </body>
-  </html>
+            </html>
