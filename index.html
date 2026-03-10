@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* ПОЛНЫЙ СТАБИЛЬНЫЙ СТИЛЬ */
     * {
       margin: 0;
       padding: 0;
@@ -37,6 +36,8 @@
       --border-color: rgba(255,255,255,0.08);
       --shadow: 0 8px 24px rgba(0,0,0,0.5);
       --wallpaper: none;
+      --neon-color: #6366f1;
+      --neon-effect: none;
       color: var(--text-primary);
     }
 
@@ -57,6 +58,28 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+    }
+
+    /* Неоновые эффекты для текста */
+    .neon-text {
+      animation: neonPulse 2s infinite;
+    }
+    @keyframes neonPulse {
+      0% { text-shadow: 0 0 5px var(--neon-color), 0 0 10px var(--neon-color), 0 0 20px var(--neon-color); }
+      50% { text-shadow: 0 0 10px var(--neon-color), 0 0 20px var(--neon-color), 0 0 40px var(--neon-color); }
+      100% { text-shadow: 0 0 5px var(--neon-color), 0 0 10px var(--neon-color), 0 0 20px var(--neon-color); }
+    }
+    .neon-rainbow {
+      animation: rainbowNeon 3s linear infinite;
+    }
+    @keyframes rainbowNeon {
+      0% { text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000; }
+      16% { text-shadow: 0 0 5px #ff7f00, 0 0 10px #ff7f00, 0 0 20px #ff7f00; }
+      33% { text-shadow: 0 0 5px #ffff00, 0 0 10px #ffff00, 0 0 20px #ffff00; }
+      50% { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 20px #00ff00; }
+      66% { text-shadow: 0 0 5px #0000ff, 0 0 10px #0000ff, 0 0 20px #0000ff; }
+      83% { text-shadow: 0 0 5px #4b0082, 0 0 10px #4b0082, 0 0 20px #4b0082; }
+      100% { text-shadow: 0 0 5px #8f00ff, 0 0 10px #8f00ff, 0 0 20px #8f00ff; }
     }
 
     .creator-badge {
@@ -92,9 +115,18 @@
     }
 
     #auth-screen h2 {
-      font-weight: 500;
+      font-weight: 600;
       margin-bottom: 24px;
-      color: var(--text-primary);
+      font-size: 2.2rem;
+      background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 4s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .auth-input {
@@ -112,13 +144,8 @@
 
     .auth-input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.2), 0 0 15px var(--accent);
       transform: scale(1.02);
-    }
-
-    .auth-input::placeholder {
-      color: var(--text-secondary);
-      opacity: 0.7;
     }
 
     .auth-button {
@@ -127,7 +154,7 @@
       margin: 20px 0 10px;
       border-radius: 40px;
       border: none;
-      background: linear-gradient(45deg, var(--accent), #8183f4);
+      background: linear-gradient(45deg, var(--accent), #a855f7);
       color: white;
       font-size: 18px;
       font-weight: 600;
@@ -140,26 +167,7 @@
 
     .auth-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(99,102,241,0.4);
-    }
-
-    .auth-button:active {
-      transform: translateY(0);
-    }
-
-    .auth-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .auth-button:hover::before {
-      left: 100%;
+      box-shadow: 0 6px 20px rgba(99,102,241,0.5);
     }
 
     .auth-button.loading {
@@ -187,13 +195,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    .auth-hint {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 15px;
-      opacity: 0.8;
-    }
-
     .auth-error {
       color: #ff5e7c;
       font-size: 14px;
@@ -210,7 +211,7 @@
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
+      0%,100% { transform: translateX(0); }
       25% { transform: translateX(-5px); }
       75% { transform: translateX(5px); }
     }
@@ -294,18 +295,6 @@
       color: var(--text-secondary);
     }
 
-    .status-badge {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 6px;
-    }
-    .status-online { background: #4ade80; }
-    .status-away { background: #f59e0b; }
-    .status-dnd { background: #ef4444; }
-    .status-invisible { background: #94a3b8; }
-
     .header-actions {
       display: flex;
       gap: 8px;
@@ -337,6 +326,8 @@
       background: var(--bg-surface-light);
       font-size: 16px;
       padding: 14px 18px;
+      border-radius: 40px;
+      border: 1px solid var(--border-color);
     }
 
     .search-box button {
@@ -345,6 +336,10 @@
       padding: 0;
       border-radius: 50%;
       font-size: 18px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      cursor: pointer;
     }
 
     #contacts-list {
@@ -401,7 +396,12 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
+      background: #4ade80;
       border: 2px solid var(--bg-surface);
+    }
+
+    .offline-indicator {
+      background: #94a3b8;
     }
 
     .contact-info {
@@ -411,7 +411,6 @@
 
     .contact-name {
       font-weight: 600;
-      color: var(--text-primary);
       display: flex;
       justify-content: space-between;
     }
@@ -467,7 +466,6 @@
 
     #chat-with-title {
       font-weight: 600;
-      color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -490,12 +488,19 @@
     .chat-search input {
       flex: 1;
       background: var(--bg-surface-light);
+      border-radius: 40px;
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
     }
 
     .chat-search button {
       width: 48px;
-      padding: 0;
+      height: 48px;
       border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: white;
+      cursor: pointer;
     }
 
     #messages {
@@ -572,18 +577,6 @@
       display: block;
     }
 
-    .bubble-text p {
-      margin: 4px 0;
-    }
-    .bubble-text strong { font-weight: 600; }
-    .bubble-text em { font-style: italic; }
-    .bubble-text code {
-      background: rgba(0,0,0,0.3);
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-
     .msg-time {
       font-size: 0.65rem;
       opacity: 0.7;
@@ -621,44 +614,54 @@
       cursor: pointer;
     }
 
+    /* Игровое поле с неоном */
     .game-board {
       display: grid;
-      grid-template-columns: repeat(3, 60px);
-      gap: 5px;
-      margin: 10px auto;
+      grid-template-columns: repeat(3, 80px);
+      gap: 10px;
+      margin: 20px auto;
       justify-content: center;
     }
     .game-cell {
-      width: 60px;
-      height: 60px;
+      width: 80px;
+      height: 80px;
       background: var(--bg-surface);
       border: 2px solid var(--accent);
-      border-radius: 12px;
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 3rem;
+      font-weight: bold;
       cursor: pointer;
       transition: all 0.2s;
+      color: var(--accent);
+      text-shadow: 0 0 10px var(--accent);
+      box-shadow: 0 0 15px rgba(99,102,241,0.3);
     }
-    .game-cell:hover {
+    .game-cell:hover:not(:disabled) {
       background: var(--accent);
-      transform: scale(1.05);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 0 25px var(--accent);
     }
     .game-cell:disabled {
-      opacity: 0.5;
+      opacity: 0.6;
       cursor: not-allowed;
+      box-shadow: none;
     }
     .game-info {
-      margin: 8px 0;
-      font-size: 0.9rem;
       text-align: center;
+      margin: 10px 0;
+      font-size: 1.1rem;
+      color: var(--accent);
+      text-shadow: 0 0 8px var(--accent);
     }
     .game-score {
       display: flex;
-      gap: 16px;
-      margin: 8px 0;
       justify-content: center;
+      gap: 20px;
+      margin: 10px 0;
     }
 
     .action-bar {
@@ -686,7 +689,6 @@
       white-space: nowrap;
       scrollbar-width: thin;
       padding: 4px;
-      -webkit-overflow-scrolling: touch;
     }
 
     .action-bar button {
@@ -727,6 +729,16 @@
       max-width: 90%;
       max-height: 90%;
       overflow: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 28px;
+      cursor: pointer;
+      color: var(--text-secondary);
     }
 
     .profile-modal, .group-profile-modal, .user-profile-modal {
@@ -753,7 +765,7 @@
 
     .achievement-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
       gap: 16px;
       margin: 20px 0;
     }
@@ -770,32 +782,20 @@
       font-size: 3rem;
       margin-bottom: 8px;
     }
-    .achievement-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .achievement-desc {
-      font-size: 0.8rem;
-      opacity: 0.8;
-      margin-bottom: 8px;
-    }
 
     .gif-picker {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       max-height: 400px;
       overflow-y: auto;
     }
-    .gif-item {
-      cursor: pointer;
-      border-radius: 12px;
-      overflow: hidden;
-    }
     .gif-item img {
       width: 100%;
-      height: 120px;
+      height: 100px;
       object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
     }
 
     .quick-reply {
@@ -805,9 +805,6 @@
       border-radius: 40px;
       margin: 4px;
       cursor: pointer;
-    }
-    .quick-reply:hover {
-      background: var(--accent);
     }
 
     .monitoring-panel {
@@ -823,9 +820,6 @@
       padding: 10px;
       border-bottom: 1px solid var(--border-color);
       cursor: pointer;
-    }
-    .monitoring-item:hover {
-      background: var(--bg-surface-light);
     }
 
     .chat-clear-buttons {
@@ -875,7 +869,7 @@
 <body>
   <!-- Экран авторизации -->
   <div id="auth-screen">
-    <h2><i class="fas fa-cube" style="color: #6366f1;"></i> AETHER CHAT</h2>
+    <h2 class="neon-text" style="--neon-color:#6366f1;">AETHER CHAT</h2>
     <input type="text" class="auth-input" id="auth-nick" placeholder="никнейм" autocomplete="off">
     <input type="password" class="auth-input" id="auth-pass" placeholder="пароль">
     <div class="auth-error" id="auth-error"></div>
@@ -890,7 +884,7 @@
   <!-- Основное приложение -->
   <div id="main-wrapper">
     <div class="app-container">
-      <!-- Левая панель (контакты) -->
+      <!-- Левая панель -->
       <div class="sidebar" id="sidebar">
         <div class="profile-header">
           <div class="profile-info" id="profileBtn">
@@ -941,9 +935,7 @@
 
         <!-- Панель ввода -->
         <div style="display:flex; flex-direction:column; gap:8px; padding:16px 24px; border-top:1px solid var(--border-color);">
-          <!-- Быстрые ответы -->
           <div id="quickReplies" style="display:flex; gap:8px; overflow-x:auto; padding:4px 0;"></div>
-          
           <div style="display:flex; gap:12px; align-items:center;">
             <label style="width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:var(--bg-surface-light); border-radius:50%; cursor:pointer;">
               <i class="fas fa-paperclip"></i>
@@ -952,8 +944,8 @@
             <button id="gameBtn" style="width:48px; height:48px; border-radius:50%; background:var(--bg-surface-light);" title="Крестики-нолики"><i class="fas fa-gamepad"></i></button>
             <button id="gifBtn" style="width:48px; height:48px; border-radius:50%; background:var(--bg-surface-light);" title="GIF-стикеры"><i class="fas fa-gift"></i></button>
             <button id="record-btn" style="width:48px; height:48px; border-radius:50%; background:var(--bg-surface-light);"><i class="fas fa-microphone"></i></button>
-            <input type="text" id="msg-input" placeholder="Сообщение..." style="flex:1; background:var(--bg-surface-light);">
-            <button id="btn-send" style="width:48px; height:48px; border-radius:50%;"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="msg-input" placeholder="Сообщение..." style="flex:1; background:var(--bg-surface-light); border-radius:40px; padding:14px 18px;">
+            <button id="btn-send" style="width:48px; height:48px; border-radius:50%; background:var(--accent);"><i class="fas fa-paper-plane"></i></button>
           </div>
         </div>
       </div>
@@ -972,16 +964,6 @@
       <button class="emoji-btn" data-emoji="🎉">🎉</button>
       <button class="emoji-btn" data-emoji="💯">💯</button>
       <button class="emoji-btn" data-emoji="⭐">⭐</button>
-      <button class="emoji-btn" data-emoji="🍕">🍕</button>
-      <button class="emoji-btn" data-emoji="🎵">🎵</button>
-      <button class="emoji-btn" data-emoji="👀">👀</button>
-      <button class="emoji-btn" data-emoji="💀">💀</button>
-      <button class="emoji-btn" data-emoji="🤡">🤡</button>
-      <button class="emoji-btn" data-emoji="👻">👻</button>
-      <button class="emoji-btn" data-emoji="🤖">🤖</button>
-      <button class="emoji-btn" data-emoji="🎃">🎃</button>
-      <button class="emoji-btn" data-emoji="🌚">🌚</button>
-      <button class="emoji-btn" data-emoji="💩">💩</button>
       <button class="emoji-btn" data-emoji="🍆">🍆</button>
     </div>
     <div class="action-bar-row">
@@ -993,34 +975,35 @@
 
   <!-- Модальное окно ачивок -->
   <div class="modal" id="achievementsModal">
-    <div class="modal-content" style="width:700px;">
+    <div class="modal-content">
+      <span class="modal-close" id="closeAchievements">&times;</span>
       <h2>Достижения и титулы</h2>
       <div class="achievement-grid" id="achievementsList"></div>
-      <button id="closeAchievements">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно игры -->
   <div class="modal" id="gameModal">
     <div class="modal-content" style="width:400px; text-align:center;">
+      <span class="modal-close" id="closeGameModal">&times;</span>
       <h2 id="gameModalTitle">Крестики-нолики</h2>
       <div id="gameModalContent"></div>
-      <button id="closeGameModal">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно выбора GIF -->
   <div class="modal" id="gifModal">
-    <div class="modal-content" style="width:600px;">
+    <div class="modal-content" style="width:500px;">
+      <span class="modal-close" id="closeGif">&times;</span>
       <h2>Выберите GIF</h2>
       <div class="gif-picker" id="gifList"></div>
-      <button id="closeGif">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно профиля (свой) -->
   <div class="modal" id="profileModal">
     <div class="modal-content profile-modal">
+      <span class="modal-close" id="closeProfile">&times;</span>
       <h2>Мой профиль</h2>
       <div class="avatar-large" id="profileAvatar">?</div>
       <div><strong>Титулы:</strong> <span id="profileTitles"></span></div>
@@ -1034,13 +1017,13 @@
       </select>
       <input type="file" id="avatarUpload" accept="image/*">
       <button id="saveProfile">Сохранить</button>
-      <button id="closeProfile">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно просмотра чужого профиля -->
   <div class="modal" id="userProfileModal">
     <div class="modal-content user-profile-modal">
+      <span class="modal-close" id="closeUserProfile">&times;</span>
       <h2 id="viewProfileTitle">Профиль пользователя</h2>
       <div class="avatar-large" id="viewProfileAvatar">?</div>
       <div><strong>Имя:</strong> <span id="viewProfileName"></span></div>
@@ -1052,7 +1035,6 @@
       <div><strong>Статус:</strong> <span id="viewProfileStatus"></span></div>
       <div><strong>Последний визит:</strong> <span id="viewProfileLastSeen"></span></div>
       <div><strong>Зарегистрирован:</strong> <span id="viewProfileDate"></span></div>
-      <button id="closeUserProfile">Закрыть</button>
       <button id="banUserBtn" style="background:#ef4444; display:none;">Забанить</button>
       <button id="unbanUserBtn" style="background:#10b981; display:none;">Разбанить</button>
       <button id="blockUserBtn" style="background:#f59e0b;">Заблокировать</button>
@@ -1062,22 +1044,23 @@
   <!-- Модальное окно профиля группы -->
   <div class="modal" id="groupProfileModal">
     <div class="modal-content group-profile-modal">
+      <span class="modal-close" id="closeGroupProfile">&times;</span>
       <h2 id="groupProfileName">Группа</h2>
-      <div class="avatar-large" id="groupProfileAvatar" style="margin-bottom:16px;">👥</div>
+      <div class="avatar-large" id="groupProfileAvatar">👥</div>
       <div><strong>Описание:</strong> <span id="groupProfileDesc"></span></div>
       <div><strong>Создатель:</strong> <span id="groupProfileCreator"></span></div>
       <div><strong>Создана:</strong> <span id="groupProfileDate"></span></div>
       <h3>Участники</h3>
       <div id="groupProfileParticipants"></div>
-      <button id="closeGroupProfile">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно настроек группы -->
   <div class="modal" id="groupSettingsModal">
     <div class="modal-content group-settings">
+      <span class="modal-close" id="closeGroupSettings">&times;</span>
       <h2>Настройки группы</h2>
-      <div class="avatar-large" id="groupSettingsAvatar" style="margin-bottom:16px;">👥</div>
+      <div class="avatar-large" id="groupSettingsAvatar">👥</div>
       <input type="file" id="groupAvatarUpload" accept="image/*">
       <input type="text" id="groupNameInput" placeholder="Название группы">
       <textarea id="groupDescInput" placeholder="Описание группы" rows="2"></textarea>
@@ -1087,11 +1070,10 @@
       <button id="addParticipantBtn">Добавить участника</button>
       <button id="saveGroupSettings">Сохранить</button>
       <button id="deleteGroupBtnModal" style="background:#ef4444;">Удалить группу</button>
-      <button id="closeGroupSettings">Закрыть</button>
     </div>
   </div>
 
-  <!-- Модальное окно для подтверждения -->
+  <!-- Модальное окно подтверждения -->
   <div class="modal" id="confirmModal">
     <div class="modal-content" style="width:300px;">
       <h3 id="confirmTitle">Подтверждение</h3>
@@ -1101,9 +1083,10 @@
     </div>
   </div>
 
-  <!-- Модальное окно мониторинга для Hard -->
+  <!-- Модальное окно мониторинга -->
   <div class="modal" id="monitoringModal">
     <div class="modal-content" style="width:800px;">
+      <span class="modal-close" id="closeMonitoring">&times;</span>
       <h2>Мониторинг системы</h2>
       <div class="monitoring-panel">
         <div class="monitoring-col">
@@ -1115,34 +1098,43 @@
           <div id="allUsersList"></div>
         </div>
       </div>
-      <button id="closeMonitoring">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно настроек темы -->
   <div class="modal" id="themeModal">
-    <div class="modal-content theme-panel">
+    <div class="modal-content theme-panel" style="width:350px;">
+      <span class="modal-close" id="closeTheme">&times;</span>
       <h3>Настройки темы</h3>
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex; gap:8px; margin:10px 0;">
         <button id="themeDark">Тёмная</button>
         <button id="themeLight">Светлая</button>
       </div>
       <h4>Цвет текста</h4>
       <input type="color" id="textColor" value="#f0f4ff">
       <h4>Обои</h4>
-      <div class="wallpaper-option" style="background: #0b0f19;" data-wall="none"></div>
-      <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
-      <div class="wallpaper-option" style="background: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300') center/cover;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
-      <input type="file" id="wallpaperUpload" accept="image/*">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="wallpaper-option" style="width:60px; height:60px; background:#0b0f19; border-radius:12px; cursor:pointer;" data-wall="none"></div>
+        <div class="wallpaper-option" style="width:60px; height:60px; background:url('https://images.unsplash.com/photo-1557683316-973673baf926?w=100') center/cover; border-radius:12px; cursor:pointer;" data-wall="url('https://images.unsplash.com/photo-1557683316-973673baf926?w=300')"></div>
+        <div class="wallpaper-option" style="width:60px; height:60px; background:url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=100') center/cover; border-radius:12px; cursor:pointer;" data-wall="url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=300')"></div>
+      </div>
+      <input type="file" id="wallpaperUpload" accept="image/*" style="margin:10px 0;">
+      <h4>Неоновый эффект</h4>
+      <select id="neonEffect">
+        <option value="none">Нет</option>
+        <option value="pulse">Пульсирующий</option>
+        <option value="rainbow">Радужный</option>
+      </select>
+      <h4>Звуки</h4>
+      <label><input type="checkbox" id="soundToggle" checked> Включить звуки</label>
       <button id="reloadInterface" style="background:#10b981; margin-top:16px;">Перезагрузить интерфейс</button>
-      <button id="closeTheme">Закрыть</button>
     </div>
   </div>
 
   <!-- Модальное окно для полноэкранного просмотра медиа -->
   <div class="modal" id="mediaModal">
-    <div class="modal-content" style="background:transparent; padding:0; max-width:90%; max-height:90%;">
-      <span style="position:absolute; top:20px; right:30px; font-size:40px; cursor:pointer; color:white;" id="closeModal">&times;</span>
+    <div class="modal-content" style="background:transparent; padding:0;">
+      <span class="modal-close" id="closeModal" style="color:white;">&times;</span>
       <div id="modalContent"></div>
     </div>
   </div>
@@ -1193,245 +1185,40 @@
       titles: []
     };
 
-    // Достижения и титулы
     const achievements = [
-      { 
-        id: 'first_message', 
-        name: 'Первое сообщение', 
-        desc: 'Отправить первое сообщение', 
-        icon: '💬', 
-        xp: 10,
-        title: 'Новичок'
-      },
-      { 
-        id: 'game_win', 
-        name: 'Победитель', 
-        desc: 'Выиграть в крестики-нолики', 
-        icon: '🏆', 
-        xp: 50,
-        title: 'Тактик'
-      },
-      { 
-        id: 'game_10', 
-        name: 'Игрок', 
-        desc: 'Сыграть 10 игр', 
-        icon: '🎮', 
-        xp: 100,
-        title: 'Геймер'
-      },
-      { 
-        id: 'chatty', 
-        name: 'Болтун', 
-        desc: 'Отправить 100 сообщений', 
-        icon: '🗣️', 
-        xp: 200,
-        title: 'Болтун'
-      },
-      { 
-        id: 'photographer', 
-        name: 'Фотограф', 
-        desc: 'Отправить 10 фото', 
-        icon: '📸', 
-        xp: 150,
-        title: 'Фотограф'
-      },
-      { 
-        id: 'gif_master', 
-        name: 'Гиф-мастер', 
-        desc: 'Отправить 5 GIF', 
-        icon: '🎞️', 
-        xp: 75,
-        title: 'Гифоман'
-      },
-      { 
-        id: 'group_creator', 
-        name: 'Основатель', 
-        desc: 'Создать группу', 
-        icon: '👥', 
-        xp: 100,
-        title: 'Лидер'
-      },
-      { 
-        id: 'friend_add', 
-        name: 'Дружелюбный', 
-        desc: 'Добавить 5 контактов', 
-        icon: '🤝', 
-        xp: 50,
-        title: 'Дружелюбный'
-      }
+      { id: 'first_message', name: 'Первое сообщение', desc: 'Отправить первое сообщение', icon: '💬', xp: 10, title: 'Новичок' },
+      { id: 'game_win', name: 'Победитель', desc: 'Выиграть в крестики-нолики', icon: '🏆', xp: 50, title: 'Тактик' },
+      { id: 'game_10', name: 'Игрок', desc: 'Сыграть 10 игр', icon: '🎮', xp: 100, title: 'Геймер' },
+      { id: 'chatty', name: 'Болтун', desc: 'Отправить 100 сообщений', icon: '🗣️', xp: 200, title: 'Болтун' },
+      { id: 'photographer', name: 'Фотограф', desc: 'Отправить 10 фото', icon: '📸', xp: 150, title: 'Фотограф' },
+      { id: 'gif_master', name: 'Гиф-мастер', desc: 'Отправить 5 GIF', icon: '🎞️', xp: 75, title: 'Гифоман' },
+      { id: 'group_creator', name: 'Основатель', desc: 'Создать группу', icon: '👥', xp: 100, title: 'Лидер' },
+      { id: 'friend_add', name: 'Дружелюбный', desc: 'Добавить 5 контактов', icon: '🤝', xp: 50, title: 'Дружелюбный' }
     ];
 
-    // Массив рабочих GIF
     const gifUrls = [
       'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
       'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
       'https://media.giphy.com/media/26gR2qGRnxxXAvhBu/giphy.gif',
       'https://media.giphy.com/media/l0MYt5jH6gkTWm8qo/giphy.gif',
       'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
-      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif',
-      'https://media.giphy.com/media/l0MYEqEzwMWFCg8rm/giphy.gif',
-      'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif'
+      'https://media.giphy.com/media/l41lI4b5BqMioQVwk/giphy.gif'
     ];
 
     // Звуки
     const playSound = (type) => {
       if (!soundEnabled) return;
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      
-      if (type === 'send') {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.value = 800;
-        gainNode.gain.value = 0.1;
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.05);
-      } else if (type === 'game') {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.value = 600;
-        gainNode.gain.value = 0.1;
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-      } else if (type === 'win') {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.value = 1000;
-        gainNode.gain.value = 0.1;
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.3);
-      }
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      oscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+      if (type === 'send') { oscillator.frequency.value = 800; gain.gain.value = 0.1; oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.05); }
+      else if (type === 'game') { oscillator.frequency.value = 600; gain.gain.value = 0.1; oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1); }
+      else if (type === 'win') { oscillator.frequency.value = 1000; gain.gain.value = 0.1; oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3); }
     };
 
-    // --- Загрузка сохранённого ника ---
-    const savedNick = localStorage.getItem('aether_nick');
-    if (savedNick) {
-      document.getElementById('auth-nick').value = savedNick;
-    }
-
-    // --- Применение темы ---
-    function applyTheme() {
-      const savedWall = localStorage.getItem('wallpaper') || 'none';
-      const savedColor = localStorage.getItem('textColor') || '#f0f4ff';
-      document.body.style.setProperty('--wallpaper', savedWall === 'none' ? 'var(--bg-gradient)' : savedWall);
-      document.body.style.setProperty('--text-primary', savedColor);
-      if (savedWall !== 'none') {
-        document.body.classList.add('wallpaper-custom');
-      } else {
-        document.body.classList.remove('wallpaper-custom');
-      }
-    }
-    applyTheme();
-
-    // --- Звук ---
-    function updateSoundIcon() {
-      soundToggleBtn.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
-    }
-    updateSoundIcon();
-
-    soundToggleBtn.onclick = () => {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem('soundEnabled', soundEnabled);
-      updateSoundIcon();
-    };
-
-    function playNotification() {
-      if (!soundEnabled) return;
-      playSound('send');
-    }
-
-    // --- Загрузка блокировок ---
-    async function loadBlocks() {
-      const blocksSnap = await get(ref(db, `blocks/${myNick}`));
-      blockedUsers = new Set(Object.keys(blocksSnap.val() || {}));
-      
-      const usersSnap = await get(ref(db, 'users'));
-      const users = usersSnap.val() || {};
-      blockedBy.clear();
-      for (let [nick, data] of Object.entries(users)) {
-        const userBlocks = await get(ref(db, `blocks/${nick}/${myNick}`));
-        if (userBlocks.val() === true) blockedBy.add(nick);
-      }
-    }
-
-    function canChatWith(nick) {
-      return !blockedUsers.has(nick) && !blockedBy.has(nick);
-    }
-
-    // --- Загрузка статистики ---
-    async function loadUserStats() {
-      const snap = await get(ref(db, `users/${myNick}/stats`));
-      if (snap.exists()) {
-        userStats = snap.val();
-      } else {
-        await set(ref(db, `users/${myNick}/stats`), userStats);
-      }
-    }
-
-    // --- Добавление опыта и титулов ---
-    async function addXP(amount, achievementId = null) {
-      userStats.xp += amount;
-      userStats.level = Math.floor(userStats.xp / 100) + 1;
-      
-      if (achievementId && !userStats.achievements[achievementId]) {
-        userStats.achievements[achievementId] = Date.now();
-        const achievement = achievements.find(a => a.id === achievementId);
-        if (achievement && achievement.title) {
-          userStats.titles.push(achievement.title);
-        }
-        alert(`🎉 Достижение получено: ${achievement.name}\nПолучен титул: ${achievement.title}`);
-      }
-      
-      await update(ref(db, `users/${myNick}/stats`), userStats);
-    }
-
-    // --- Функции для работы с профилем ---
-    async function loadProfile() {
-      if (!myNick) return;
-      const snap = await get(ref(db, `users/${myNick}`));
-      const data = snap.val() || {};
-      myDisplayName = data.displayName || myNick;
-      headerName.innerHTML = myDisplayName;
-      
-      const statsSnap = await get(ref(db, `users/${myNick}/stats`));
-      const stats = statsSnap.val() || { titles: [] };
-      
-      if (myNick === 'hard') {
-        headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
-      }
-      stats.titles.forEach(title => {
-        headerName.innerHTML += `<span class="title-badge">${title}</span>`;
-      });
-      
-      if (data.avatar) {
-        headerAvatar.style.backgroundImage = `url('${data.avatar}')`;
-        headerAvatar.textContent = '';
-      } else {
-        headerAvatar.style.backgroundImage = '';
-        headerAvatar.style.background = getAvatarColor(myNick);
-        headerAvatar.textContent = myNick.charAt(0).toUpperCase();
-      }
-      
-      const statusSnap = await get(ref(db, `status/${myNick}`));
-      const status = statusSnap.val() || 'online';
-      updateStatusDisplay(status);
-    }
-
-    function updateStatusDisplay(status) {
-      const statusMap = {
-        'online': 'В сети',
-        'away': 'Отошёл',
-        'dnd': 'Не беспокоить',
-        'invisible': 'Невидимка'
-      };
-      headerStatus.innerHTML = `<span class="status-badge status-${status}"></span>${statusMap[status] || 'В сети'}`;
-    }
-
+    // --- Вспомогательные функции ---
     function getAvatarColor(nick) {
       let hash = 0;
       for (let i = 0; i < nick.length; i++) hash = nick.charCodeAt(i) + ((hash << 5) - hash);
@@ -1442,1450 +1229,629 @@
     async function loadAvatar(nick) {
       if (avatarCache.has(nick)) return avatarCache.get(nick);
       const snap = await get(ref(db, `users/${nick}/avatar`));
-      const url = snap.val();
-      avatarCache.set(nick, url);
-      return url;
+      avatarCache.set(nick, snap.val());
+      return snap.val();
     }
 
-    // --- Форматирование времени ---
     function formatLastSeen(timestamp) {
       if (!timestamp) return 'никогда';
-      const now = Date.now();
-      const diff = now - timestamp;
+      const diff = Date.now() - timestamp;
       if (diff < 60000) return 'только что';
-      if (diff < 3600000) return `${Math.floor(diff / 60000)} мин. назад`;
-      if (diff < 86400000) return `${Math.floor(diff / 3600000)} ч. назад`;
+      if (diff < 3600000) return `${Math.floor(diff/60000)} мин. назад`;
+      if (diff < 86400000) return `${Math.floor(diff/3600000)} ч. назад`;
       return new Date(timestamp).toLocaleDateString();
+    }
+
+    // --- Загрузка данных ---
+    async function loadBlocks() {
+      const blocksSnap = await get(ref(db, `blocks/${myNick}`));
+      blockedUsers = new Set(Object.keys(blocksSnap.val() || {}));
+      const usersSnap = await get(ref(db, 'users'));
+      blockedBy.clear();
+      for (let nick in usersSnap.val() || {}) {
+        const b = await get(ref(db, `blocks/${nick}/${myNick}`));
+        if (b.val() === true) blockedBy.add(nick);
+      }
+    }
+
+    function canChatWith(nick) {
+      return !blockedUsers.has(nick) && !blockedBy.has(nick);
+    }
+
+    async function loadUserStats() {
+      const snap = await get(ref(db, `users/${myNick}/stats`));
+      if (snap.exists()) userStats = snap.val();
+      else await set(ref(db, `users/${myNick}/stats`), userStats);
+    }
+
+    async function addXP(amount, achievementId) {
+      userStats.xp += amount;
+      userStats.level = Math.floor(userStats.xp/100)+1;
+      if (achievementId && !userStats.achievements[achievementId]) {
+        userStats.achievements[achievementId] = Date.now();
+        const a = achievements.find(a=>a.id===achievementId);
+        if (a?.title) userStats.titles.push(a.title);
+        alert(`🎉 Достижение: ${a.name}\nТитул: ${a.title}`);
+      }
+      await update(ref(db, `users/${myNick}/stats`), userStats);
+    }
+
+    async function loadProfile() {
+      const snap = await get(ref(db, `users/${myNick}`));
+      const data = snap.val() || {};
+      myDisplayName = data.displayName || myNick;
+      headerName.innerHTML = myDisplayName;
+      if (myNick === 'hard') headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
+      if (userStats.titles) userStats.titles.forEach(t => headerName.innerHTML += `<span class="title-badge">${t}</span>`);
+      if (data.avatar) {
+        headerAvatar.style.backgroundImage = `url('${data.avatar}')`;
+        headerAvatar.textContent = '';
+      } else {
+        headerAvatar.style.background = getAvatarColor(myNick);
+        headerAvatar.textContent = myNick[0].toUpperCase();
+      }
+      const statusSnap = await get(ref(db, `status/${myNick}`));
+      updateStatusDisplay(statusSnap.val() || 'online');
+    }
+
+    function updateStatusDisplay(status) {
+      const map = { online:'В сети', away:'Отошёл', dnd:'Не беспокоить', invisible:'Невидимка' };
+      headerStatus.innerHTML = `<span class="status-badge status-${status}"></span>${map[status]||'В сети'}`;
     }
 
     // --- Просмотр профиля ---
     async function showUserProfile(nick) {
-      console.log('Opening profile for:', nick);
-      try {
-        const snap = await get(ref(db, `users/${nick}`));
-        const data = snap.val() || {};
-        const statsSnap = await get(ref(db, `users/${nick}/stats`));
-        const stats = statsSnap.val() || { titles: [] };
-        
-        const avatarUrl = await loadAvatar(nick);
-        if (avatarUrl) {
-          viewProfileAvatar.style.backgroundImage = `url('${avatarUrl}')`;
-          viewProfileAvatar.textContent = '';
+      const data = (await get(ref(db, `users/${nick}`))).val() || {};
+      const stats = (await get(ref(db, `users/${nick}/stats`))).val() || { titles: [] };
+      const avatarUrl = await loadAvatar(nick);
+      viewProfileAvatar.style.background = avatarUrl ? `url('${avatarUrl}') center/cover` : getAvatarColor(nick);
+      viewProfileAvatar.textContent = avatarUrl ? '' : nick[0].toUpperCase();
+      viewProfileName.textContent = data.displayName || nick;
+      viewProfileNick.textContent = nick;
+      let titlesHtml = (nick==='hard'?'<span class="creator-badge">Создатель💫</span>':'');
+      stats.titles.forEach(t => titlesHtml+=`<span class="title-badge">${t}</span>`);
+      viewProfileTitles.innerHTML = titlesHtml||'—';
+      if (isCreator) { passwordField.style.display='block'; viewProfilePassword.textContent = data.password||'неизвестно'; }
+      else passwordField.style.display='none';
+      viewProfileRole.textContent = nick==='hard'?'Создатель💫':(data.admin?'Админ':'Пользователь');
+      viewProfileBio.textContent = data.bio||'—';
+      const status = (await get(ref(db, `status/${nick}`))).val();
+      viewProfileStatus.textContent = status==='online'?'В сети':(status==='away'?'Отошёл':(status==='dnd'?'Не беспокоить':'Невидимка'));
+      viewProfileLastSeen.textContent = status==='online'?'сейчас':formatLastSeen(data.lastSeen);
+      viewProfileDate.textContent = data.registered?new Date(data.registered).toLocaleDateString():'неизвестно';
+      const isBanned = (await get(ref(db, `bans/${nick}`))).val()===true;
+      if (isCreator && nick!==myNick) {
+        if (isBanned) {
+          banUserBtn.style.display='none'; unbanUserBtn.style.display='block';
+          unbanUserBtn.onclick = ()=>showConfirm('Разбанить', `Разбанить ${nick}?`, async()=>{ await remove(ref(db,`bans/${nick}`)); userProfileModal.style.display='none'; });
         } else {
-          viewProfileAvatar.style.backgroundImage = '';
-          viewProfileAvatar.style.background = getAvatarColor(nick);
-          viewProfileAvatar.textContent = nick.charAt(0).toUpperCase();
+          banUserBtn.style.display='block'; unbanUserBtn.style.display='none';
+          banUserBtn.onclick = ()=>showConfirm('Забанить', `Забанить ${nick}?`, async()=>{ await set(ref(db,`bans/${nick}`),true); await remove(ref(db,`users/${nick}`)); userProfileModal.style.display='none'; });
         }
-        viewProfileName.textContent = data.displayName || nick;
-        viewProfileNick.textContent = nick;
-        
-        let titlesHtml = '';
-        if (nick === 'hard') {
-          titlesHtml = '<span class="creator-badge">Создатель💫</span>';
-        }
-        stats.titles.forEach(title => {
-          titlesHtml += `<span class="title-badge">${title}</span>`;
+      } else { banUserBtn.style.display='none'; unbanUserBtn.style.display='none'; }
+      if (nick!==myNick) {
+        const isBlocked = blockedUsers.has(nick);
+        blockUserBtn.textContent = isBlocked?'Разблокировать':'Заблокировать';
+        blockUserBtn.style.background = isBlocked?'#10b981':'#f59e0b';
+        blockUserBtn.onclick = ()=>showConfirm(isBlocked?'Разблокировать':'Заблокировать', `${isBlocked?'Разблокировать':'Заблокировать'} ${nick}?`, async()=>{
+          if (isBlocked) { await remove(ref(db,`blocks/${myNick}/${nick}`)); blockedUsers.delete(nick); }
+          else { await set(ref(db,`blocks/${myNick}/${nick}`),true); blockedUsers.add(nick); }
+          userProfileModal.style.display='none'; loadContacts();
         });
-        viewProfileTitles.innerHTML = titlesHtml || '—';
-        
-        if (isCreator) {
-          passwordField.style.display = 'block';
-          viewProfilePassword.textContent = data.password || 'неизвестно';
-        } else {
-          passwordField.style.display = 'none';
-        }
-        
-        let role = 'Пользователь';
-        if (nick === 'hard') role = 'Создатель💫';
-        else if (data.admin) role = 'Админ';
-        viewProfileRole.textContent = role;
-        viewProfileBio.textContent = data.bio || '—';
-        
-        const statusSnap = await get(ref(db, `status/${nick}`));
-        const status = statusSnap.val();
-        const statusMap = {
-          'online': 'В сети',
-          'away': 'Отошёл',
-          'dnd': 'Не беспокоить',
-          'invisible': 'Невидимка'
-        };
-        viewProfileStatus.textContent = statusMap[status] || 'В сети';
-        
-        if (status === 'online') {
-          viewProfileLastSeen.textContent = 'сейчас';
-        } else {
-          viewProfileLastSeen.textContent = formatLastSeen(data.lastSeen);
-        }
-        
-        viewProfileDate.textContent = data.registered ? new Date(data.registered).toLocaleDateString() : 'неизвестно';
-        
-        const banSnap = await get(ref(db, `bans/${nick}`));
-        const isBanned = banSnap.val() === true;
-        
-        if (isCreator && nick !== myNick) {
-          if (isBanned) {
-            banUserBtn.style.display = 'none';
-            unbanUserBtn.style.display = 'block';
-            unbanUserBtn.onclick = () => {
-              showConfirm('Разбанить пользователя', `Разбанить ${nick}?`, async () => {
-                await remove(ref(db, `bans/${nick}`));
-                userProfileModal.style.display = 'none';
-              });
-            };
-          } else {
-            banUserBtn.style.display = 'block';
-            unbanUserBtn.style.display = 'none';
-            banUserBtn.onclick = () => {
-              showConfirm('Забанить пользователя', `Забанить ${nick}? Это удалит его аккаунт.`, async () => {
-                await set(ref(db, `bans/${nick}`), true);
-                await remove(ref(db, `users/${nick}`));
-                userProfileModal.style.display = 'none';
-              });
-            };
-          }
-        } else {
-          banUserBtn.style.display = 'none';
-          unbanUserBtn.style.display = 'none';
-        }
-        
-        if (nick !== myNick) {
-          const isBlocked = blockedUsers.has(nick);
-          if (isBlocked) {
-            blockUserBtn.textContent = 'Разблокировать';
-            blockUserBtn.style.background = '#10b981';
-            blockUserBtn.onclick = () => {
-              showConfirm('Разблокировать', `Разблокировать ${nick}?`, async () => {
-                await remove(ref(db, `blocks/${myNick}/${nick}`));
-                blockedUsers.delete(nick);
-                userProfileModal.style.display = 'none';
-                loadContacts();
-              });
-            };
-          } else {
-            blockUserBtn.textContent = 'Заблокировать';
-            blockUserBtn.style.background = '#f59e0b';
-            blockUserBtn.onclick = () => {
-              showConfirm('Заблокировать', `Заблокировать ${nick}?`, async () => {
-                await set(ref(db, `blocks/${myNick}/${nick}`), true);
-                blockedUsers.add(nick);
-                userProfileModal.style.display = 'none';
-                loadContacts();
-              });
-            };
-          }
-          blockUserBtn.style.display = 'block';
-        } else {
-          blockUserBtn.style.display = 'none';
-        }
-        
-        userProfileModal.style.display = 'flex';
-      } catch (e) {
-        console.error('Error loading profile:', e);
-        alert('Ошибка загрузки профиля');
-      }
+        blockUserBtn.style.display='block';
+      } else blockUserBtn.style.display='none';
+      userProfileModal.style.display='flex';
     }
 
-    closeUserProfile.onclick = () => userProfileModal.style.display = 'none';
-
-    function showConfirm(title, message, onConfirm) {
-      confirmTitle.textContent = title;
-      confirmMessage.textContent = message;
+    function showConfirm(title, msg, onOk) {
+      confirmTitle.textContent = title; confirmMessage.textContent = msg;
       confirmModal.style.display = 'flex';
-      confirmAction.onclick = () => {
-        onConfirm();
-        confirmModal.style.display = 'none';
-      };
-    }
-    closeConfirm.onclick = () => confirmModal.style.display = 'none';
-
-    // --- Полноэкранный просмотр ---
-    function openMedia(src, type) {
-      modalContent.innerHTML = type === 'video' ? `<video src="${src}" controls autoplay style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}" style="max-width:100%; max-height:80vh;">`;
-      mediaModal.style.display = 'flex';
-    }
-    closeModal.onclick = () => mediaModal.style.display = 'none';
-    mediaModal.onclick = (e) => { if (e.target === mediaModal) mediaModal.style.display = 'none'; };
-
-    // --- Смайлики ---
-    document.querySelectorAll('.emoji-btn').forEach(btn => {
-      btn.onclick = () => {
-        const emoji = btn.dataset.emoji;
-        if (selectedMsgId) {
-          toggleReaction(selectedMsgId, emoji);
-        }
-        actionBar.style.display = 'none';
-      };
-    });
-
-    async function toggleReaction(msgId, emoji) {
-      if (!activeChat) return;
-      
-      const reactionsRef = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions`);
-      const snap = await get(reactionsRef);
-      let reactions = snap.val() || {};
-      
-      for (let e in reactions) {
-        if (reactions[e].includes(myNick)) {
-          reactions[e] = reactions[e].filter(u => u !== myNick);
-          if (reactions[e].length === 0) {
-            delete reactions[e];
-          }
-        }
-      }
-      
-      if (!reactions[emoji]) {
-        reactions[emoji] = [];
-      }
-      if (!reactions[emoji].includes(myNick)) {
-        reactions[emoji].push(myNick);
-      }
-      
-      await set(reactionsRef, reactions);
+      confirmAction.onclick = () => { onOk(); confirmModal.style.display = 'none'; };
     }
 
     // --- Крестики-нолики ---
     function createGameBoard(gameId, game) {
       const container = document.createElement('div');
-      container.className = 'game-container';
-      
       if (game.status === 'waiting') {
-        const waitingDiv = document.createElement('div');
-        waitingDiv.style.textAlign = 'center';
-        waitingDiv.innerHTML = `
-          <p>⏳ Ожидание игрока ${game.players[1]}...</p>
-          ${game.createdBy === myNick && game.status === 'waiting' ? '<button id="startGameBtn" class="start-game-btn">Начать игру</button>' : ''}
-        `;
-        container.appendChild(waitingDiv);
-        
-        if (game.createdBy === myNick) {
-          setTimeout(() => {
-            const startBtn = document.getElementById('startGameBtn');
-            if (startBtn) {
-              startBtn.onclick = () => startGame(gameId);
-            }
-          }, 100);
-        }
+        container.innerHTML = `<p>⏳ Ожидание игрока ${game.players[1]}...</p>${game.createdBy===myNick?'<button id="startGameBtn">Начать игру</button>':''}`;
+        if (game.createdBy===myNick) setTimeout(()=>document.getElementById('startGameBtn')?.addEventListener('click',()=>startGame(gameId)),100);
       } else if (game.status === 'active') {
-        const info = document.createElement('div');
-        info.className = 'game-info';
-        info.textContent = `Ход: ${game.nextPlayer === myNick ? 'Ваш' : game.nextPlayer}`;
-        
-        const boardDiv = document.createElement('div');
-        boardDiv.className = 'game-board';
-        
-        for (let i = 0; i < 9; i++) {
-          const cell = document.createElement('button');
-          cell.className = 'game-cell';
-          cell.textContent = game.board[i] || '';
-          cell.disabled = game.board[i] || game.nextPlayer !== myNick;
-          cell.onclick = () => makeMove(gameId, i);
-          boardDiv.appendChild(cell);
+        const info = document.createElement('div'); info.className='game-info'; info.textContent = `Ход: ${game.nextPlayer===myNick?'Ваш':game.nextPlayer}`;
+        const board = document.createElement('div'); board.className='game-board';
+        for (let i=0;i<9;i++) {
+          const cell = document.createElement('button'); cell.className='game-cell';
+          cell.textContent = game.board[i]||''; cell.disabled = game.board[i] || game.nextPlayer!==myNick;
+          cell.onclick = ()=>makeMove(gameId,i);
+          board.appendChild(cell);
         }
-        
-        container.appendChild(info);
-        container.appendChild(boardDiv);
-      } else if (game.status === 'finished') {
-        let resultText = '';
-        if (game.winner === 'draw') {
-          resultText = 'Ничья!';
-        } else {
-          resultText = `Победил: ${game.winner === myNick ? 'Вы' : game.winner}`;
-        }
-        
-        container.innerHTML = `
-          <div style="text-align:center;">
-            <p>🎮 Игра завершена</p>
-            <p>${resultText}</p>
-            <button onclick="document.getElementById('closeGameModal').click()">Закрыть</button>
-          </div>
-        `;
+        container.appendChild(info); container.appendChild(board);
+      } else {
+        container.innerHTML = `<p>Игра завершена</p><p>${game.winner==='draw'?'Ничья!':`Победил: ${game.winner===myNick?'Вы':game.winner}`}</p>`;
       }
-      
       return container;
     }
 
     async function startGame(gameId) {
-      const gameRef = ref(db, `games/${gameId}`);
-      await update(gameRef, { status: 'active', nextPlayer: myNick });
+      await update(ref(db, `games/${gameId}`), { status: 'active', nextPlayer: myNick });
       playSound('game');
     }
 
     async function makeMove(gameId, index) {
-      const gameRef = ref(db, `games/${gameId}`);
-      const snap = await get(gameRef);
-      const game = snap.val();
-      
-      if (!game || game.nextPlayer !== myNick || game.board[index]) return;
-      
-      game.board[index] = game.players[0] === myNick ? 'X' : 'O';
-      playSound('game');
-      
-      const winPatterns = [
-        [0,1,2], [3,4,5], [6,7,8],
-        [0,3,6], [1,4,7], [2,5,8],
-        [0,4,8], [2,4,6]
-      ];
-      
+      const gameRef = ref(db, `games/${gameId}`); const game = (await get(gameRef)).val();
+      if (!game || game.nextPlayer!==myNick || game.board[index]) return;
+      game.board[index] = game.players[0]===myNick?'X':'O'; playSound('game');
+      const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
       let winner = null;
-      for (let pattern of winPatterns) {
-        const [a,b,c] = pattern;
-        if (game.board[a] && game.board[a] === game.board[b] && game.board[a] === game.board[c]) {
-          winner = game.players[0] === myNick ? myNick : game.players[1];
-          break;
+      for (let p of wins) {
+        if (game.board[p[0]] && game.board[p[0]]===game.board[p[1]] && game.board[p[0]]===game.board[p[2]]) {
+          winner = game.players[0]===myNick?myNick:game.players[1]; break;
         }
       }
-      
       if (winner) {
-        game.status = 'finished';
-        game.winner = winner;
-        
-        if (winner === myNick) {
-          userStats.games.wins++;
-          await addXP(50, 'game_win');
-          playSound('win');
-        } else {
-          userStats.games.losses++;
-        }
-        
-        if (userStats.games.wins + userStats.games.losses + userStats.games.draws === 10) {
-          await addXP(100, 'game_10');
-        }
-        
-        await push(ref(db, `chats/${activeChat.id}/messages`), {
-          from: 'system',
-          text: `🎮 Игра завершена! Победил ${winner === myNick ? 'вы' : winner}`,
-          time: Date.now()
-        });
+        game.status='finished'; game.winner=winner;
+        if (winner===myNick) { userStats.games.wins++; await addXP(50,'game_win'); playSound('win'); }
+        else userStats.games.losses++;
+        if (userStats.games.wins+userStats.games.losses+userStats.games.draws===10) await addXP(100,'game_10');
+        await push(ref(db, `chats/${activeChat.id}/messages`), { from:'system', text:`🎮 Победил ${winner===myNick?'вы':winner}`, time:Date.now() });
       } else if (!game.board.includes(null)) {
-        game.status = 'finished';
-        game.winner = 'draw';
-        userStats.games.draws++;
-        
-        await push(ref(db, `chats/${activeChat.id}/messages`), {
-          from: 'system',
-          text: `🎮 Ничья!`,
-          time: Date.now()
-        });
-      } else {
-        game.nextPlayer = game.players.find(p => p !== myNick);
-      }
-      
+        game.status='finished'; game.winner='draw'; userStats.games.draws++;
+        await push(ref(db, `chats/${activeChat.id}/messages`), { from:'system', text:'🎮 Ничья!', time:Date.now() });
+      } else game.nextPlayer = game.players.find(p=>p!==myNick);
       await update(gameRef, game);
-      
-      const updatedGame = await get(gameRef).then(s => s.val());
-      gameModalContent.innerHTML = '';
-      gameModalContent.appendChild(createGameBoard(gameId, updatedGame));
+      gameModalContent.innerHTML = ''; gameModalContent.appendChild(createGameBoard(gameId, (await get(gameRef)).val()));
     }
 
     async function sendGameInvite() {
-      if (!activeChat || activeChat.type !== 'private') {
-        alert('Играть можно только в личном чате');
-        return;
-      }
-      
-      const partner = activeChat.participants.find(p => p !== myNick);
-      if (!canChatWith(partner)) {
-        alert('Вы не можете играть с этим пользователем (блокировка)');
-        return;
-      }
-      
+      if (!activeChat || activeChat.type!=='private') { alert('Только личный чат'); return; }
+      const partner = activeChat.participants.find(p=>p!==myNick);
+      if (!canChatWith(partner)) { alert('Блокировка'); return; }
       const gameId = `game_${Date.now()}`;
-      const game = {
-        board: Array(9).fill(null),
-        players: [myNick, partner],
-        nextPlayer: myNick,
-        status: 'waiting',
-        createdBy: myNick,
-        createdAt: Date.now()
-      };
-      
-      await set(ref(db, `games/${gameId}`), game);
-      
-      await push(ref(db, `chats/${activeChat.id}/messages`), {
-        from: myNick,
-        type: 'game',
-        gameId: gameId,
-        text: '🎮 Приглашение в крестики-нолики!',
-        time: Date.now()
-      });
-      
+      await set(ref(db, `games/${gameId}`), { board:Array(9).fill(null), players:[myNick,partner], nextPlayer:myNick, status:'waiting', createdBy:myNick, createdAt:Date.now() });
+      await push(ref(db, `chats/${activeChat.id}/messages`), { from:myNick, type:'game', gameId, text:'🎮 Приглашение в крестики-нолики!', time:Date.now() });
       openGameModal(gameId);
     }
 
     function openGameModal(gameId) {
-      currentGameId = gameId;
-      gameModal.style.display = 'flex';
-      
-      if (gameListener) {
-        gameListener();
-      }
-      
+      currentGameId = gameId; gameModal.style.display='flex';
+      if (gameListener) gameListener();
       const gameRef = ref(db, `games/${gameId}`);
-      gameListener = onValue(gameRef, (snap) => {
-        const game = snap.val();
-        if (game) {
-          gameModalContent.innerHTML = '';
-          gameModalContent.appendChild(createGameBoard(gameId, game));
-        }
+      gameListener = onValue(gameRef, snap => {
+        const game = snap.val(); if (!game) return;
+        gameModalContent.innerHTML = ''; gameModalContent.appendChild(createGameBoard(gameId, game));
       });
     }
 
-    closeGameModal.onclick = () => {
-      gameModal.style.display = 'none';
-      if (gameListener) {
-        gameListener();
-        gameListener = null;
-      }
-    };
-
-    // --- GIF стикеры ---
-    async function showGifPicker() {
-      gifList.innerHTML = gifUrls.map(url => 
-        `<div class="gif-item" onclick="window.sendGif('${url}')"><img src="${url}"></div>`
-      ).join('');
-      gifModal.style.display = 'flex';
-    }
-
-    window.sendGif = (url) => {
-      sendMessage({ image: url });
-      gifModal.style.display = 'none';
-    };
-
-    closeGif.onclick = () => gifModal.style.display = 'none';
+    // --- GIF ---
+    window.sendGif = (url) => { sendMessage({ image: url }); gifModal.style.display='none'; };
+    closeGif.onclick = ()=>gifModal.style.display='none';
 
     // --- Отрисовка сообщений ---
     function parseMarkdown(text) {
-      if (!text) return '';
-      return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`(.*?)`/g, '<code>$1</code>')
-        .replace(/\n/g, '<br>');
+      return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\n/g,'<br>');
     }
 
     function drawMessage(msg, isMe) {
-      if (!isMe && blockedBy.has(msg.from)) {
-        return null;
-      }
-      
+      if (!isMe && blockedBy.has(msg.from)) return null;
       if (msg.type === 'game') {
-        const gameDiv = document.createElement('div');
-        gameDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
-        gameDiv.dataset.gameId = msg.gameId;
-        
-        const gameLink = document.createElement('div');
-        gameLink.className = 'bubble-content';
-        gameLink.innerHTML = `
-          <div style="cursor:pointer; text-align:center;">
-            <i class="fas fa-gamepad" style="font-size:2rem;"></i>
-            <p>${msg.text}</p>
-            <button onclick="window.openGameModal('${msg.gameId}')">Открыть игру</button>
-          </div>
-        `;
-        gameDiv.appendChild(gameLink);
-        
+        const gameDiv = document.createElement('div'); gameDiv.className=`msg ${isMe?'sent':'received'}`;
+        gameDiv.innerHTML = `<div class="bubble-content"><div style="cursor:pointer; text-align:center;"><i class="fas fa-gamepad" style="font-size:2rem;"></i><p>${msg.text}</p><button onclick="window.openGameModal('${msg.gameId}')">Открыть игру</button></div></div>`;
         return gameDiv;
       }
-      
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
-      msgDiv.dataset.id = msg.id;
-      msgDiv.dataset.from = msg.from;
-      msgDiv.dataset.text = msg.text || '';
-
+      const msgDiv = document.createElement('div'); msgDiv.className=`msg ${isMe?'sent':'received'}`; msgDiv.dataset.id=msg.id; msgDiv.dataset.from=msg.from; msgDiv.dataset.text=msg.text||'';
       if (!isMe) {
-        const ava = document.createElement('div');
-        ava.className = 'avatar-bubble';
-        loadAvatar(msg.from).then(url => {
-          if (url) ava.style.backgroundImage = `url('${url}')`;
-          else ava.style.background = getAvatarColor(msg.from);
-          ava.textContent = msg.from.charAt(0).toUpperCase();
-        });
-        ava.onclick = (e) => { 
-          e.stopPropagation(); 
-          console.log('Avatar clicked for:', msg.from);
-          showUserProfile(msg.from); 
-        };
+        const ava = document.createElement('div'); ava.className='avatar-bubble';
+        loadAvatar(msg.from).then(url=>{ if(url) ava.style.backgroundImage=`url('${url}')`; else ava.style.background=getAvatarColor(msg.from); ava.textContent=msg.from[0].toUpperCase(); });
+        ava.onclick = e=>{ e.stopPropagation(); showUserProfile(msg.from); };
         msgDiv.appendChild(ava);
       }
-
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble-content';
-
+      const bubble = document.createElement('div'); bubble.className='bubble-content';
       if (msg.replyTo) {
-        const replyDiv = document.createElement('div');
-        replyDiv.className = 'reply-context';
-        replyDiv.innerHTML = `<i class="fas fa-reply"></i> ${msg.replyTo.from}: ${msg.replyTo.text.substring(0,30)}...`;
-        replyDiv.onclick = (e) => {
-          e.stopPropagation();
-          const original = document.querySelector(`[data-id="${msg.replyTo.id}"]`);
-          if (original) original.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-        bubble.appendChild(replyDiv);
+        const reply = document.createElement('div'); reply.className='reply-context';
+        reply.innerHTML = `<i class="fas fa-reply"></i> ${msg.replyTo.from}: ${(msg.replyTo.text||'').substring(0,30)}...`;
+        reply.onclick = ()=>{ const orig = document.querySelector(`[data-id="${msg.replyTo.id}"]`); if(orig) orig.scrollIntoView({behavior:'smooth',block:'center'}); };
+        bubble.appendChild(reply);
       }
-
-      const textDiv = document.createElement('div');
-      textDiv.className = 'bubble-text';
-      
+      const textDiv = document.createElement('div'); textDiv.className='bubble-text';
       if (msg.image) {
-        const img = document.createElement('img');
-        img.src = msg.image;
-        img.onclick = (e) => { e.stopPropagation(); openMedia(msg.image, 'image'); };
+        const img = document.createElement('img'); img.src=msg.image; img.onclick=e=>{ e.stopPropagation(); openMedia(msg.image,'image'); };
         textDiv.appendChild(img);
       } else if (msg.video) {
-        const video = document.createElement('video');
-        video.src = msg.video;
-        video.controls = true;
-        video.style.maxWidth = '250px';
-        video.style.maxHeight = '300px';
-        video.onclick = (e) => { e.stopPropagation(); openMedia(msg.video, 'video'); };
+        const video = document.createElement('video'); video.src=msg.video; video.controls=true; video.style.maxWidth='250px'; video.onclick=e=>{ e.stopPropagation(); openMedia(msg.video,'video'); };
         textDiv.appendChild(video);
       } else if (msg.audio) {
-        const audio = document.createElement('audio');
-        audio.src = msg.audio;
-        audio.controls = true;
-        audio.style.width = '250px';
+        const audio = document.createElement('audio'); audio.src=msg.audio; audio.controls=true; audio.style.width='250px';
         textDiv.appendChild(audio);
-      } else {
-        textDiv.innerHTML = parseMarkdown(msg.text || '');
-      }
-
-      const timeDiv = document.createElement('div');
-      timeDiv.className = 'msg-time';
-      timeDiv.textContent = msg.time ? new Date(msg.time).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
-
-      const reactionsDiv = document.createElement('div');
-      reactionsDiv.className = 'reactions';
-      
+      } else textDiv.innerHTML = parseMarkdown(msg.text||'');
+      const timeDiv = document.createElement('div'); timeDiv.className='msg-time'; timeDiv.textContent = msg.time?new Date(msg.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
+      const reactionsDiv = document.createElement('div'); reactionsDiv.className='reactions';
       if (msg.reactions) {
         for (let [emoji, users] of Object.entries(msg.reactions)) {
-          const span = document.createElement('span');
-          span.className = 'reaction';
-          span.textContent = `${emoji} ${users.length}`;
-          span.onclick = (e) => { 
-            e.stopPropagation(); 
-            toggleReaction(msg.id, emoji);
-          };
+          const span = document.createElement('span'); span.className='reaction'; span.textContent=`${emoji} ${users.length}`;
+          span.onclick = e=>{ e.stopPropagation(); toggleReaction(msg.id,emoji); };
           reactionsDiv.appendChild(span);
         }
       }
-
-      bubble.appendChild(textDiv);
-      bubble.appendChild(timeDiv);
-      bubble.appendChild(reactionsDiv);
-      msgDiv.appendChild(bubble);
-
-      msgDiv.onclick = (e) => {
-        e.stopPropagation();
-        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO' || e.target.classList.contains('reaction')) return;
-        selectedMsgId = msg.id;
-        currentMsg = msg;
-        const rect = msgDiv.getBoundingClientRect();
-        actionBar.style.left = rect.left + rect.width/2 + 'px';
-        actionBar.style.bottom = (window.innerHeight - rect.top) + 40 + 'px';
-        actionBar.style.display = 'flex';
+      bubble.appendChild(textDiv); bubble.appendChild(timeDiv); bubble.appendChild(reactionsDiv); msgDiv.appendChild(bubble);
+      msgDiv.onclick = e=>{
+        if (e.target.tagName==='IMG'||e.target.tagName==='VIDEO'||e.target.tagName==='AUDIO'||e.target.classList.contains('reaction')) return;
+        selectedMsgId=msg.id; currentMsg=msg; const rect=msgDiv.getBoundingClientRect();
+        actionBar.style.left = rect.left+rect.width/2+'px'; actionBar.style.bottom = (window.innerHeight-rect.top)+40+'px'; actionBar.style.display='flex';
       };
-
       return msgDiv;
     }
 
     window.openGameModal = openGameModal;
 
-    // --- Удаление сообщения ---
+    async function toggleReaction(msgId, emoji) {
+      if (!activeChat) return;
+      const refReaction = ref(db, `chats/${activeChat.id}/messages/${msgId}/reactions/${emoji}`);
+      const snap = await get(refReaction); let users = snap.val()||[];
+      if (users.includes(myNick)) users = users.filter(u=>u!==myNick);
+      else users.push(myNick);
+      await set(refReaction, users);
+    }
+
+    // --- Удаление ---
     async function deleteMessage(msgId) {
-      if (!activeChat || !currentMsg) return;
-      if (currentMsg.from === myNick || isCreator) {
+      if (!activeChat||!currentMsg) return;
+      if (currentMsg.from===myNick||isCreator) {
         await remove(ref(db, `chats/${activeChat.id}/messages/${msgId}`));
-        const msgEl = document.querySelector(`[data-id="${msgId}"]`);
-        if (msgEl) msgEl.remove();
-      } else {
-        alert('Вы можете удалять только свои сообщения');
-      }
-      actionBar.style.display = 'none';
+        document.querySelector(`[data-id="${msgId}"]`)?.remove();
+      } else alert('Можно удалять только свои');
+      actionBar.style.display='none';
     }
 
     // --- Очистка чата ---
     async function clearChat() {
       if (!activeChat) return;
-      showConfirm('Очистить чат', 'Удалить все сообщения в этом чате?', async () => {
-        const messagesRef = ref(db, `chats/${activeChat.id}/messages`);
-        await remove(messagesRef);
-        messagesDiv.innerHTML = '';
-        messageIds.clear();
+      showConfirm('Очистить чат', 'Удалить все сообщения?', async ()=>{
+        await remove(ref(db, `chats/${activeChat.id}/messages`));
+        messagesDiv.innerHTML = ''; messageIds.clear();
       });
     }
 
     async function clearAllChats() {
-      if (!isCreator) {
-        alert('Только создатель может очистить все чаты');
-        return;
-      }
-      showConfirm('Очистить все чаты', 'Точно удалить ВСЕ сообщения во всех чатах?', async () => {
-        const chatsSnap = await get(ref(db, 'chats'));
-        const chats = chatsSnap.val() || {};
-        for (let chatId in chats) {
-          await remove(ref(db, `chats/${chatId}/messages`));
-        }
-        if (activeChat) {
-          messagesDiv.innerHTML = '';
-          messageIds.clear();
-        }
+      if (!isCreator) { alert('Только создатель'); return; }
+      showConfirm('Очистить все чаты', 'Удалить ВСЕ сообщения?', async ()=>{
+        const chats = (await get(ref(db, 'chats'))).val()||{};
+        for (let cid in chats) await remove(ref(db, `chats/${cid}/messages`));
+        if (activeChat) { messagesDiv.innerHTML = ''; messageIds.clear(); }
       });
     }
-
-    document.getElementById('clearChatBtn').onclick = clearChat;
-    document.getElementById('clearAllChatsBtn').onclick = clearAllChats;
-
-    // --- Обработчики action bar ---
-    document.getElementById('replyMsg').onclick = () => {
-      if (currentMsg) {
-        replyTo = { id: currentMsg.id, from: currentMsg.from, text: currentMsg.text || 'Медиа' };
-        msgInput.placeholder = `Ответ @${replyTo.from}...`;
-      }
-      actionBar.style.display = 'none';
-    };
-
-    document.getElementById('copyMsg').onclick = () => {
-      if (currentMsg && currentMsg.text) {
-        navigator.clipboard.writeText(currentMsg.text);
-      }
-      actionBar.style.display = 'none';
-    };
-
-    document.getElementById('deleteMsg').onclick = () => {
-      if (currentMsg) {
-        showConfirm('Удалить сообщение', 'Удалить это сообщение?', () => deleteMessage(currentMsg.id));
-      }
-    };
 
     // --- Загрузка чата ---
     let unreadCounts = new Map();
-
     function loadChat(chatId, participants) {
       if (messagesUnsubscribe) messagesUnsubscribe();
-      messagesDiv.innerHTML = '';
-      messageIds.clear();
-
+      messagesDiv.innerHTML = ''; messageIds.clear();
       const messagesRef = ref(db, `chats/${chatId}/messages`);
-      get(messagesRef).then(snap => {
+      get(messagesRef).then(snap=>{
         const msgs = snap.val();
-        if (msgs) {
-          Object.entries(msgs).forEach(([id, msg]) => {
-            if (!messageIds.has(id)) {
-              messageIds.add(id);
-              const msgEl = drawMessage({ id, ...msg }, msg.from === myNick);
-              if (msgEl) messagesDiv.appendChild(msgEl);
-            }
-          });
-        }
-        scrollToBottom();
-        
-        if (unreadCounts.has(chatId)) {
-          unreadCounts.delete(chatId);
-          loadContacts();
+        if (msgs) Object.entries(msgs).forEach(([id,m])=> { if (!messageIds.has(id)) { messageIds.add(id); messagesDiv.appendChild(drawMessage({id,...m}, m.from===myNick)); } });
+        scrollToBottom(); unreadCounts.delete(chatId); loadContacts();
+      });
+      messagesUnsubscribe = onChildAdded(messagesRef, snap=>{
+        const id = snap.key; if (messageIds.has(id)) return; messageIds.add(id);
+        const m = {id,...snap.val()}; const el = drawMessage(m, m.from===myNick);
+        if (el) { messagesDiv.appendChild(el); scrollIfNeeded(); if (m.from!==myNick) playNotification(); }
+        if (m.from!==myNick && activeChat?.id!==chatId) {
+          unreadCounts.set(chatId, (unreadCounts.get(chatId)||0)+1); loadContacts();
         }
       });
-
-      messagesUnsubscribe = onChildAdded(messagesRef, (snap) => {
-        const id = snap.key;
-        if (messageIds.has(id)) return;
-        messageIds.add(id);
-        const msg = { id, ...snap.val() };
-        const msgEl = drawMessage(msg, msg.from === myNick);
-        if (msgEl) {
-          messagesDiv.appendChild(msgEl);
-          scrollIfNeeded();
-          if (msg.from !== myNick) playNotification();
-        }
-        
-        if (msg.from !== myNick && activeChat?.id !== chatId) {
-          unreadCounts.set(chatId, (unreadCounts.get(chatId) || 0) + 1);
-          loadContacts();
-        }
-      });
-
-      if (activeChat?.type === 'group') {
-        get(ref(db, `chats/${chatId}`)).then(snap => {
+      if (activeChat?.type==='group') {
+        get(ref(db, `chats/${chatId}`)).then(snap=>{
           const data = snap.val();
-          if (data.createdBy === myNick || data.admins?.includes(myNick) || isCreator) {
-            groupSettingsBtn.style.display = 'inline-block';
-            deleteGroupBtn.style.display = 'inline-block';
-          } else {
-            groupSettingsBtn.style.display = 'none';
-            deleteGroupBtn.style.display = 'none';
-          }
+          if (data.createdBy===myNick || data.admins?.includes(myNick) || isCreator) {
+            groupSettingsBtn.style.display='inline-block'; deleteGroupBtn.style.display='inline-block';
+          } else { groupSettingsBtn.style.display='none'; deleteGroupBtn.style.display='none'; }
         });
-      } else {
-        groupSettingsBtn.style.display = 'none';
-        deleteGroupBtn.style.display = 'none';
-      }
+      } else { groupSettingsBtn.style.display='none'; deleteGroupBtn.style.display='none'; }
     }
 
-    function scrollToBottom() {
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-    function scrollIfNeeded() {
-      if (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100) scrollToBottom();
-    }
+    function scrollToBottom() { messagesDiv.scrollTop = messagesDiv.scrollHeight; }
+    function scrollIfNeeded() { if (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100) scrollToBottom(); }
 
     // --- Контакты ---
     function loadContacts() {
-      if (!myNick) return;
-      if (contactsUnsubscribe) contactsUnsubscribe();
-
+      if (!myNick) return; if (contactsUnsubscribe) contactsUnsubscribe();
       const contactsRef = ref(db, `users/${myNick}/contacts`);
-      contactsUnsubscribe = onValue(contactsRef, async (snap) => {
-        const contacts = snap.val() || {};
-        let html = '';
-        for (let [id, data] of Object.entries(contacts)) {
-          const isGroup = data.isGroup;
-          const name = isGroup ? (data.groupName || id) : id;
-          const avatarUrl = isGroup ? (data.avatar ? data.avatar : null) : await loadAvatar(id);
-          const statusSnap = isGroup ? null : await get(ref(db, `status/${id}`));
-          const status = statusSnap?.val();
-          const online = status === 'online';
-          const lastSeen = isGroup ? '' : await get(ref(db, `users/${id}/lastSeen`)).then(s => s.val());
-          const unread = unreadCounts.get(id) || 0;
-          const isBlocked = blockedUsers.has(id) || blockedBy.has(id);
-          
-          html += `
-            <div class="contact-item ${unread > 0 ? 'unread' : ''} ${isBlocked ? 'blocked' : ''}" data-id="${id}" data-type="${isGroup ? 'group' : 'private'}">
-              <div class="contact-avatar" style="${avatarUrl ? `background-image:url('${avatarUrl}')` : `background:${getAvatarColor(id)}`}">
-                ${!avatarUrl ? (isGroup ? '👥' : name.charAt(0).toUpperCase()) : ''}
-                ${!isGroup ? (online ? '<span class="online-indicator" style="background:#4ade80;"></span>' : '<span class="online-indicator" style="background:#94a3b8;"></span>') : ''}
-              </div>
-              <div class="contact-info">
-                <div class="contact-name">
-                  <span>${name} ${isBlocked ? '<span class="blocked-badge">заблокирован</span>' : ''}</span>
-                  <span style="font-size:12px;">${data.lastTime ? new Date(data.lastTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''} ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}</span>
-                </div>
-                <div class="contact-last-msg">${isBlocked ? 'Нет доступа' : (data.lastMsg || '')}</div>
-                ${!isGroup && !online ? `<div class="last-seen">был(а) ${formatLastSeen(lastSeen)}</div>` : ''}
-              </div>
-            </div>
-          `;
+      contactsUnsubscribe = onValue(contactsRef, async snap=>{
+        const contacts = snap.val()||{}; let html = '';
+        for (let [id,data] of Object.entries(contacts)) {
+          const isGroup = data.isGroup; const name = isGroup ? (data.groupName||id) : id;
+          const avatarUrl = isGroup ? (data.avatar||null) : await loadAvatar(id);
+          const status = isGroup ? null : (await get(ref(db, `status/${id}`))).val();
+          const online = status==='online'; const lastSeen = isGroup ? '' : (await get(ref(db, `users/${id}/lastSeen`))).val();
+          const unread = unreadCounts.get(id)||0; const isBlocked = blockedUsers.has(id)||blockedBy.has(id);
+          html += `<div class="contact-item ${unread?'unread':''} ${isBlocked?'blocked':''}" data-id="${id}" data-type="${isGroup?'group':'private'}">
+            <div class="contact-avatar" style="${avatarUrl?`background-image:url('${avatarUrl}')`:`background:${getAvatarColor(id)}`}">${!avatarUrl?(isGroup?'👥':name[0].toUpperCase()):''}${!isGroup?(online?'<span class="online-indicator"></span>':'<span class="online-indicator offline-indicator"></span>'):''}</div>
+            <div class="contact-info"><div class="contact-name"><span>${name}${isBlocked?' <span class="blocked-badge">заблокирован</span>':''}</span><span>${data.lastTime?new Date(data.lastTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}${unread?`<span class="unread-badge">${unread}</span>`:''}</span></div>
+            <div class="contact-last-msg">${isBlocked?'Нет доступа':(data.lastMsg||'')}</div>${!isGroup&&!online?`<div class="last-seen">был(а) ${formatLastSeen(lastSeen)}</div>`:''}</div></div>`;
         }
-        
-        contactsDiv.innerHTML = html || '<div style="padding:20px; text-align:center;">Нет контактов</div>';
-        
-        document.querySelectorAll('.contact-item').forEach(el => {
-          el.addEventListener('click', () => {
-            const id = el.dataset.id;
-            const type = el.dataset.type;
-            
-            if (type === 'private') {
-              if (!canChatWith(id)) {
-                alert('Вы не можете общаться с этим пользователем (блокировка)');
-                return;
-              }
-              startPrivateChat(id);
-            } else if (type === 'group') {
-              startGroupChat(id);
-            }
+        contactsDiv.innerHTML = html||'<div style="padding:20px; text-align:center;">Нет контактов</div>';
+        document.querySelectorAll('.contact-item').forEach(el=>{
+          el.addEventListener('click', ()=>{
+            const id = el.dataset.id; const type = el.dataset.type;
+            if (type==='private') { if (!canChatWith(id)) { alert('Блокировка'); return; } startPrivateChat(id); }
+            else if (type==='group') startGroupChat(id);
           });
         });
       });
     }
 
     function startPrivateChat(partner) {
-      if (!canChatWith(partner)) {
-        alert('Вы не можете общаться с этим пользователем (блокировка)');
-        return;
-      }
-      
-      const chatId = [myNick, partner].sort().join('_');
-      activeChat = { id: chatId, type: 'private', participants: [myNick, partner] };
-      chatTitle.innerHTML = `@${partner}`;
-      chatTitle.onclick = () => showUserProfile(partner);
-      loadChat(chatId, [myNick, partner]);
-      
-      unreadCounts.delete(chatId);
-      
-      if (window.innerWidth <= 700) {
-        sidebar.style.transform = 'translateX(-100%)';
-        chatArea.classList.add('active');
-      }
+      if (!canChatWith(partner)) { alert('Блокировка'); return; }
+      const chatId = [myNick,partner].sort().join('_');
+      activeChat = { id:chatId, type:'private', participants:[myNick,partner] };
+      chatTitle.innerHTML = `@${partner}`; chatTitle.onclick = ()=>showUserProfile(partner);
+      loadChat(chatId, [myNick,partner]); unreadCounts.delete(chatId);
+      if (window.innerWidth<=700) { sidebar.style.transform='translateX(-100%)'; chatArea.classList.add('active'); }
     }
 
     function startGroupChat(groupId) {
-      get(ref(db, `chats/${groupId}`)).then(snap => {
+      get(ref(db, `chats/${groupId}`)).then(snap=>{
         const data = snap.val();
-        activeChat = { id: groupId, type: 'group', participants: data.participants, name: data.name, admins: data.admins || [] };
-        chatTitle.innerHTML = data.name || 'Группа';
-        chatTitle.onclick = () => showGroupProfile(groupId);
-        loadChat(groupId, data.participants);
-        unreadCounts.delete(groupId);
+        activeChat = { id:groupId, type:'group', participants:data.participants, name:data.name, admins:data.admins||[] };
+        chatTitle.innerHTML = data.name||'Группа'; chatTitle.onclick = ()=>showGroupProfile(groupId);
+        loadChat(groupId, data.participants); unreadCounts.delete(groupId);
       });
+    }
+
+    async function showGroupProfile(groupId) {
+      const data = (await get(ref(db, `chats/${groupId}`))).val()||{};
+      groupProfileName.textContent = data.name||'Без названия';
+      groupProfileDesc.textContent = data.description||'—';
+      groupProfileCreator.textContent = data.createdBy||'неизвестно';
+      groupProfileDate.textContent = data.createdAt?new Date(data.createdAt).toLocaleDateString():'неизвестно';
+      if (data.avatar) { groupProfileAvatar.style.backgroundImage=`url('${data.avatar}')`; groupProfileAvatar.textContent=''; }
+      else { groupProfileAvatar.style.background=getAvatarColor(groupId); groupProfileAvatar.textContent='👥'; }
+      let partHtml=''; for (let p of data.participants||[]) partHtml+=`<div>${p}${data.admins?.includes(p)?' 👑':''}</div>`;
+      groupProfileParticipants.innerHTML = partHtml; groupProfileModal.style.display='flex';
     }
 
     // --- Отправка сообщения ---
     async function sendMessage(content) {
       if (!activeChat) return;
-      
-      if (activeChat.type === 'private') {
-        const partner = activeChat.participants.find(p => p !== myNick);
-        if (!canChatWith(partner)) {
-          alert('Вы не можете отправить сообщение этому пользователю (блокировка)');
-          return;
-        }
+      if (activeChat.type==='private') {
+        const partner = activeChat.participants.find(p=>p!==myNick);
+        if (!canChatWith(partner)) { alert('Блокировка'); return; }
       }
-      
-      const msg = {
-        from: myNick,
-        time: Date.now(),
-        ...content
-      };
-      if (replyTo) {
-        msg.replyTo = { id: replyTo.id, from: replyTo.from, text: replyTo.text };
-        replyTo = null;
-        msgInput.placeholder = 'Сообщение...';
-      }
-      await push(ref(db, `chats/${activeChat.id}/messages`), msg);
-      playSound('send');
-      
-      const messagesCount = Object.keys(await get(ref(db, `chats/${activeChat.id}/messages`)).then(s => s.val() || {})).length;
-      if (messagesCount === 1) {
-        await addXP(10, 'first_message');
-      }
-      
-      const allMessages = await get(ref(db, `users/${myNick}/messagesCount`)).then(s => s.val() || 0);
-      if (allMessages === 100) {
-        await addXP(200, 'chatty');
-      }
-      
-      const lastMsg = content.text || (content.image ? '📷' : (content.video ? '🎥' : (content.audio ? '🎤' : '')));
-      
+      const msg = { from:myNick, time:Date.now(), ...content };
+      if (replyTo) { msg.replyTo = { id:replyTo.id, from:replyTo.from, text:replyTo.text }; replyTo=null; msgInput.placeholder='Сообщение...'; }
+      await push(ref(db, `chats/${activeChat.id}/messages`), msg); playSound('send');
+      const cnt = Object.keys((await get(ref(db, `chats/${activeChat.id}/messages`))).val()||{}).length;
+      if (cnt===1) await addXP(10,'first_message');
+      const all = (await get(ref(db, `users/${myNick}/messagesCount`))).val()||0;
+      if (all===100) await addXP(200,'chatty');
+      const lastMsg = content.text||(content.image?'📷':(content.video?'🎥':'🎤'));
       for (let p of activeChat.participants) {
-        if (p !== myNick && !blockedBy.has(p)) {
-          await update(ref(db, `users/${p}/contacts/${myNick}`), { 
-            lastMsg, 
-            lastTime: Date.now(),
-            isGroup: false
-          });
-          if (activeChat.type === 'private') {
-            await update(ref(db, `users/${myNick}/contacts/${p}`), { 
-              lastMsg, 
-              lastTime: Date.now(),
-              isGroup: false
-            });
-            
-            const contactsCount = Object.keys(await get(ref(db, `users/${myNick}/contacts`)).then(s => s.val() || {})).length;
-            if (contactsCount === 5) {
-              await addXP(50, 'friend_add');
-            }
+        if (p!==myNick && !blockedBy.has(p)) {
+          await update(ref(db, `users/${p}/contacts/${myNick}`), { lastMsg, lastTime:Date.now(), isGroup:false });
+          if (activeChat.type==='private') {
+            await update(ref(db, `users/${myNick}/contacts/${p}`), { lastMsg, lastTime:Date.now(), isGroup:false });
+            const c = Object.keys((await get(ref(db, `users/${myNick}/contacts`))).val()||{}).length;
+            if (c===5) await addXP(50,'friend_add');
           }
         }
       }
-      
-      if (activeChat.type === 'group') {
+      if (activeChat.type==='group') {
         for (let p of activeChat.participants) {
-          if (!blockedBy.has(p)) {
-            await update(ref(db, `users/${p}/contacts/${activeChat.id}`), {
-              lastMsg,
-              lastTime: Date.now(),
-              isGroup: true,
-              groupName: activeChat.name
-            });
-          }
+          if (!blockedBy.has(p)) await update(ref(db, `users/${p}/contacts/${activeChat.id}`), { lastMsg, lastTime:Date.now(), isGroup:true, groupName:activeChat.name });
         }
       }
     }
-
-    // --- Поиск сообщений ---
-    document.getElementById('search-messages').addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      document.querySelectorAll('.msg').forEach(msg => {
-        const text = msg.dataset.text?.toLowerCase() || '';
-        msg.style.display = text.includes(query) ? 'flex' : 'none';
-      });
-    });
-    document.getElementById('clearSearch').onclick = () => {
-      document.getElementById('search-messages').value = '';
-      document.querySelectorAll('.msg').forEach(msg => msg.style.display = 'flex');
-    };
-
-    // --- Быстрые ответы ---
-    function renderQuickReplies() {
-      quickRepliesDiv.innerHTML = '';
-      quickRepliesList.forEach(text => {
-        const btn = document.createElement('span');
-        btn.className = 'quick-reply';
-        btn.textContent = text;
-        btn.onclick = () => {
-          msgInput.value = text;
-        };
-        quickRepliesDiv.appendChild(btn);
-      });
-    }
-    renderQuickReplies();
 
     // --- Профиль (свой) ---
-    profileBtn.onclick = () => {
-      profileModal.style.display = 'flex';
-      get(ref(db, `users/${myNick}`)).then(snap => {
-        const data = snap.val() || {};
-        profileNameInput.value = data.displayName || myNick;
-        profileBio.value = data.bio || '';
-        profileStatusSelect.value = data.status || 'online';
-        
-        let titlesHtml = '';
-        if (isCreator) {
-          titlesHtml = '<span class="creator-badge">Создатель💫</span>';
-        }
-        userStats.titles.forEach(title => {
-          titlesHtml += `<span class="title-badge">${title}</span>`;
-        });
-        profileTitles.innerHTML = titlesHtml || '—';
-        
-        if (data.avatar) {
-          profileAvatar.style.backgroundImage = `url('${data.avatar}')`;
-          profileAvatar.textContent = '';
-        } else {
-          profileAvatar.style.backgroundImage = '';
-          profileAvatar.style.background = getAvatarColor(myNick);
-          profileAvatar.textContent = myNick.charAt(0).toUpperCase();
-        }
+    profileBtn.onclick = ()=>{
+      profileModal.style.display='flex';
+      get(ref(db, `users/${myNick}`)).then(snap=>{
+        const data = snap.val()||{};
+        profileName.value = data.displayName||myNick;
+        profileBio.value = data.bio||'';
+        profileStatus.value = data.status||'online';
+        let titles = isCreator?'<span class="creator-badge">Создатель💫</span>':'';
+        userStats.titles.forEach(t=>titles+=`<span class="title-badge">${t}</span>`);
+        profileTitles.innerHTML = titles||'—';
+        if (data.avatar) { profileAvatar.style.backgroundImage=`url('${data.avatar}')`; profileAvatar.textContent=''; }
+        else { profileAvatar.style.background=getAvatarColor(myNick); profileAvatar.textContent=myNick[0].toUpperCase(); }
       });
     };
 
-    closeProfile.onclick = () => profileModal.style.display = 'none';
-
-    avatarUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          profileAvatar.style.backgroundImage = `url('${ev.target.result}')`;
-          profileAvatar.textContent = '';
-          window.tempAvatar = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
+    avatarUpload.onchange = e=>{
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader(); r.onload = ev=>{ profileAvatar.style.backgroundImage=`url('${ev.target.result}')`; profileAvatar.textContent=''; window.tempAvatar=ev.target.result; };
+      r.readAsDataURL(f);
     };
 
-    saveProfile.onclick = async () => {
+    saveProfile.onclick = async ()=>{
       const updates = {};
-      updates[`users/${myNick}/displayName`] = profileNameInput.value;
+      updates[`users/${myNick}/displayName`] = profileName.value;
       updates[`users/${myNick}/bio`] = profileBio.value;
-      updates[`users/${myNick}/status`] = profileStatusSelect.value;
-      if (window.tempAvatar) {
-        updates[`users/${myNick}/avatar`] = window.tempAvatar;
-        avatarCache.set(myNick, window.tempAvatar);
-      }
+      updates[`users/${myNick}/status`] = profileStatus.value;
+      if (window.tempAvatar) { updates[`users/${myNick}/avatar`] = window.tempAvatar; avatarCache.set(myNick,window.tempAvatar); }
       await update(ref(db), updates);
-      myDisplayName = profileNameInput.value;
+      myDisplayName = profileName.value;
       headerName.innerHTML = myDisplayName;
-      
-      if (isCreator) {
-        headerName.innerHTML += '<span class="creator-badge">Создатель💫</span>';
-      }
-      userStats.titles.forEach(title => {
-        headerName.innerHTML += `<span class="title-badge">${title}</span>`;
-      });
-      
-      if (window.tempAvatar) {
-        headerAvatar.style.backgroundImage = `url('${window.tempAvatar}')`;
-        headerAvatar.textContent = '';
-      }
-      set(ref(db, `status/${myNick}`), profileStatusSelect.value);
-      updateStatusDisplay(profileStatusSelect.value);
-      closeProfile.click();
+      if (isCreator) headerName.innerHTML+='<span class="creator-badge">Создатель💫</span>';
+      userStats.titles.forEach(t=>headerName.innerHTML+=`<span class="title-badge">${t}</span>`);
+      if (window.tempAvatar) { headerAvatar.style.backgroundImage=`url('${window.tempAvatar}')`; headerAvatar.textContent=''; }
+      set(ref(db, `status/${myNick}`), profileStatus.value);
+      updateStatusDisplay(profileStatus.value);
+      profileModal.style.display='none';
     };
 
     // --- Ачивки ---
     function showAchievements() {
-      achievementsList.innerHTML = achievements.map(a => {
+      achievementsList.innerHTML = achievements.map(a=>{
         const unlocked = userStats.achievements[a.id];
-        return `
-          <div class="achievement-card ${unlocked ? '' : 'locked'}">
-            <div class="achievement-icon">${a.icon}</div>
-            <div class="achievement-title">${a.name}</div>
-            <div class="achievement-desc">${a.desc}</div>
-            <div>${unlocked ? '✅' : '🔒'} +${a.xp} XP</div>
-            ${a.title ? `<div><small>Титул: ${a.title}</small></div>` : ''}
-          </div>
-        `;
+        return `<div class="achievement-card ${unlocked?'':'locked'}"><div class="achievement-icon">${a.icon}</div><div><strong>${a.name}</strong></div><div><small>${a.desc}</small></div><div>${unlocked?'✅':'🔒'} +${a.xp} XP</div>${a.title?`<div><small>Титул: ${a.title}</small></div>`:''}</div>`;
       }).join('');
-      achievementsModal.style.display = 'flex';
+      achievementsModal.style.display='flex';
     }
 
-    document.getElementById('achievementsBtn').onclick = showAchievements;
-    closeAchievements.onclick = () => achievementsModal.style.display = 'none';
-
-    // --- Кнопки игр и гифок ---
-    gameBtn.onclick = sendGameInvite;
-    gifBtn.onclick = showGifPicker;
-
-    // --- Мониторинг для Hard ---
+    // --- Мониторинг ---
     async function showMonitoring() {
-      const chatsSnap = await get(ref(db, 'chats'));
-      const chats = chatsSnap.val() || {};
-      let chatsHtml = '';
-      for (let [id, data] of Object.entries(chats)) {
-        chatsHtml += `<div class="monitoring-item" onclick="window.openChat('${id}')">
-          <strong>${data.name || id}</strong> (${data.type})<br>
-          <small>участников: ${data.participants?.length || 0}</small>
-        </div>`;
-      }
-      allChatsList.innerHTML = chatsHtml || 'Нет чатов';
-      
-      const usersSnap = await get(ref(db, 'users'));
-      const users = usersSnap.val() || {};
-      let usersHtml = '';
-      for (let [nick, data] of Object.entries(users)) {
-        const banSnap = await get(ref(db, `bans/${nick}`));
-        const banned = banSnap.val() === true ? ' (забанен)' : '';
-        usersHtml += `<div class="monitoring-item" onclick="window.showUserProfile('${nick}')">
-          <strong>${nick}</strong>${banned}<br>
-          <small>${data.displayName || ''}</small>
-        </div>`;
-      }
-      allUsersList.innerHTML = usersHtml || 'Нет пользователей';
-      
-      monitoringModal.style.display = 'flex';
+      const chats = (await get(ref(db, 'chats'))).val()||{};
+      allChatsList.innerHTML = Object.entries(chats).map(([id,d])=>`<div class="monitoring-item" onclick="window.openChat('${id}')"><strong>${d.name||id}</strong> (${d.type})<br><small>участников: ${d.participants?.length||0}</small></div>`).join('');
+      const users = (await get(ref(db, 'users'))).val()||{};
+      allUsersList.innerHTML = Object.entries(users).map(([nick,d])=>`<div class="monitoring-item" onclick="window.showUserProfile('${nick}')"><strong>${nick}</strong><br><small>${d.displayName||''}</small></div>`).join('');
+      monitoringModal.style.display='flex';
     }
-    closeMonitoring.onclick = () => monitoringModal.style.display = 'none';
-    
-    window.openChat = (chatId) => {
-      monitoringModal.style.display = 'none';
-      get(ref(db, `chats/${chatId}`)).then(snap => {
-        const data = snap.val();
-        if (data.type === 'private') {
-          const partner = data.participants.find(p => p !== myNick);
-          startPrivateChat(partner);
-        } else {
-          startGroupChat(chatId);
-        }
-      });
-    };
-    
-    window.showUserProfile = (nick) => {
-      monitoringModal.style.display = 'none';
-      showUserProfile(nick);
-    };
+    window.openChat = (cid)=>{ monitoringModal.style.display='none'; get(ref(db,`chats/${cid}`)).then(s=>{ let d=s.val(); if(d.type==='private') startPrivateChat(d.participants.find(p=>p!==myNick)); else startGroupChat(cid); }); };
+    window.showUserProfile = (n)=>{ monitoringModal.style.display='none'; showUserProfile(n); };
 
-    monitoringBtn.onclick = showMonitoring;
+    // --- Тема и неон ---
+    function applyNeonEffect(effect) {
+      const title = document.querySelector('#auth-screen h2');
+      title.classList.remove('neon-text','neon-rainbow');
+      if (effect==='pulse') title.classList.add('neon-text');
+      else if (effect==='rainbow') title.classList.add('neon-rainbow');
+    }
+    document.getElementById('neonEffect')?.addEventListener('change', e=>applyNeonEffect(e.target.value));
 
-    // --- ИСПРАВЛЕННАЯ КНОПКА ВХОДА (УБРАН КОНФЛИКТ) ---
+    // --- ЕДИНСТВЕННЫЙ ОБРАБОТЧИК ВХОДА ---
     const loginBtn = document.getElementById('btn-login');
     const authError = document.getElementById('auth-error');
-    
-    // Убираем все предыдущие обработчики
-    loginBtn.replaceWith(loginBtn.cloneNode(true));
-    const newLoginBtn = document.getElementById('btn-login');
-    
-    newLoginBtn.addEventListener('click', async function(e) {
+    loginBtn.onclick = null; // удаляем старые
+    loginBtn.addEventListener('click', async function(e) {
       e.preventDefault();
-      
       const nick = document.getElementById('auth-nick').value.toLowerCase().trim();
       const pass = document.getElementById('auth-pass').value;
-      
-      // Валидация
-      if (!nick || !pass) {
-        authError.textContent = '❌ Заполните ник и пароль';
-        authError.classList.add('show');
-        setTimeout(() => authError.classList.remove('show'), 3000);
-        return;
-      }
-      
-      if (nick.length < 3) {
-        authError.textContent = '❌ Ник должен быть минимум 3 символа';
-        authError.classList.add('show');
-        setTimeout(() => authError.classList.remove('show'), 3000);
-        return;
-      }
-      
-      // Анимация загрузки
-      newLoginBtn.classList.add('loading');
-      newLoginBtn.querySelector('.btn-text').style.opacity = '0';
-      
+      if (!nick || !pass) { authError.textContent='❌ Заполните поля'; authError.classList.add('show'); setTimeout(()=>authError.classList.remove('show'),3000); return; }
+      if (nick.length<3) { authError.textContent='❌ Минимум 3 символа'; authError.classList.add('show'); setTimeout(()=>authError.classList.remove('show'),3000); return; }
+      loginBtn.classList.add('loading'); loginBtn.querySelector('.btn-text').style.opacity='0';
       try {
-        // Проверка бана
-        const banSnap = await get(ref(db, `bans/${nick}`));
-        if (banSnap.val() === true) {
-          authError.textContent = '❌ Этот пользователь забанен';
-          authError.classList.add('show');
-          newLoginBtn.classList.remove('loading');
-          newLoginBtn.querySelector('.btn-text').style.opacity = '1';
-          return;
-        }
-        
-        const userRef = ref(db, 'users/' + nick);
-        const snap = await get(userRef);
-        
-        if (snap.exists()) {
-          // Вход существующего пользователя
-          if (snap.val().password !== pass) {
-            authError.textContent = '❌ Неверный пароль';
-            authError.classList.add('show');
-            newLoginBtn.classList.remove('loading');
-            newLoginBtn.querySelector('.btn-text').style.opacity = '1';
-            return;
-          }
-        } else {
-          // Регистрация нового пользователя
-          await set(userRef, { 
-            password: pass, 
-            nickname: nick, 
-            registered: Date.now(),
-            lastSeen: Date.now()
-          });
-        }
-        
-        // Успешный вход
-        myNick = nick;
-        isCreator = (myNick === 'hard');
-        localStorage.setItem('aether_nick', nick);
-        
-        // Плавный переход
-        authScreen.style.opacity = '0';
-        setTimeout(() => {
-          authScreen.style.display = 'none';
-          mainWrapper.style.display = 'flex';
-          setTimeout(() => mainWrapper.style.opacity = '1', 50);
-        }, 300);
-        
-        if (isCreator) {
-          monitoringBtn.style.display = 'flex';
-        }
-        
-        // Загрузка данных
-        await loadBlocks();
-        await loadUserStats();
-        await loadProfile();
-        loadContacts();
-        
-        // Установка статуса онлайн
-        const userStatusRef = ref(db, `status/${myNick}`);
-        set(userStatusRef, 'online');
-        onDisconnect(userStatusRef).set('offline');
-        onDisconnect(ref(db, `users/${myNick}/lastSeen`)).set(Date.now());
-        
-      } catch (error) {
-        console.error('Login error:', error);
-        authError.textContent = '❌ Ошибка подключения к базе данных';
-        authError.classList.add('show');
-        newLoginBtn.classList.remove('loading');
-        newLoginBtn.querySelector('.btn-text').style.opacity = '1';
-      }
+        const ban = (await get(ref(db, `bans/${nick}`))).val();
+        if (ban===true) { authError.textContent='❌ Пользователь забанен'; authError.classList.add('show'); loginBtn.classList.remove('loading'); loginBtn.querySelector('.btn-text').style.opacity='1'; return; }
+        const userRef = ref(db, 'users/'+nick); const snap = await get(userRef);
+        if (snap.exists()) { if (snap.val().password!==pass) { authError.textContent='❌ Неверный пароль'; authError.classList.add('show'); loginBtn.classList.remove('loading'); loginBtn.querySelector('.btn-text').style.opacity='1'; return; } }
+        else await set(userRef, { password:pass, nickname:nick, registered:Date.now(), lastSeen:Date.now() });
+        myNick = nick; isCreator = (myNick==='hard'); localStorage.setItem('aether_nick', nick);
+        authScreen.style.opacity='0'; setTimeout(()=>{ authScreen.style.display='none'; mainWrapper.style.display='flex'; setTimeout(()=>mainWrapper.style.opacity='1',50); },300);
+        if (isCreator) monitoringBtn.style.display='flex';
+        await loadBlocks(); await loadUserStats(); await loadProfile(); loadContacts();
+        set(ref(db, `status/${myNick}`), 'online'); onDisconnect(ref(db, `status/${myNick}`)).set('offline'); onDisconnect(ref(db, `users/${myNick}/lastSeen`)).set(Date.now());
+      } catch(e) { console.error(e); authError.textContent='❌ Ошибка подключения'; authError.classList.add('show'); loginBtn.classList.remove('loading'); loginBtn.querySelector('.btn-text').style.opacity='1'; }
     });
 
-    // --- Поиск пользователей ---
-    searchBtn.onclick = async () => {
+    // --- Прочие обработчики ---
+    soundToggleBtn.onclick = ()=>{ soundEnabled = !soundEnabled; localStorage.setItem('soundEnabled',soundEnabled); soundToggleBtn.innerHTML = soundEnabled?'<i class="fas fa-volume-up"></i>':'<i class="fas fa-volume-mute"></i>'; };
+    themeToggle.onclick = ()=>themeModal.style.display='flex';
+    closeTheme.onclick = ()=>themeModal.style.display='none';
+    themeDark.onclick = ()=>{ document.body.classList.remove('light'); document.body.classList.add('dark'); };
+    themeLight.onclick = ()=>{ document.body.classList.add('light'); document.body.classList.remove('dark'); };
+    textColorInput.oninput = e=>{ localStorage.setItem('textColor',e.target.value); applyTheme(); };
+    document.querySelectorAll('.wallpaper-option').forEach(el=>{ el.onclick = ()=>{ localStorage.setItem('wallpaper',el.dataset.wall); applyTheme(); }; });
+    wallpaperUpload.onchange = e=>{ let f=e.target.files[0]; if(f){ let r=new FileReader(); r.onload=ev=>{ localStorage.setItem('wallpaper',`url('${ev.target.result}')`); applyTheme(); }; r.readAsDataURL(f); }};
+    reloadInterface.onclick = ()=>location.reload();
+    soundToggle.onchange = e=>{ soundEnabled=e.target.checked; localStorage.setItem('soundEnabled',soundEnabled); };
+
+    gameBtn.onclick = sendGameInvite;
+    gifBtn.onclick = ()=>{ gifList.innerHTML = gifUrls.map(u=>`<div class="gif-item"><img src="${u}" onclick="window.sendGif('${u}')"></div>`).join(''); gifModal.style.display='flex'; };
+    achievementsBtn.onclick = showAchievements;
+    monitoringBtn.onclick = showMonitoring;
+
+    document.querySelectorAll('.modal-close, #closeConfirm, #closeGroupProfile, #closeGroupSettings, #closeUserProfile, #closeProfile, #closeGameModal, #closeAchievements, #closeGif, #closeMonitoring, #closeTheme').forEach(btn=>{
+      btn.addEventListener('click', ()=>btn.closest('.modal').style.display='none');
+    });
+
+    searchBtn.onclick = async ()=>{
       const target = searchInput.value.trim().toLowerCase();
-      if (!target || target === myNick) return alert('Некорректный ник');
-      
-      const banSnap = await get(ref(db, `bans/${target}`));
-      if (banSnap.val() === true) {
-        return alert('Этот пользователь забанен');
-      }
-      
-      if (!canChatWith(target)) {
-        return alert('Вы не можете общаться с этим пользователем (блокировка)');
-      }
-      
-      const snap = await get(ref(db, 'users/' + target));
-      if (snap.exists()) {
-        startPrivateChat(target);
-        await update(ref(db, `users/${myNick}/contacts/${target}`), {
-          lastMsg: '',
-          lastTime: Date.now(),
-          isGroup: false
-        });
-      } else {
-        alert('Пользователь не найден');
-      }
+      if (!target||target===myNick) return alert('Некорректный ник');
+      if (!canChatWith(target)) return alert('Блокировка');
+      const snap = await get(ref(db, 'users/'+target));
+      if (snap.exists()) { startPrivateChat(target); await update(ref(db, `users/${myNick}/contacts/${target}`), { lastMsg:'', lastTime:Date.now(), isGroup:false }); }
+      else alert('Не найден');
     };
 
-    // --- Создание группы ---
-    newGroupBtn.onclick = async () => {
-      const name = prompt('Название группы');
-      const members = prompt('Участники (через запятую)');
-      if (!members) return;
-      const participants = members.split(',').map(s => s.trim()).concat(myNick);
-      for (let p of participants) {
-        const banSnap = await get(ref(db, `bans/${p}`));
-        if (banSnap.val() === true) {
-          alert(`Пользователь ${p} забанен и не может быть добавлен`);
-          return;
-        }
-        if (blockedBy.has(p) || blockedUsers.has(p)) {
-          alert(`Пользователь ${p} заблокирован и не может быть добавлен`);
-          return;
-        }
-      }
-      const groupId = 'group_' + Date.now();
-      await set(ref(db, `chats/${groupId}`), { 
-        type: 'group', 
-        name, 
-        participants, 
-        admins: [myNick],
-        createdBy: myNick,
-        createdAt: Date.now(),
-        description: ''
-      });
-      for (let p of participants) {
-        await set(ref(db, `users/${p}/contacts/${groupId}`), { 
-          isGroup: true, 
-          groupName: name, 
-          lastMsg: '', 
-          lastTime: Date.now() 
-        });
-      }
-      
-      await addXP(100, 'group_creator');
-      
-      startGroupChat(groupId);
+    newGroupBtn.onclick = async ()=>{
+      const name = prompt('Название группы'); const members = prompt('Участники (через запятую)'); if (!members) return;
+      let parts = members.split(',').map(s=>s.trim()).concat(myNick);
+      for (let p of parts) { if ((await get(ref(db, `bans/${p}`))).val()) { alert(`${p} забанен`); return; } if (blockedBy.has(p)||blockedUsers.has(p)) { alert(`${p} заблокирован`); return; } }
+      const gid = 'group_'+Date.now();
+      await set(ref(db, `chats/${gid}`), { type:'group', name, participants:parts, admins:[myNick], createdBy:myNick, createdAt:Date.now(), description:'' });
+      for (let p of parts) await set(ref(db, `users/${p}/contacts/${gid}`), { isGroup:true, groupName:name, lastMsg:'', lastTime:Date.now() });
+      await addXP(100,'group_creator'); startGroupChat(gid);
     };
 
-    // --- Отправка текста ---
-    sendBtn.onclick = () => {
-      const text = msgInput.value.trim();
-      if (text) {
-        sendMessage({ text });
-        msgInput.value = '';
-      }
-    };
-    msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+    sendBtn.onclick = ()=>{ let t=msgInput.value.trim(); if(t){ sendMessage({text:t}); msgInput.value=''; } };
+    msgInput.addEventListener('keypress',e=>{ if(e.key==='Enter') sendBtn.click(); });
 
-    // --- Загрузка файлов ---
-    fileUpload.onchange = () => {
-      const file = fileUpload.files[0];
-      if (!file) return;
-      
-      if (file.type.startsWith('video/') && file.size > 100 * 1024 * 1024) {
-        alert('Видео слишком большое (макс. 100 МБ)');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (file.type.startsWith('image/')) {
-          sendMessage({ image: e.target.result });
-          
-          const photosCount = userStats.photosCount || 0;
-          if (photosCount === 10) {
-            addXP(150, 'photographer');
-          }
-        } else if (file.type.startsWith('video/')) {
-          sendMessage({ video: e.target.result });
-        } else if (file.type.startsWith('audio/')) {
-          sendMessage({ audio: e.target.result });
-        }
-      };
-      reader.readAsDataURL(file);
-      fileUpload.value = '';
+    fileUpload.onchange = e=>{
+      let f=e.target.files[0]; if(!f) return;
+      if (f.type.startsWith('video/') && f.size>100*1024*1024) { alert('Видео >100МБ'); return; }
+      let r=new FileReader(); r.onload = ev=>{
+        if (f.type.startsWith('image/')) sendMessage({image:ev.target.result});
+        else if (f.type.startsWith('video/')) sendMessage({video:ev.target.result});
+        else if (f.type.startsWith('audio/')) sendMessage({audio:ev.target.result});
+      }; r.readAsDataURL(f); fileUpload.value='';
     };
 
-    // --- Голосовые сообщения ---
-    recordBtn.onclick = async () => {
+    recordBtn.onclick = async ()=>{
       if (!mediaRecorder) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
-          mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-          mediaRecorder.onstop = () => {
-            const blob = new Blob(audioChunks, { type: 'audio/webm' });
-            const reader = new FileReader();
-            reader.onload = () => sendMessage({ audio: reader.result });
-            reader.readAsDataURL(blob);
-            audioChunks = [];
-          };
-          mediaRecorder.start();
-          recordBtn.style.background = '#ef4444';
-        } catch (e) { alert('Микрофон недоступен'); }
-      } else {
-        mediaRecorder.stop();
-        mediaRecorder = null;
-        recordBtn.style.background = '';
+        try { let s = await navigator.mediaDevices.getUserMedia({audio:true});
+          mediaRecorder = new MediaRecorder(s);
+          mediaRecorder.ondataavailable = e=>audioChunks.push(e.data);
+          mediaRecorder.onstop = ()=>{
+            let b = new Blob(audioChunks, {type:'audio/webm'});
+            let r = new FileReader(); r.onload = ()=>sendMessage({audio:r.result}); r.readAsDataURL(b); audioChunks=[];
+          }; mediaRecorder.start(); recordBtn.style.background='#ef4444';
+        } catch(e){ alert('Микрофон недоступен'); }
+      } else { mediaRecorder.stop(); mediaRecorder=null; recordBtn.style.background=''; }
+    };
+
+    backBtn.onclick = ()=>{ sidebar.style.transform='translateX(0)'; chatArea.classList.remove('active'); if (messagesUnsubscribe) messagesUnsubscribe(); activeChat=null; };
+
+    clearChatBtn.onclick = clearChat;
+    clearAllChatsBtn.onclick = clearAllChats;
+
+    // --- Групповые настройки ---
+    groupSettingsBtn.onclick = async ()=>{
+      if (!activeChat||activeChat.type!=='group') return;
+      const data = (await get(ref(db, `chats/${activeChat.id}`))).val();
+      groupNameInput.value = data.name||''; groupDescInput.value = data.description||'';
+      if (data.avatar) { groupSettingsAvatar.style.backgroundImage=`url('${data.avatar}')`; groupSettingsAvatar.textContent=''; }
+      else { groupSettingsAvatar.style.background=getAvatarColor(activeChat.id); groupSettingsAvatar.textContent='👥'; }
+      let partsHtml = '';
+      for (let p of data.participants||[]) {
+        const isAdmin = data.admins?.includes(p);
+        partsHtml += `<div class="participant-item"><span>${p} ${isAdmin?'👑':''}</span><div>${(data.admins?.includes(myNick)||isCreator)&&p!==myNick?`<button class="removeParticipant" data-nick="${p}">Удалить</button>`:''}${(isCreator||(data.admins?.includes(myNick)&&!isAdmin&&p!==myNick))?`<button class="makeAdmin" data-nick="${p}">Сделать админом</button>`:''}</div></div>`;
       }
+      participantsList.innerHTML = partsHtml;
+      groupSettingsModal.style.display='flex';
+      document.querySelectorAll('.removeParticipant').forEach(b=>{ b.onclick=async ()=>{ let n=b.dataset.nick; showConfirm('Удалить',`Удалить ${n}?`,async ()=>{ await update(ref(db,`chats/${activeChat.id}`), { participants: data.participants.filter(p=>p!==n) }); await remove(ref(db,`users/${n}/contacts/${activeChat.id}`)); groupSettingsModal.style.display='none'; }); }; });
+      document.querySelectorAll('.makeAdmin').forEach(b=>{ b.onclick=async ()=>{ let n=b.dataset.nick; let a = data.admins||[]; if (!a.includes(n)) { a.push(n); await update(ref(db,`chats/${activeChat.id}`), { admins:a }); } groupSettingsModal.style.display='none'; }; });
     };
 
-    // --- Навигация назад ---
-    backBtn.onclick = () => {
-      sidebar.style.transform = 'translateX(0)';
-      chatArea.classList.remove('active');
-      if (messagesUnsubscribe) messagesUnsubscribe();
-      activeChat = null;
+    groupAvatarUpload.onchange = e=>{ let f=e.target.files[0]; if(f){ let r=new FileReader(); r.onload=ev=>{ groupSettingsAvatar.style.backgroundImage=`url('${ev.target.result}')`; groupSettingsAvatar.textContent=''; window.tempGroupAvatar=ev.target.result; }; r.readAsDataURL(f); }};
+    saveGroupSettings.onclick = async ()=>{
+      let up={}; if (groupNameInput.value.trim()) up.name=groupNameInput.value.trim(); if (groupDescInput.value.trim()) up.description=groupDescInput.value.trim(); if (window.tempGroupAvatar) up.avatar=window.tempGroupAvatar;
+      if (activeChat) { await update(ref(db, `chats/${activeChat.id}`), up); if (up.name) { activeChat.name=up.name; chatTitle.innerHTML=up.name; } groupSettingsModal.style.display='none'; }
     };
-
-    // --- Тема ---
-    themeToggle.onclick = () => themeModal.style.display = 'flex';
-    closeTheme.onclick = () => themeModal.style.display = 'none';
-    themeDark.onclick = () => {
-      document.body.classList.remove('light');
-      document.body.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    };
-    themeLight.onclick = () => {
-      document.body.classList.add('light');
-      document.body.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    };
-    textColorInput.oninput = (e) => {
-      localStorage.setItem('textColor', e.target.value);
-      applyTheme();
-    };
-    document.querySelectorAll('.wallpaper-option').forEach(el => {
-      el.onclick = () => {
-        const wall = el.dataset.wall;
-        localStorage.setItem('wallpaper', wall);
-        applyTheme();
-      };
-    });
-    wallpaperUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          localStorage.setItem('wallpaper', `url('${ev.target.result}')`);
-          applyTheme();
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-    reloadInterface.onclick = () => {
-      location.reload();
-    };
-
-    // --- Профиль группы ---
-    async function showGroupProfile(groupId) {
-      const snap = await get(ref(db, `chats/${groupId}`));
-      const data = snap.val() || {};
-      groupProfileName.textContent = data.name || 'Без названия';
-      groupProfileDesc.textContent = data.description || '—';
-      groupProfileCreator.textContent = data.createdBy || 'неизвестно';
-      groupProfileDate.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'неизвестно';
-      
-      if (data.avatar) {
-        groupProfileAvatar.style.backgroundImage = `url('${data.avatar}')`;
-        groupProfileAvatar.textContent = '';
-      } else {
-        groupProfileAvatar.style.backgroundImage = '';
-        groupProfileAvatar.style.background = getAvatarColor(groupId);
-        groupProfileAvatar.textContent = '👥';
-      }
-      
-      let participantsHtml = '';
-      for (let p of data.participants || []) {
-        const isAdmin = data.admins && data.admins.includes(p);
-        participantsHtml += `<div>${p} ${isAdmin ? '👑' : ''}</div>`;
-      }
-      groupProfileParticipants.innerHTML = participantsHtml;
-      groupProfileModal.style.display = 'flex';
-    }
-    closeGroupProfile.onclick = () => groupProfileModal.style.display = 'none';
-
-    // --- Настройки группы ---
-    groupSettingsBtn.onclick = async () => {
-      if (!activeChat || activeChat.type !== 'group') return;
-      const snap = await get(ref(db, `chats/${activeChat.id}`));
-      const data = snap.val();
-      groupNameInput.value = data.name || '';
-      groupDescInput.value = data.description || '';
-      
-      if (data.avatar) {
-        groupSettingsAvatar.style.backgroundImage = `url('${data.avatar}')`;
-        groupSettingsAvatar.textContent = '';
-      } else {
-        groupSettingsAvatar.style.backgroundImage = '';
-        groupSettingsAvatar.style.background = getAvatarColor(activeChat.id);
-        groupSettingsAvatar.textContent = '👥';
-      }
-      
-      let participantsHtml = '';
-      for (let p of data.participants || []) {
-        const isAdmin = data.admins && data.admins.includes(p);
-        participantsHtml += `
-          <div class="participant-item">
-            <span>${p} ${isAdmin ? '👑' : ''}</span>
-            <div>
-              ${(data.admins?.includes(myNick) || isCreator) && p !== myNick ? `<button class="removeParticipant" data-nick="${p}">Удалить</button>` : ''}
-              ${(isCreator || (data.admins?.includes(myNick) && !isAdmin && p !== myNick)) ? `<button class="makeAdmin" data-nick="${p}">Сделать админом</button>` : ''}
-            </div>
-          </div>
-        `;
-      }
-      participantsList.innerHTML = participantsHtml;
-      groupSettingsModal.style.display = 'flex';
-
-      document.querySelectorAll('.removeParticipant').forEach(btn => {
-        btn.onclick = async () => {
-          const nick = btn.dataset.nick;
-          showConfirm('Удалить участника', `Удалить ${nick} из группы?`, async () => {
-            const newParticipants = data.participants.filter(p => p !== nick);
-            await update(ref(db, `chats/${activeChat.id}`), { participants: newParticipants });
-            await remove(ref(db, `users/${nick}/contacts/${activeChat.id}`));
-            groupSettingsModal.style.display = 'none';
-          });
-        };
-      });
-      document.querySelectorAll('.makeAdmin').forEach(btn => {
-        btn.onclick = async () => {
-          const nick = btn.dataset.nick;
-          const admins = data.admins || [];
-          if (!admins.includes(nick)) {
-            admins.push(nick);
-            await update(ref(db, `chats/${activeChat.id}`), { admins });
-          }
-          groupSettingsModal.style.display = 'none';
-        };
-      });
-    };
-
-    groupAvatarUpload.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          groupSettingsAvatar.style.backgroundImage = `url('${ev.target.result}')`;
-          groupSettingsAvatar.textContent = '';
-          window.tempGroupAvatar = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    saveGroupSettings.onclick = async () => {
-      const newName = groupNameInput.value.trim();
-      const newDesc = groupDescInput.value.trim();
-      const updates = {};
-      if (newName) updates.name = newName;
-      if (newDesc) updates.description = newDesc;
-      if (window.tempGroupAvatar) updates.avatar = window.tempGroupAvatar;
-      
-      if (activeChat) {
-        await update(ref(db, `chats/${activeChat.id}`), updates);
-        if (newName) {
-          activeChat.name = newName;
-          chatTitle.innerHTML = newName;
-        }
-        const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
-        for (let p of data.participants) {
-          await update(ref(db, `users/${p}/contacts/${activeChat.id}`), { groupName: newName });
-        }
-      }
-      groupSettingsModal.style.display = 'none';
-    };
-
-    deleteGroupBtn.onclick = deleteGroup;
-    deleteGroupBtnModal.onclick = deleteGroup;
-
-    closeGroupSettings.onclick = () => groupSettingsModal.style.display = 'none';
-
+    deleteGroupBtn.onclick = deleteGroup; deleteGroupBtnModal.onclick = deleteGroup;
     async function deleteGroup() {
-      if (!activeChat || activeChat.type !== 'group') return;
-      const data = await get(ref(db, `chats/${activeChat.id}`)).then(s => s.val());
-      showConfirm('Удалить группу', `Удалить группу ${data.name}?`, async () => {
-        for (let p of data.participants) {
-          await remove(ref(db, `users/${p}/contacts/${activeChat.id}`));
-        }
+      if (!activeChat||activeChat.type!=='group') return;
+      const data = (await get(ref(db, `chats/${activeChat.id}`))).val();
+      showConfirm('Удалить группу', `Удалить группу ${data.name}?`, async ()=>{
+        for (let p of data.participants) await remove(ref(db, `users/${p}/contacts/${activeChat.id}`));
         await remove(ref(db, `chats/${activeChat.id}`));
-        sidebar.style.transform = 'translateX(0)';
-        chatArea.classList.remove('active');
-        activeChat = null;
+        sidebar.style.transform='translateX(0)'; chatArea.classList.remove('active'); activeChat=null;
       });
     }
+
+    // --- reply/copy/delete handlers ---
+    document.getElementById('replyMsg').onclick = ()=>{
+      if (currentMsg) { replyTo = { id:currentMsg.id, from:currentMsg.from, text:currentMsg.text||'Медиа' }; msgInput.placeholder = `Ответ @${replyTo.from}...`; }
+      actionBar.style.display='none';
+    };
+    document.getElementById('copyMsg').onclick = ()=>{ if (currentMsg?.text) navigator.clipboard.writeText(currentMsg.text); actionBar.style.display='none'; };
+    document.getElementById('deleteMsg').onclick = ()=>{ if (currentMsg) showConfirm('Удалить','Удалить сообщение?',()=>deleteMessage(currentMsg.id)); };
+
+    function openMedia(src,type) { modalContent.innerHTML = type==='video'?`<video src="${src}" controls style="max-width:100%;max-height:80vh;"></video>`:`<img src="${src}" style="max-width:100%;max-height:80vh;">`; mediaModal.style.display='flex'; }
+
+    // --- Неон при загрузке ---
+    const savedNeon = localStorage.getItem('neonEffect')||'none';
+    applyNeonEffect(savedNeon);
   </script>
 </body>
-          </html>
+  </html>
